@@ -14,7 +14,7 @@
                 <link href="@{pagePath}assets/apidocs/styles/font-awesome.min.css" rel="stylesheet" type="text/css">
                 <link href="@{pagePath}assets/apidocs/styles/simple-line-icons.min.css" rel="stylesheet" type="text/css">
                 <link href="@{pagePath}assets/apidocs/styles/bootstrap.min.css" rel="stylesheet" type="text/css">
-                <link href="@{pagePath}assets/apidocs/styles/bootstrap-theme.min.css" rel="stylesheet" type="text/css">
+                <%--<link href="@{pagePath}assets/apidocs/styles/bootstrap-theme.min.css" rel="stylesheet" type="text/css">--%>
                 <link href="@{pagePath}assets/apidocs/styles/doc.min.css" rel="stylesheet" type="text/css">
                 <link href="@{pagePath}assets/apidocs/styles/patch.css" rel="stylesheet" type="text/css">
                 @{css}
@@ -25,11 +25,11 @@
                 <div class="bs-docs-footer">
                     <bs:container>
                         <ul class="bs-docs-footer-links">
-                            <bs:item href="https://github.com/suninformaiton/ymate-platform-v2">YMP</bs:item>
-                            <bs:item href="https://github.com/suninformaiton/ymate-framework-v2">Framework</bs:item>
+                            <bs:item href="https://github.com/suninformaiton/ymate-platform-v2">YMP v2</bs:item>
                             <bs:item href="https://github.com/suninformaiton/ymate-webui">WebUI</bs:item>
+                            <bs:item href="https://getbootstrap.com/docs/3.3/">Bootstrap v3.3</bs:item>
                         </ul>
-                        <p>Copyright &copy; 2018 yMate.Net</p>
+                        <p>Copyright &copy; 2018 <a href="http://www.ymate.net/" target="_blank">yMate.Net</a>, Code licensed <a href="http://apache.org/licenses/LICENSE-2.0.txt" target="_blank">Apache-2.0</a></p>
                     </bs:container>
                 </div>
                 <!--[if lt IE 9]>

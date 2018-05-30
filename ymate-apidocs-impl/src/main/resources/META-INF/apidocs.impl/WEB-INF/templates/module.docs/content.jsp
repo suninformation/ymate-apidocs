@@ -10,10 +10,9 @@
             <jsp:attribute name="brand">${__brand}</jsp:attribute>
             <jsp:body>
                 <bs:nav>
-                    <bs:item href="../apidocs">Home</bs:item>
-                    <bs:item href="../apidocs/content?doc=${_docInfo.id}" active="true">Content</bs:item>
-                    <bs:item href="../apidocs/user-guide">User Guide</bs:item>
-                    <bs:item href="../apidocs/about">About</bs:item>
+                    <bs:item href="../apidocs"><ymweb:i18n key="apidocs.nav.home" resourceName="apidocs-messages" defaultValue="Home"/></bs:item>
+                    <bs:item href="../apidocs/content?doc=${_docInfo.id}" active="true"><ymweb:i18n key="apidocs.nav.content" resourceName="apidocs-messages" defaultValue="Content"/></bs:item>
+                    <bs:item href="http://www.ymate.net/"><ymweb:i18n key="apidocs.nav.about" resourceName="apidocs-messages" defaultValue="About"/></bs:item>
                 </bs:nav>
                 <bs:nav right="true">
                     <bs:item href="https://github.com/suninformation/ymate-apidocs"><bs:icon fa="true" style="github" faW="true">GitHub</bs:icon></bs:item>
@@ -142,7 +141,7 @@
                                             <td>${_apiParamItem.type}</td>
                                             <td>${_apiParamItem.defaultValue}</td>
                                             <td><c:if test="${not empty _apiParamItem.description}"><p>${_apiParamItem.description}</p></c:if>
-                                                <c:if test="${not empty _apiParamItem.allowValues}"><p><bs:label>取值范围</bs:label></p><p>${_apiParamItem.allowValues}</p></c:if>
+                                                <c:if test="${not empty _apiParamItem.allowValues}"><p><bs:label><ymweb:i18n key="apidocs.content.param_value_range" resourceName="apidocs-messages" defaultValue="Value Range"/></bs:label></p><p>${_apiParamItem.allowValues}</p></c:if>
                                                 <c:if test="${not empty _apiParamItem.examples}">
                                                     <p><bs:label><ymweb:i18n key="apidocs.content.examples" resourceName="apidocs-messages" defaultValue="Examples"/></bs:label></p>
                                                     <c:forEach var="_apiParamItemExample" items="${_apiParamItem.examples}">
@@ -296,7 +295,7 @@
                                             <td>${_actionParamItem.type}</td>
                                             <td>${_actionParamItem.defaultValue}</td>
                                             <td><c:if test="${not empty _actionParamItem.description}"><p>${_actionParamItem.description}</p></c:if>
-                                                <c:if test="${not empty _actionParamItem.allowValues}"><p><bs:label>取值范围</bs:label></p><p>${_actionParamItem.allowValues}</p></c:if>
+                                                <c:if test="${not empty _actionParamItem.allowValues}"><p><bs:label><ymweb:i18n key="apidocs.content.param_value_range" resourceName="apidocs-messages" defaultValue="Value Range"/></bs:label></p><p>${_actionParamItem.allowValues}</p></c:if>
                                                 <c:if test="${not empty _actionParamItem.examples}">
                                                     <p><bs:label><ymweb:i18n key="apidocs.content.examples" resourceName="apidocs-messages" defaultValue="Examples"/></bs:label></p>
                                                     <c:forEach var="_actionParamItemExample" items="${_actionParamItem.examples}">

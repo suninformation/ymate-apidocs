@@ -9,10 +9,8 @@
             <jsp:attribute name="brand">${__brand}</jsp:attribute>
             <jsp:body>
                 <bs:nav>
-                    <bs:item href="apidocs" active="true">Home</bs:item>
-                    <bs:item href="apidocs/user-guide">User Guide</bs:item>
-                    <bs:item href="apidocs/about">About</bs:item>
-                    <bs:item href="${__extendParams['github_url']}">Custom</bs:item>
+                    <bs:item href="apidocs" active="true"><ymweb:i18n key="apidocs.nav.home" resourceName="apidocs-messages" defaultValue="Home"/></bs:item>
+                    <bs:item href="http://www.ymate.net/"><ymweb:i18n key="apidocs.nav.about" resourceName="apidocs-messages" defaultValue="About"/></bs:item>
                 </bs:nav>
                 <bs:nav right="true">
                     <bs:item href="https://github.com/suninformation/ymate-apidocs"><bs:icon fa="true" style="github" faW="true">GitHub</bs:icon></bs:item>
@@ -34,15 +32,15 @@
                 <c:choose>
                     <c:when test="${not empty _docs}">
                         <c:forEach var="_doc" items="${_docs}">
-                            <bs:col md="4" sm="6">
+                            <bs:col md="6" sm="6">
                                 <bs:thumbnail>
                                     <jsp:attribute name="caption">
                                         <h3>${_doc.title}</h3>
                                         <c:if test="${not empty _doc.version}"><p><bs:label style="success">${_doc.version}</bs:label></p></c:if>
                                         <c:if test="${not empty _doc.description}"><p><small>${_doc.description}</small></p></c:if>
                                         <p>
-                                            <bs:button href="apidocs/content?doc=${_doc.id}" style="primary">Read</bs:button>
-                                            <bs:button href="apidocs/download?doc=${_doc.id}" style="default">Download</bs:button>
+                                            <bs:button href="apidocs/content?doc=${_doc.id}" style="primary"><ymweb:i18n key="apidocs.button.read" resourceName="apidocs-messages" defaultValue="Read"/></bs:button>
+                                            <bs:button href="apidocs/download?doc=${_doc.id}" style="default"><ymweb:i18n key="apidocs.button.download" resourceName="apidocs-messages" defaultValue="Download"/></bs:button>
                                         </p>
                                     </jsp:attribute>
                                 </bs:thumbnail>
