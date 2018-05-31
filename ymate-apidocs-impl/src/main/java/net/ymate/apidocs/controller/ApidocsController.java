@@ -22,6 +22,7 @@ import net.ymate.apidocs.core.base.DocsInfo;
 import net.ymate.apidocs.intercept.ApidocsStatusInterceptor;
 import net.ymate.platform.core.beans.annotation.Before;
 import net.ymate.platform.core.i18n.I18N;
+import net.ymate.platform.core.util.DateTimeUtils;
 import net.ymate.platform.webmvc.annotation.Controller;
 import net.ymate.platform.webmvc.annotation.RequestMapping;
 import net.ymate.platform.webmvc.annotation.RequestParam;
@@ -29,6 +30,8 @@ import net.ymate.platform.webmvc.view.IView;
 import net.ymate.platform.webmvc.view.View;
 import org.apache.commons.lang.StringUtils;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -79,6 +82,8 @@ public class ApidocsController {
             return View.httpStatusView(404);
         }
         DocsInfo _docsInfo = _docs.get(doc);
-        return View.jsonView(_docsInfo);
+        File _tmpFile = File.createTempFile(IDocs.MODULE_NAME + "_", ".doc");
+        View.jspView(IDocs.MODULE_NAME + "/content_download").addAttribute("_docInfo", _docsInfo).render(new FileOutputStream(_tmpFile));
+        return View.binaryView(_tmpFile).useAttachment(_docsInfo.getTitle() + "_" + _docsInfo.getVersion() + "_" + DateTimeUtils.formatTime(System.currentTimeMillis(), "_yyyyMMdd_HHmm_ss") + ".doc");
     }
 }

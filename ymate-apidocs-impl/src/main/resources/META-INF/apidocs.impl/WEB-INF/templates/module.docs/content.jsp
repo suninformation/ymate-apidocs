@@ -110,7 +110,7 @@
                             </c:if>
                             <!-- Authorization -->
                             <c:if test="${not empty _apiInfo.authType}"><bs:panel>
-                                <jsp:attribute name="title"><ymweb:i18n key="apidocs.content.authorization_type" resourceName="apidocs-messages" defaultValue="Authorization"/></jsp:attribute>
+                                <jsp:attribute name="title"><ymweb:i18n key="apidocs.content.global_authorization_type" resourceName="apidocs-messages" defaultValue="Global authorization type"/></jsp:attribute>
                                 <jsp:body><bs:panel-body>
                                     <p>${_apiInfo.authType}</p>
                                 </bs:panel-body><c:if test="${not empty _apiInfo.scopes}"><bs:table hover="true" condensed="true" bordered="true" responsive="true">
@@ -214,7 +214,7 @@
                                 </c:if>
                                 <!-- Authorization -->
                                 <c:if test="${not empty _actionInfo.authType}"><bs:panel>
-                                    <jsp:attribute name="title"><ymweb:i18n key="apidocs.content.authorization_type" resourceName="apidocs-messages" defaultValue="Authorization"/></jsp:attribute>
+                                    <jsp:attribute name="title"><ymweb:i18n key="apidocs.content.authorization_type" resourceName="apidocs-messages" defaultValue="Authorization type"/></jsp:attribute>
                                     <jsp:body><bs:panel-body>
                                         <p>${_actionInfo.authType}</p>
                                     </bs:panel-body><c:if test="${not empty _actionInfo.scopes}"><bs:table hover="true" condensed="true" bordered="true" responsive="true">

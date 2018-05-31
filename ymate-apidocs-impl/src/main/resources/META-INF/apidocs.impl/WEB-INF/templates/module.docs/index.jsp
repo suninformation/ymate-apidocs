@@ -32,7 +32,7 @@
                 <c:choose>
                     <c:when test="${not empty _docs}">
                         <c:forEach var="_doc" items="${_docs}">
-                            <bs:col md="6" sm="6">
+                            <bs:col md="4" sm="6">
                                 <bs:thumbnail>
                                     <jsp:attribute name="caption">
                                         <h3>${_doc.title}</h3>
