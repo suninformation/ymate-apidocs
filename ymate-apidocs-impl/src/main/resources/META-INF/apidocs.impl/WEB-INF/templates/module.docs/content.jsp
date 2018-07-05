@@ -23,7 +23,7 @@
             <bs:container>
                 <bs:row>
                     <bs:col md="12">
-                        <h1>${_docInfo.title}</h1>
+                        <h1 style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${_docInfo.title}</h1>
                         <bs:text lead="true">${_docInfo.description}</bs:text>
                     </bs:col>
                 </bs:row>
@@ -108,7 +108,7 @@
                                     </c:forEach></bs:list-group></jsp:body>
                                 </bs:panel>
                             </c:if>
-                            <!-- Authorization -->
+                            <!-- Global Authorization -->
                             <c:if test="${not empty _apiInfo.authType}"><bs:panel>
                                 <jsp:attribute name="title"><ymweb:i18n key="apidocs.content.global_authorization_type" resourceName="apidocs-messages" defaultValue="Global authorization type"/></jsp:attribute>
                                 <jsp:body><bs:panel-body>
@@ -124,6 +124,29 @@
                                     </tr></c:forEach></tbody>
                                 </bs:table></c:if></jsp:body>
                             </bs:panel></c:if>
+                            <!-- Global Security -->
+                            <c:if test="${not empty _apiInfo.security}"><bs:panel>
+                                <jsp:attribute name="title"><ymweb:i18n key="apidocs.content.global_security" resourceName="apidocs-messages" defaultValue="Global security"/></jsp:attribute>
+                                <jsp:body><bs:panel-body>
+                                    <p>${_apiInfo.security.description}</p>
+                                    <!-- Roles -->
+                                    <c:if test="${not empty _apiInfo.security.roles}">
+                                        <c:forEach var="_apiRole" items="${_apiInfo.security.roles}"><bs:label style="warning" _style="cursor:pointer" data-tip="tooltip" title="${_apiRole.description}">${_apiRole.name}</bs:label></c:forEach>
+                                    </c:if></bs:panel-body>
+                                    <!-- Permissions -->
+                                    <c:if test="${not empty _apiInfo.security.permissions}">
+                                        <bs:table hover="true" condensed="true" bordered="true" responsive="true">
+                                            <thead><tr>
+                                                <th><ymweb:i18n key="apidocs.content.security_permissions" resourceName="apidocs-messages" defaultValue="Permissions"/></th>
+                                                <th><ymweb:i18n key="apidocs.content.table_field_description" resourceName="apidocs-messages" defaultValue="Description"/></th>
+                                            </tr></thead>
+                                            <tbody><c:forEach var="_apiPermission" items="${_apiInfo.security.permissions}"><tr>
+                                                <td>${_apiPermission.name}</td>
+                                                <td>${_apiPermission.description}</td>
+                                            </tr></c:forEach></tbody>
+                                        </bs:table></c:if>
+                                </jsp:body>
+                            </bs:panel></c:if>
                             <!-- Global parameters -->
                             <c:if test="${not empty _apiInfo.params}"><bs:panel>
                                     <jsp:attribute name="title"><ymweb:i18n key="apidocs.content.global_parameters" resourceName="apidocs-messages" defaultValue="Global parameters"/></jsp:attribute>
@@ -135,9 +158,7 @@
                                                 <th><ymweb:i18n key="apidocs.content.table_field_description" resourceName="apidocs-messages" defaultValue="Description"/></th>
                                         </tr></thead>
                                         <tbody><c:forEach var="_apiParamItem" items="${_apiInfo.params}"><tr>
-                                            <td>${_apiParamItem.name} <c:if test="${_apiParamItem.required eq true}"><bs:label style="danger" _style="cursor:pointer" data-tip="tooltip" title="${_ConstParamRequired}">R</bs:label></c:if>
-                                                <c:if test="${_apiParamItem.model eq true}"><bs:label style="warning" _style="cursor:pointer" data-tip="tooltip" title="${_ConstParamModel}">M</bs:label></c:if>
-                                                <c:if test="${_apiParamItem.multiple eq true}"><bs:label style="info" _style="cursor:pointer" data-tip="tooltip" title="${_ConstParamArray}">A</bs:label></c:if></td>
+                                            <td>${_apiParamItem.name} <c:if test="${_apiParamItem.required eq true}"><bs:label style="danger" _style="cursor:pointer" data-tip="tooltip" title="${_ConstParamRequired}">R</bs:label></c:if> <c:if test="${_apiParamItem.model eq true}"><bs:label style="warning" _style="cursor:pointer" data-tip="tooltip" title="${_ConstParamModel}">M</bs:label></c:if> <c:if test="${_apiParamItem.multiple eq true}"><bs:label style="info" _style="cursor:pointer" data-tip="tooltip" title="${_ConstParamArray}">A</bs:label></c:if></td>
                                             <td>${_apiParamItem.type}</td>
                                             <td>${_apiParamItem.defaultValue}</td>
                                             <td><c:if test="${not empty _apiParamItem.description}"><p>${_apiParamItem.description}</p></c:if>
@@ -289,9 +310,7 @@
                                             <th><ymweb:i18n key="apidocs.content.table_field_description" resourceName="apidocs-messages" defaultValue="Description"/></th>
                                         </tr></thead>
                                         <tbody><c:forEach var="_actionParamItem" items="${_actionInfo.params}"><tr>
-                                            <td>${_actionParamItem.name} <c:if test="${_actionParamItem.required eq true}"><bs:label style="danger" _style="cursor:pointer" data-tip="tooltip" title="${_ConstParamRequired}">R</bs:label></c:if>
-                                                <c:if test="${_actionParamItem.model eq true}"><bs:label style="warning" _style="cursor:pointer" data-tip="tooltip" title="${_ConstParamModel}">M</bs:label></c:if>
-                                                <c:if test="${_actionParamItem.multiple eq true}"><bs:label style="info" _style="cursor:pointer" data-tip="tooltip" title="${_ConstParamArray}">A</bs:label></c:if></td>
+                                            <td>${_actionParamItem.name} <c:if test="${_actionParamItem.required eq true}"><bs:label style="danger" _style="cursor:pointer" data-tip="tooltip" title="${_ConstParamRequired}">R</bs:label> </c:if><c:if test="${_actionParamItem.model eq true}"><bs:label style="warning" _style="cursor:pointer" data-tip="tooltip" title="${_ConstParamModel}">M</bs:label></c:if> <c:if test="${_actionParamItem.multiple eq true}"><bs:label style="info" _style="cursor:pointer" data-tip="tooltip" title="${_ConstParamArray}">A</bs:label></c:if></td>
                                             <td>${_actionParamItem.type}</td>
                                             <td>${_actionParamItem.defaultValue}</td>
                                             <td><c:if test="${not empty _actionParamItem.description}"><p>${_actionParamItem.description}</p></c:if>

@@ -51,5 +51,5 @@ public @interface ApiResponse {
     /**
      * @return 响应头信息集合
      */
-    ApiHeader[] headers() default @ApiHeader(name = "");
+    ApiHeader[] headers() default {};
 }

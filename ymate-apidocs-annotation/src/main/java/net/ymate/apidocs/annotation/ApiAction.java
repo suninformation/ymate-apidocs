@@ -64,6 +64,11 @@ public @interface ApiAction {
     String[] httpMethod() default {};
 
     /**
+     * @return 参数集合
+     */
+    ApiParam[] params() default {};
+
+    /**
      * @return HTTP请求头信息集合
      */
     ApiHeader[] headers() default {};
@@ -76,7 +81,7 @@ public @interface ApiAction {
     /**
      * @return 扩展信息集合
      */
-    ApiExtension[] extensions() default @ApiExtension(properties = @ApiExtensionProperty(name = "", value = ""));
+    ApiExtension[] extensions() default {};
 
     /**
      * @return 接口示例

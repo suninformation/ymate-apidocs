@@ -36,8 +36,8 @@
                                 <bs:thumbnail>
                                     <jsp:attribute name="caption">
                                         <h3>${_doc.title}</h3>
-                                        <c:if test="${not empty _doc.version}"><p><bs:label style="success">${_doc.version}</bs:label></p></c:if>
-                                        <c:if test="${not empty _doc.description}"><p><small>${_doc.description}</small></p></c:if>
+                                        <c:if test="${not empty _doc.version}"><p style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><bs:label style="success">${_doc.version}</bs:label></p></c:if>
+                                        <c:if test="${not empty _doc.description}"><p style="height:40px; overflow: hidden; text-overflow: ellipsis; -webkit-line-clamp: 2; display: -webkit-box; -webkit-box-orient: vertical;"><small>${_doc.description}</small></p></c:if>
                                         <p>
                                             <bs:button href="apidocs/content?doc=${_doc.id}" style="primary"><ymweb:i18n key="apidocs.button.read" resourceName="apidocs-messages" defaultValue="Read"/></bs:button>
                                             <bs:button href="apidocs/download?doc=${_doc.id}" style="default"><ymweb:i18n key="apidocs.button.download" resourceName="apidocs-messages" defaultValue="Download"/></bs:button>

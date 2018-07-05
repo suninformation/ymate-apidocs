@@ -67,5 +67,5 @@ public @interface Apis {
     /**
      * @return 扩展信息集合
      */
-    ApiExtension[] extensions() default @ApiExtension(properties = @ApiExtensionProperty(name = "", value = ""));
+    ApiExtension[] extensions() default {};
 }

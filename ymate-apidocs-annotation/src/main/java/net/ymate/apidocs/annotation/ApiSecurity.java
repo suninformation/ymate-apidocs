@@ -23,7 +23,7 @@ import java.lang.annotation.*;
  * @author 刘镇 (suninformation@163.com) on 2018/4/15 上午3:42
  * @version 1.0
  */
-@Target({ElementType.TYPE, ElementType.METHOD})
+@Target({ElementType.PACKAGE, ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface ApiSecurity {
@@ -37,11 +37,6 @@ public @interface ApiSecurity {
      * @return 权限码集合
      */
     ApiPermission[] value() default {};
-
-    /**
-     * @return 授权范围
-     */
-    ApiScope[] scopes() default {};
 
     /**
      * @return 逻辑类型

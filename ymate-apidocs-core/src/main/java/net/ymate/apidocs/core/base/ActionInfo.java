@@ -23,6 +23,7 @@ import org.apache.commons.lang.StringUtils;
 
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,6 +39,32 @@ public class ActionInfo implements Serializable {
 
     public static ActionInfo create(String name, String mapping, String description) {
         return new ActionInfo(name, mapping, description);
+    }
+
+    private static ParamInfo __parseParamInfo(ApiParam param, String paramName, String paramType, boolean isArray) {
+        if (!param.hidden()) {
+            String _paramName = StringUtils.defaultIfBlank(param.name(), paramName);
+            if (StringUtils.isBlank(_paramName)) {
+                throw new NullArgumentException("paramName");
+            }
+            String _paramType = StringUtils.defaultIfBlank(param.type(), paramType);
+            if (StringUtils.isBlank(_paramType)) {
+                throw new NullArgumentException("paramType");
+            }
+            ParamInfo _paramInfo = new ParamInfo(_paramName)
+                    .setDescription(param.value())
+                    .setDefaultValue(param.defaultValue())
+                    .setAllowValues(param.allowValues())
+                    .setModel(param.model())
+                    .setMultiple(param.multiple() || isArray)
+                    .setRequired(param.required())
+                    .setType(_paramType);
+            for (ApiExample example : param.examples()) {
+                _paramInfo.addExample(ExampleInfo.create(example));
+            }
+            return _paramInfo;
+        }
+        return null;
     }
 
     public static ActionInfo create(Method method) {
@@ -59,24 +86,32 @@ public class ActionInfo implements Serializable {
                         String _paramName = _paramNames[_idx];
                         for (Annotation _anno : _paramAnnotations[_idx]) {
                             if (_anno instanceof ApiParam) {
-                                ApiParam _param = (ApiParam) _anno;
-                                if (!_param.hidden()) {
-                                    ParamInfo _paramInfo = new ParamInfo(StringUtils.defaultIfBlank(_param.name(), _paramName))
-                                            .setDescription(_param.value())
-                                            .setDefaultValue(_param.defaultValue())
-                                            .setAllowValues(_param.allowValues())
-                                            .setModel(_param.model())
-                                            .setMultiple(_param.multiple() || _paramTypes[_idx].isArray())
-                                            .setRequired(_param.required())
-                                            .setType(StringUtils.defaultIfBlank(_param.type(), _paramTypes[_idx].getSimpleName()));
-                                    for (ApiExample example : _param.examples()) {
-                                        _paramInfo.addExample(ExampleInfo.create(example));
+                                if (((ApiParam) _anno).model()) {
+                                    for (Field _field : ClassUtils.wrapper(_paramTypes[_idx]).getFields()) {
+                                        ApiParam _fieldApiParam = _field.getAnnotation(ApiParam.class);
+                                        if (_fieldApiParam != null) {
+                                            ParamInfo _paramInfo = __parseParamInfo(_fieldApiParam, _field.getName(), _field.getType().getSimpleName(), _field.getType().isArray());
+                                            if (_paramInfo != null) {
+                                                _actionInfo.addParam(_paramInfo);
+                                            }
+                                        }
                                     }
-                                    _actionInfo.addParam(_paramInfo);
+                                } else {
+                                    ParamInfo _paramInfo = __parseParamInfo((ApiParam) _anno, _paramName, _paramTypes[_idx].getSimpleName(), _paramTypes[_idx].isArray());
+                                    if (_paramInfo != null) {
+                                        _actionInfo.addParam(_paramInfo);
+                                    }
                                 }
                                 break;
                             }
                         }
+                    }
+                }
+                //
+                for (ApiParam _param : _action.params()) {
+                    ParamInfo _paramInfo = __parseParamInfo(_param, null, null, false);
+                    if (_paramInfo != null) {
+                        _actionInfo.addParam(_paramInfo);
                     }
                 }
                 //

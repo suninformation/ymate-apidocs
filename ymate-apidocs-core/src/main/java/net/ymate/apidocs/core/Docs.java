@@ -16,6 +16,8 @@
 package net.ymate.apidocs.core;
 
 import net.ymate.apidocs.annotation.Api;
+import net.ymate.apidocs.annotation.ApiAuthorization;
+import net.ymate.apidocs.annotation.ApiSecurity;
 import net.ymate.apidocs.annotation.Apis;
 import net.ymate.apidocs.core.base.ApiInfo;
 import net.ymate.apidocs.core.base.DocsInfo;
@@ -97,6 +99,8 @@ public class Docs implements IModule, IDocs {
             String _packageName = targetClass.getPackage().getName();
             int _count = StringUtils.split(_packageName, '.').length;
             Apis _apis = null;
+            ApiSecurity _security = null;
+            ApiAuthorization _authorization = null;
             do {
                 _count--;
                 Package _package = Package.getPackage(_packageName);
@@ -106,6 +110,9 @@ public class Docs implements IModule, IDocs {
                 _apis = _package.getAnnotation(Apis.class);
                 if (_apis == null) {
                     _packageName = StringUtils.substringBeforeLast(_packageName, ".");
+                } else {
+                    _security = _package.getAnnotation(ApiSecurity.class);
+                    _authorization = _package.getAnnotation(ApiAuthorization.class);
                 }
             } while (_apis == null && _count > 0);
             //
@@ -117,7 +124,7 @@ public class Docs implements IModule, IDocs {
             String _docsId = _packageName.concat("_").concat(_apis.version());
             DocsInfo _docsInfo = __docsMap.get(_docsId);
             if (_docsInfo == null) {
-                _docsInfo = DocsInfo.create(_docsId, _apis);
+                _docsInfo = DocsInfo.create(_docsId, _apis, _security, _authorization);
                 __docsMap.put(_docsId, _docsInfo);
             }
             _docsInfo.addApi(ApiInfo.create(targetClass));

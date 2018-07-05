@@ -15,10 +15,7 @@
  */
 package net.ymate.apidocs.core.base;
 
-import net.ymate.apidocs.annotation.ApiChangelog;
-import net.ymate.apidocs.annotation.ApiExtension;
-import net.ymate.apidocs.annotation.ApiGroup;
-import net.ymate.apidocs.annotation.Apis;
+import net.ymate.apidocs.annotation.*;
 import org.apache.commons.lang.NullArgumentException;
 import org.apache.commons.lang.StringUtils;
 
@@ -38,11 +35,20 @@ public class DocsInfo implements Serializable {
         return new DocsInfo(id, title, version);
     }
 
-    public static DocsInfo create(String id, Apis apis) {
+    public static DocsInfo create(String id, Apis apis, ApiSecurity security, ApiAuthorization authorization) {
         DocsInfo _docsInfo = new DocsInfo(id, apis.title(), apis.version())
                 .setDescription(apis.description())
                 .setContact(AuthorInfo.create(apis.contact()))
                 .setLicense(LicenseInfo.create(apis.license()));
+        if (security != null) {
+            _docsInfo.setSecurity(SecurityInfo.create(security));
+        }
+        if (authorization != null) {
+            _docsInfo.setAuthType(authorization.type());
+            for (ApiScope _scope : authorization.scopes()) {
+                _docsInfo.addScope(ScopeInfo.create(_scope.name(), _scope.description()));
+            }
+        }
         for (ApiGroup _group : apis.groups()) {
             _docsInfo.addGroup(GroupInfo.create(_group.name()).setDescription(_group.description()));
         }
@@ -83,6 +89,21 @@ public class DocsInfo implements Serializable {
     private LicenseInfo license;
 
     /**
+     * 接口全局访问权限
+     */
+    private SecurityInfo security;
+
+    /**
+     * 授权类型，如：OAuth2等
+     */
+    private String authType;
+
+    /**
+     * 授权范围
+     */
+    private List<ScopeInfo> scopes;
+
+    /**
      * API接口信息
      */
     private List<ApiInfo> apis;
@@ -115,6 +136,7 @@ public class DocsInfo implements Serializable {
         this.id = id;
         this.title = title;
         this.version = version;
+        this.scopes = new ArrayList<ScopeInfo>();
         this.apis = new ArrayList<ApiInfo>();
         this.groups = new ArrayList<GroupInfo>();
         this.changelogs = new ArrayList<ChangelogInfo>();
@@ -158,6 +180,46 @@ public class DocsInfo implements Serializable {
     public DocsInfo setLicense(LicenseInfo license) {
         this.license = license;
         return this;
+    }
+
+    public SecurityInfo getSecurity() {
+        return security;
+    }
+
+    public DocsInfo setSecurity(SecurityInfo security) {
+        this.security = security;
+        return this;
+    }
+
+    public String getAuthType() {
+        return authType;
+    }
+
+    public DocsInfo setAuthType(String authType) {
+        this.authType = authType;
+        return this;
+    }
+
+    public List<ScopeInfo> getScopes() {
+        return scopes;
+    }
+
+    public DocsInfo setScopes(List<ScopeInfo> scopes) {
+        if (scopes != null) {
+            this.scopes.addAll(scopes);
+        }
+        return this;
+    }
+
+    public DocsInfo addScope(ScopeInfo scope) {
+        if (scope != null) {
+            this.scopes.add(scope);
+        }
+        return this;
+    }
+
+    public DocsInfo addScope(String name, String description) {
+        return addScope(ScopeInfo.create(name, description));
     }
 
     public List<ApiInfo> getApis() {
