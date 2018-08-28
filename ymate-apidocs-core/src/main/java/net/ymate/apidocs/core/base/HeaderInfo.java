@@ -16,6 +16,7 @@
 package net.ymate.apidocs.core.base;
 
 import net.ymate.apidocs.annotation.ApiHeader;
+import net.ymate.apidocs.core.IMarkdown;
 import org.apache.commons.lang.NullArgumentException;
 import org.apache.commons.lang.StringUtils;
 
@@ -27,7 +28,7 @@ import java.io.Serializable;
  * @author 刘镇 (suninformation@163.com) on 2018/5/8 下午4:58
  * @version 1.0
  */
-public class HeaderInfo implements Serializable {
+public class HeaderInfo implements IMarkdown, Serializable {
 
     public static HeaderInfo create(String name) {
         return new HeaderInfo(name);
@@ -86,5 +87,10 @@ public class HeaderInfo implements Serializable {
     public HeaderInfo setDescription(String description) {
         this.description = description;
         return this;
+    }
+
+    @Override
+    public String toMarkdown() {
+        return "|`" + name + "`|" + type +  "|" + StringUtils.replaceEach(description, new String[]{"\r\n", "\r", "\n", "\t"}, new String[]{"[\\r][\\n]", "[\\r]", "[\\n]", "[\\t]"}) + "|";
     }
 }

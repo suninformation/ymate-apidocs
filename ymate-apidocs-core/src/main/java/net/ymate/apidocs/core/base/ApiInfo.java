@@ -16,6 +16,8 @@
 package net.ymate.apidocs.core.base;
 
 import net.ymate.apidocs.annotation.*;
+import net.ymate.apidocs.core.IMarkdown;
+import net.ymate.platform.core.i18n.I18N;
 import org.apache.commons.lang.NullArgumentException;
 import org.apache.commons.lang.StringUtils;
 
@@ -30,7 +32,7 @@ import java.util.List;
  * @author 刘镇 (suninformation@163.com) on 2018/4/15 下午4:58
  * @version 1.0
  */
-public class ApiInfo implements Serializable {
+public class ApiInfo implements IMarkdown, Serializable {
 
     public static ApiInfo create(Class<?> clazz, String name) {
         return new ApiInfo(clazz, name);
@@ -317,5 +319,56 @@ public class ApiInfo implements Serializable {
             this.changelogs.add(changelog);
         }
         return this;
+    }
+
+    @Override
+    public String toMarkdown() {
+        StringBuilder md = new StringBuilder();
+        md.append("### ").append(name).append("\n\n");
+        md.append("> _").append(id).append("_\n\n");
+        if (!changelogs.isEmpty()) {
+            md.append("\n#### ").append(I18N.formatMessage("apidocs-messages", "apidocs.content.changelog", "Changelog")).append("\n\n");
+            for (ChangelogInfo changelog : changelogs) {
+                md.append(changelog.toMarkdown()).append("\n");
+            }
+        }
+        if (StringUtils.isNotBlank(authType)) {
+            md.append("\n#### ").append(I18N.formatMessage("apidocs-messages", "apidocs.content.global_authorization_type", "Global authorization type")).append("\n\n");
+            md.append(authType).append("\n");
+            if (!scopes.isEmpty()) {
+                md.append("\n|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.authorization_scope", "Authorization scope")).append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.table_field_description", "Description")).append("|\n");
+                md.append("|---|---|\n");
+                for (ScopeInfo scope : scopes) {
+                    md.append(scope.toMarkdown()).append("\n");
+                }
+            }
+        }
+        if (security != null) {
+            md.append("\n#### ").append(I18N.formatMessage("apidocs-messages", "apidocs.content.global_security", "Global security")).append("\n\n");
+            md.append("\n").append(security.toMarkdown()).append("\n");
+        }
+        if (!params.isEmpty()) {
+            md.append("\n#### ").append(I18N.formatMessage("apidocs-messages", "apidocs.content.global_parameters", "Global parameters")).append("\n\n");
+            md.append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.table_field_param_name", "Parameter name")).append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.table_field_type", "Type")).append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.table_field_default_value", "Default")).append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.table_field_description", "Description")).append("|\n");
+            md.append("|---|---|---|---|\n");
+            for (ParamInfo param : params) {
+                md.append(param.toMarkdown()).append("\n");
+            }
+        }
+        if (!responses.isEmpty()) {
+            md.append("\n#### ").append(I18N.formatMessage("apidocs-messages", "apidocs.content.global_responses", "Global responses")).append("\n\n");
+            md.append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.table_field_response_code", "Code")).append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.table_field_type", "Type")).append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.table_field_description", "Description")).append("|\n");
+            md.append("|---|---|---|\n");
+            for (ResponseInfo response : responses) {
+                md.append(response.toMarkdown()).append("\n");
+            }
+        }
+        if (!actions.isEmpty()) {
+            md.append("\n");
+            for (ActionInfo action : actions) {
+                md.append(action.toMarkdown()).append("\n");
+            }
+        }
+        return md.toString();
     }
 }

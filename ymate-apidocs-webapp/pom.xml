@@ -18,12 +18,6 @@
     <url>http://www.ymate.net/</url>
     <description>YMP ApiDocs Webapp Archetype</description>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <ymate.platform.version>2.0.5</ymate.platform.version>
-        <ymate.framework.version>2.0.5</ymate.framework.version>
-    </properties>
-
     <build>
         <finalName>ymate-apidocs-webapp</finalName>
         <plugins>

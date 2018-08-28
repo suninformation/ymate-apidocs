@@ -16,6 +16,7 @@
 package net.ymate.apidocs.core.base;
 
 import net.ymate.apidocs.annotation.ApiAuthor;
+import net.ymate.apidocs.core.IMarkdown;
 import org.apache.commons.lang.NullArgumentException;
 import org.apache.commons.lang.StringUtils;
 
@@ -27,7 +28,7 @@ import java.io.Serializable;
  * @author 刘镇 (suninformation@163.com) on 2018/4/15 下午5:07
  * @version 1.0
  */
-public class AuthorInfo implements Serializable {
+public class AuthorInfo implements IMarkdown, Serializable {
 
     public static AuthorInfo create(String name) {
         return new AuthorInfo(name);
@@ -82,5 +83,19 @@ public class AuthorInfo implements Serializable {
     public AuthorInfo setEmail(String email) {
         this.email = email;
         return this;
+    }
+
+    @Override
+    public String toMarkdown() {
+        StringBuilder md = new StringBuilder();
+        if (StringUtils.isNotBlank(url)) {
+            md.append("[").append(name).append("](").append(url).append(")");
+        } else {
+            md.append(name);
+        }
+        if (StringUtils.isNotBlank(email)) {
+            md.append(" ([").append(email).append("](").append("mailto:").append(email).append("))");
+        }
+        return md.toString();
     }
 }

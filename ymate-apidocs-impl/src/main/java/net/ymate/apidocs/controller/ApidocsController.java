@@ -26,8 +26,11 @@ import net.ymate.platform.core.util.DateTimeUtils;
 import net.ymate.platform.webmvc.annotation.Controller;
 import net.ymate.platform.webmvc.annotation.RequestMapping;
 import net.ymate.platform.webmvc.annotation.RequestParam;
+import net.ymate.platform.webmvc.context.WebContext;
 import net.ymate.platform.webmvc.view.IView;
 import net.ymate.platform.webmvc.view.View;
+import net.ymate.platform.webmvc.view.impl.BinaryView;
+import net.ymate.platform.webmvc.view.impl.HttpStatusView;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
@@ -47,43 +50,49 @@ public class ApidocsController {
 
     @RequestMapping("/")
     public IView index() throws Exception {
-        List<DocsInfo> _docs = new ArrayList<DocsInfo>(Docs.get().getDocsMap().values());
-        return View.jspView(IDocs.MODULE_NAME + "/index").addAttribute("_docs", _docs);
+        List<DocsInfo> docs = new ArrayList<DocsInfo>(Docs.get().getDocsMap().values());
+        return View.jspView(IDocs.MODULE_NAME + "/index").addAttribute("_docs", docs);
     }
 
     @RequestMapping("/content")
     public IView content(@RequestParam String doc) throws Exception {
-        Map<String, DocsInfo> _docs = Docs.get().getDocsMap();
-        if (StringUtils.isBlank(doc) || !_docs.keySet().contains(doc)) {
+        Map<String, DocsInfo> docs = Docs.get().getDocsMap();
+        if (StringUtils.isBlank(doc) || !docs.keySet().contains(doc)) {
             return View.httpStatusView(404);
         }
-        DocsInfo _docsInfo = _docs.get(doc);
-        List<NavItem> _navs = new ArrayList<NavItem>();
-        NavItem _overview = new NavItem(I18N.formatMessage("apidocs-messages", "apidocs.content.overview", "Overview"), "overview")
+        DocsInfo docsInfo = docs.get(doc);
+        List<NavItem> navs = new ArrayList<NavItem>();
+        NavItem overview = new NavItem(I18N.formatMessage("apidocs-messages", "apidocs.content.overview", "Overview"), "overview")
                 .addSubItem(new NavItem(I18N.formatMessage("apidocs-messages", "apidocs.content.basic", "Basic"), "basic"));
-        if (!_docsInfo.getChangelogs().isEmpty()) {
-            _overview.addSubItem(new NavItem(I18N.formatMessage("apidocs-messages", "apidocs.content.changelog", "Changelog"), "changelog"));
+        if (!docsInfo.getChangelogs().isEmpty()) {
+            overview.addSubItem(new NavItem(I18N.formatMessage("apidocs-messages", "apidocs.content.changelog", "Changelog"), "changelog"));
         }
-        if (!_docsInfo.getExtensions().isEmpty()) {
-            _overview.addSubItem(new NavItem(I18N.formatMessage("apidocs-messages", "apidocs.content.extensions", "Extensions"), "extensions"));
+        if (!docsInfo.getExtensions().isEmpty()) {
+            overview.addSubItem(new NavItem(I18N.formatMessage("apidocs-messages", "apidocs.content.extensions", "Extensions"), "extensions"));
         }
-        _navs.add(_overview);
-        _navs.addAll(NavItem.create(_docsInfo.getApis()));
+        navs.add(overview);
+        navs.addAll(NavItem.create(docsInfo.getApis()));
         //
         return View.jspView(IDocs.MODULE_NAME + "/content")
-                .addAttribute("_docInfo", _docsInfo)
-                .addAttribute("_navs", _navs);
+                .addAttribute("_docInfo", docsInfo)
+                .addAttribute("_navs", navs);
     }
 
     @RequestMapping("/download")
-    public IView download(@RequestParam String doc) throws Exception {
-        Map<String, DocsInfo> _docs = Docs.get().getDocsMap();
-        if (StringUtils.isBlank(doc) || !_docs.keySet().contains(doc)) {
+    public IView download(@RequestParam String doc, @RequestParam(defaultValue = "doc") String type) throws Exception {
+        Map<String, DocsInfo> docs = Docs.get().getDocsMap();
+        if (StringUtils.isBlank(doc) || !docs.keySet().contains(doc)) {
             return View.httpStatusView(404);
         }
-        DocsInfo _docsInfo = _docs.get(doc);
-        File _tmpFile = File.createTempFile(IDocs.MODULE_NAME + "_", ".doc");
-        View.jspView(IDocs.MODULE_NAME + "/content_download").addAttribute("_docInfo", _docsInfo).render(new FileOutputStream(_tmpFile));
-        return View.binaryView(_tmpFile).useAttachment(_docsInfo.getTitle() + "_" + _docsInfo.getVersion() + "_" + DateTimeUtils.formatTime(System.currentTimeMillis(), "_yyyyMMdd_HHmm_ss") + ".doc");
+        DocsInfo docsInfo = docs.get(doc);
+        String attachName = docsInfo.getTitle() + "_" + docsInfo.getVersion() + "_" + DateTimeUtils.formatTime(System.currentTimeMillis(), "_yyyyMMdd_HHmm_ss");
+        if (StringUtils.equalsIgnoreCase(type, "markdown")) {
+            return new BinaryView(docsInfo.toMarkdown().getBytes(WebContext.getRequest().getCharacterEncoding())).useAttachment(attachName + ".md");
+        } else if (StringUtils.equalsIgnoreCase(type, "doc")) {
+            File tmpFile = File.createTempFile(IDocs.MODULE_NAME + "_", ".doc");
+            View.jspView(IDocs.MODULE_NAME + "/content_download").addAttribute("_docInfo", docsInfo).render(new FileOutputStream(tmpFile));
+            return View.binaryView(tmpFile).useAttachment(attachName + ".doc");
+        }
+        return HttpStatusView.BAD_REQUEST;
     }
 }

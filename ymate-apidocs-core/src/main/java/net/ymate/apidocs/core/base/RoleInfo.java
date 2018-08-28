@@ -15,6 +15,7 @@
  */
 package net.ymate.apidocs.core.base;
 
+import net.ymate.apidocs.core.IMarkdown;
 import org.apache.commons.lang.NullArgumentException;
 import org.apache.commons.lang.StringUtils;
 
@@ -26,7 +27,7 @@ import java.io.Serializable;
  * @author 刘镇 (suninformation@163.com) on 2018/5/9 下午10:39
  * @version 1.0
  */
-public class RoleInfo implements Serializable {
+public class RoleInfo implements IMarkdown, Serializable {
 
     public static RoleInfo create(String name, String description) {
         return new RoleInfo(name, description);
@@ -59,5 +60,10 @@ public class RoleInfo implements Serializable {
 
     public String getDescription() {
         return description;
+    }
+
+    @Override
+    public String toMarkdown() {
+        return name + "(" + description + ")";
     }
 }

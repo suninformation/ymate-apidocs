@@ -16,6 +16,7 @@
 package net.ymate.apidocs.core.base;
 
 import net.ymate.apidocs.annotation.ApiChangelog;
+import net.ymate.apidocs.core.IMarkdown;
 import org.apache.commons.lang.NullArgumentException;
 import org.apache.commons.lang.StringUtils;
 
@@ -27,7 +28,7 @@ import java.io.Serializable;
  * @author 刘镇 (suninformation@163.com) on 2018/4/15 下午5:04
  * @version 1.0
  */
-public class ChangelogInfo implements Serializable {
+public class ChangelogInfo implements IMarkdown, Serializable {
 
     public static ChangelogInfo create(String date, String action, AuthorInfo author) {
         return new ChangelogInfo(date, action, author);
@@ -95,5 +96,14 @@ public class ChangelogInfo implements Serializable {
     public ChangelogInfo setDescription(String description) {
         this.description = description;
         return this;
+    }
+
+    @Override
+    public String toMarkdown() {
+        StringBuilder md = new StringBuilder();
+        md.append("> ").append(date).append(" ").append(action).append(" by ").append(author.toMarkdown()).append("\n");
+        md.append(">").append("\n");
+        md.append("> ").append(description).append("\n");
+        return md.toString();
     }
 }

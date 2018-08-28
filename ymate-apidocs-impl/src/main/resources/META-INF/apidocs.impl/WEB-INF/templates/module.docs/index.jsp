@@ -38,10 +38,16 @@
                                         <h3>${_doc.title}</h3>
                                         <c:if test="${not empty _doc.version}"><p style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><bs:label style="success">${_doc.version}</bs:label></p></c:if>
                                         <c:if test="${not empty _doc.description}"><p style="height:40px; overflow: hidden; text-overflow: ellipsis; -webkit-line-clamp: 2; display: -webkit-box; -webkit-box-orient: vertical;"><small>${_doc.description}</small></p></c:if>
-                                        <p>
-                                            <bs:button href="apidocs/content?doc=${_doc.id}" style="primary"><ymweb:i18n key="apidocs.button.read" resourceName="apidocs-messages" defaultValue="Read"/></bs:button>
-                                            <bs:button href="apidocs/download?doc=${_doc.id}" style="default"><ymweb:i18n key="apidocs.button.download" resourceName="apidocs-messages" defaultValue="Download"/></bs:button>
-                                        </p>
+                                        <bs:button href="apidocs/content?doc=${_doc.id}" style="primary"><ymweb:i18n key="apidocs.button.read" resourceName="apidocs-messages" defaultValue="Read"/></bs:button>
+                                            <bs:button-group>
+                                                <bs:button style="default" dropdown="true"><ymweb:i18n key="apidocs.button.download" resourceName="apidocs-messages" defaultValue="Download"/> <bs:icon caret="true"/></bs:button>
+                                                    <bs:dropdown-menu>
+                                                        <bs:item href="apidocs/download?doc=${_doc.id}">Word</bs:item>
+                                                        <bs:item href="apidocs/download?doc=${_doc.id}&type=markdown">Markdown</bs:item>
+                                                        <bs:item divider="true"/>
+                                                        <bs:item href="#" disabled="true">Swagger Editor</bs:item>
+                                                    </bs:dropdown-menu>
+                                            </bs:button-group>
                                     </jsp:attribute>
                                 </bs:thumbnail>
                             </bs:col>

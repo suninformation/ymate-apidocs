@@ -16,6 +16,7 @@
 package net.ymate.apidocs.core.base;
 
 import net.ymate.apidocs.annotation.ApiLicense;
+import net.ymate.apidocs.core.IMarkdown;
 import org.apache.commons.lang.NullArgumentException;
 import org.apache.commons.lang.StringUtils;
 
@@ -27,7 +28,7 @@ import java.io.Serializable;
  * @author 刘镇 (suninformation@163.com) on 2018/5/8 上午1:28
  * @version 1.0
  */
-public class LicenseInfo implements Serializable {
+public class LicenseInfo implements IMarkdown, Serializable {
 
     public static LicenseInfo create(String name) {
         return new LicenseInfo(name);
@@ -68,5 +69,16 @@ public class LicenseInfo implements Serializable {
     public LicenseInfo setUrl(String url) {
         this.url = url;
         return this;
+    }
+
+    @Override
+    public String toMarkdown() {
+        StringBuilder md = new StringBuilder();
+        if (StringUtils.isNotBlank(url)) {
+            md.append("[").append(name).append("](").append(url).append(")");
+        } else {
+            md.append(name);
+        }
+        return md.toString();
     }
 }

@@ -16,6 +16,8 @@
 package net.ymate.apidocs.core.base;
 
 import net.ymate.apidocs.annotation.*;
+import net.ymate.apidocs.core.IMarkdown;
+import net.ymate.platform.core.i18n.I18N;
 import net.ymate.platform.core.util.ClassUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.NullArgumentException;
@@ -35,7 +37,7 @@ import java.util.List;
  * @author 刘镇 (suninformation@163.com) on 2018/5/8 下午4:49
  * @version 1.0
  */
-public class ActionInfo implements Serializable {
+public class ActionInfo implements IMarkdown, Serializable {
 
     public static ActionInfo create(String name, String mapping, String description) {
         return new ActionInfo(name, mapping, description);
@@ -492,5 +494,80 @@ public class ActionInfo implements Serializable {
             this.extensions.add(extension);
         }
         return this;
+    }
+
+    @Override
+    public String toMarkdown() {
+        StringBuilder md = new StringBuilder();
+        md.append("#### ").append(dispName).append(" (_").append(mapping).append("_)\n\n");
+        md.append(description).append("\n");
+        if (StringUtils.isNotBlank(notes)) {
+            md.append("\n> _**Notes:**_ ").append(notes).append("\n");
+        }
+        if (!changelogs.isEmpty()) {
+            md.append("\n##### ").append(I18N.formatMessage("apidocs-messages", "apidocs.content.changelog", "Changelog")).append("\n\n");
+            for (ChangelogInfo changelog : changelogs) {
+                md.append(changelog.toMarkdown()).append("\n");
+            }
+        }
+        if (StringUtils.isNotBlank(authType)) {
+            md.append("\n##### ").append(I18N.formatMessage("apidocs-messages", "apidocs.content.authorization_type", "Authorization type")).append("\n\n");
+            md.append(authType).append("\n");
+            if (!scopes.isEmpty()) {
+                md.append("\n|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.authorization_scope", "Authorization scope")).append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.table_field_description", "Description")).append("|\n");
+                md.append("|---|---|\n");
+                for (ScopeInfo scope : scopes) {
+                    md.append(scope.toMarkdown()).append("\n");
+                }
+            }
+        }
+        if (security != null) {
+            md.append("\n##### ").append(I18N.formatMessage("apidocs-messages", "apidocs.content.security", "Security")).append("\n\n");
+            md.append("\n").append(security.toMarkdown()).append("\n");
+        }
+        if (!methods.isEmpty()) {
+            md.append("\n##### ").append(I18N.formatMessage("apidocs-messages", "apidocs.content.request_methods", "Request methods")).append("\n\n");
+            for (String method : methods) {
+                md.append("`").append(method).append("` ");
+            }
+            md.append("\n");
+        }
+        if (!headers.isEmpty()) {
+            md.append("\n##### ").append(I18N.formatMessage("apidocs-messages", "apidocs.content.request_headers", "Request headers")).append("\n\n");
+            md.append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.table_field_header_name", "Header name")).append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.table_field_type", "Type")).append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.table_field_description", "Description")).append("|\n");
+            md.append("|---|---|---|\n");
+            for (HeaderInfo header : headers) {
+                md.append(header.toMarkdown()).append("\n");
+            }
+        }
+        if (!params.isEmpty()) {
+            md.append("\n##### ").append(I18N.formatMessage("apidocs-messages", "apidocs.content.parameters", "Parameters")).append("\n\n");
+            md.append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.table_field_param_name", "Parameter name")).append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.table_field_type", "Type")).append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.table_field_default_value", "Default")).append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.table_field_description", "Description")).append("|\n");
+            md.append("|---|---|---|---|\n");
+            for (ParamInfo param : params) {
+                md.append(param.toMarkdown()).append("\n");
+            }
+        }
+        if (!responses.isEmpty()) {
+            md.append("\n##### ").append(I18N.formatMessage("apidocs-messages", "apidocs.content.responses", "Responses")).append("\n\n");
+            md.append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.table_field_response_code", "Code")).append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.table_field_type", "Type")).append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.table_field_description", "Description")).append("|\n");
+            md.append("|---|---|---|\n");
+            for (ResponseInfo response : responses) {
+                md.append(response.toMarkdown()).append("\n");
+            }
+        }
+        if (!extensions.isEmpty()) {
+            md.append("\n##### ").append(I18N.formatMessage("apidocs-messages", "apidocs.content.extensions", "Extensions")).append("\n\n");
+            for (ExtensionInfo extension : extensions) {
+                md.append("\n").append(extension.toMarkdown()).append("\n");
+            }
+        }
+        if (!examples.isEmpty()) {
+            md.append("\n##### ").append(I18N.formatMessage("apidocs-messages", "apidocs.content.examples", "Examples")).append("\n\n");
+            for (ExampleInfo example : examples) {
+                md.append("\n").append(example.toMarkdown()).append("\n");
+            }
+        }
+        return md.toString();
     }
 }

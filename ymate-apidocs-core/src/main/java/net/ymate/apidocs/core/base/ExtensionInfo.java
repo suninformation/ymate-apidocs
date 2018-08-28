@@ -17,7 +17,9 @@ package net.ymate.apidocs.core.base;
 
 import net.ymate.apidocs.annotation.ApiExtension;
 import net.ymate.apidocs.annotation.ApiExtensionProperty;
+import net.ymate.apidocs.core.IMarkdown;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -30,7 +32,7 @@ import java.util.List;
  * @author 刘镇 (suninformation@163.com) on 2018/5/8 上午1:29
  * @version 1.0
  */
-public class ExtensionInfo implements Serializable {
+public class ExtensionInfo implements IMarkdown, Serializable {
 
     public static ExtensionInfo create(PropertyInfo... properties) {
         return new ExtensionInfo(properties);
@@ -100,5 +102,23 @@ public class ExtensionInfo implements Serializable {
             this.properties.add(property);
         }
         return this;
+    }
+
+    @Override
+    public String toMarkdown() {
+        StringBuilder md = new StringBuilder();
+        if (StringUtils.isNotBlank(name)) {
+            md.append(name).append("\n");
+        }
+        if (StringUtils.isNotBlank(description)) {
+            if (md.length() > 0) {
+                md.append("\n");
+            }
+            md.append(description).append("\n");
+        }
+        for (PropertyInfo property : properties) {
+            md.append("\n").append(property.toMarkdown()).append("\n");
+        }
+        return md.toString();
     }
 }

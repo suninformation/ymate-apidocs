@@ -17,6 +17,7 @@ package net.ymate.apidocs.core.base;
 
 import net.ymate.apidocs.annotation.ApiHeader;
 import net.ymate.apidocs.annotation.ApiResponse;
+import net.ymate.apidocs.core.IMarkdown;
 import org.apache.commons.lang.NullArgumentException;
 import org.apache.commons.lang.StringUtils;
 
@@ -30,7 +31,7 @@ import java.util.List;
  * @author 刘镇 (suninformation@163.com) on 2018/5/9 下午3:29
  * @version 1.0
  */
-public class ResponseInfo implements Serializable {
+public class ResponseInfo implements IMarkdown, Serializable {
 
     public static ResponseInfo create(String code, String message) {
         return new ResponseInfo(code, message);
@@ -129,5 +130,10 @@ public class ResponseInfo implements Serializable {
             this.headers.add(header);
         }
         return this;
+    }
+
+    @Override
+    public String toMarkdown() {
+        return "|`" + code + "`|" + type + "|" + StringUtils.replaceEach(message, new String[]{"\r\n", "\r", "\n", "\t"}, new String[]{"[\\r][\\n]", "[\\r]", "[\\n]", "[\\t]"}) + "|";
     }
 }

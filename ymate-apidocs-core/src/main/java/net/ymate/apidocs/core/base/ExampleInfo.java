@@ -16,6 +16,7 @@
 package net.ymate.apidocs.core.base;
 
 import net.ymate.apidocs.annotation.ApiExample;
+import net.ymate.apidocs.core.IMarkdown;
 import org.apache.commons.lang.NullArgumentException;
 import org.apache.commons.lang.StringUtils;
 
@@ -27,7 +28,7 @@ import java.io.Serializable;
  * @author 刘镇 (suninformation@163.com) on 2018/5/8 下午3:57
  * @version 1.0
  */
-public class ExampleInfo implements Serializable {
+public class ExampleInfo implements IMarkdown, Serializable {
 
     public static ExampleInfo create(String content) {
         return new ExampleInfo(content);
@@ -68,5 +69,10 @@ public class ExampleInfo implements Serializable {
 
     public String getContent() {
         return content;
+    }
+
+    @Override
+    public String toMarkdown() {
+        return "\n```" + StringUtils.trimToEmpty(type) + "\n" + content + "\n```\n";
     }
 }

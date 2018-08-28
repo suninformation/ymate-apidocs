@@ -17,6 +17,8 @@ package net.ymate.apidocs.core.base;
 
 import net.ymate.apidocs.annotation.ApiExample;
 import net.ymate.apidocs.annotation.ApiParam;
+import net.ymate.apidocs.core.IMarkdown;
+import net.ymate.platform.core.i18n.I18N;
 import org.apache.commons.lang.NullArgumentException;
 import org.apache.commons.lang.StringUtils;
 
@@ -30,7 +32,7 @@ import java.util.List;
  * @author 刘镇 (suninformation@163.com) on 2018/4/15 下午5:03
  * @version 1.0
  */
-public class ParamInfo implements Serializable {
+public class ParamInfo implements IMarkdown, Serializable {
 
     public static ParamInfo create(String name) {
         return new ParamInfo(name);
@@ -190,5 +192,22 @@ public class ParamInfo implements Serializable {
             this.examples.add(example);
         }
         return this;
+    }
+
+    @Override
+    public String toMarkdown() {
+        StringBuilder _desc = new StringBuilder();
+        boolean flag = false;
+        if (StringUtils.isNotBlank(description)) {
+            flag = true;
+            _desc.append(description);
+        }
+        if (StringUtils.isNotBlank(allowValues)) {
+            if (flag) {
+                _desc.append(", ");
+            }
+            _desc.append(I18N.formatMessage("apidocs-messages", "apidocs.content.param_value_range", "Value Range")).append(": ").append(allowValues);
+        }
+        return "|`" + name + "`|" + type + "|" + StringUtils.trimToEmpty(defaultValue) + "|" + StringUtils.replaceEach(_desc.toString(), new String[]{"\r\n", "\r", "\n", "\t"}, new String[]{"[\\r][\\n]", "[\\r]", "[\\n]", "[\\t]"}) + "|";
     }
 }

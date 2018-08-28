@@ -18,6 +18,8 @@ package net.ymate.apidocs.core.base;
 import net.ymate.apidocs.annotation.ApiPermission;
 import net.ymate.apidocs.annotation.ApiRole;
 import net.ymate.apidocs.annotation.ApiSecurity;
+import net.ymate.apidocs.core.IMarkdown;
+import net.ymate.platform.core.i18n.I18N;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -29,7 +31,7 @@ import java.util.List;
  * @author 刘镇 (suninformation@163.com) on 2018/5/9 下午10:21
  * @version 1.0
  */
-public class SecurityInfo implements Serializable {
+public class SecurityInfo implements IMarkdown, Serializable {
 
     public static SecurityInfo create() {
         return new SecurityInfo();
@@ -136,5 +138,27 @@ public class SecurityInfo implements Serializable {
     public SecurityInfo setDescription(String description) {
         this.description = description;
         return this;
+    }
+
+    @Override
+    public String toMarkdown() {
+        StringBuilder md = new StringBuilder();
+        md.append(description).append("\n");
+        if (!roles.isEmpty()) {
+            md.append("\n");
+            for (RoleInfo role : roles) {
+                md.append("`").append(role.toMarkdown()).append("`").append(" ");
+            }
+            md.append("\n");
+        }
+        if (!permissions.isEmpty()) {
+            md.append("\n|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.security_permissions", "Permissions")).append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.table_field_description", "Description")).append("|\n");
+            md.append("|---|---|\n");
+            for (PermissionInfo permission : permissions) {
+                md.append(permission.toMarkdown()).append("\n");
+            }
+            md.append("\n");
+        }
+        return md.toString();
     }
 }

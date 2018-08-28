@@ -16,6 +16,8 @@
 package net.ymate.apidocs.core.base;
 
 import net.ymate.apidocs.annotation.*;
+import net.ymate.apidocs.core.IMarkdown;
+import net.ymate.platform.core.i18n.I18N;
 import org.apache.commons.lang.NullArgumentException;
 import org.apache.commons.lang.StringUtils;
 
@@ -29,7 +31,7 @@ import java.util.List;
  * @author 刘镇 (suninformation@163.com) on 2018/4/15 下午5:00
  * @version 1.0
  */
-public class DocsInfo implements Serializable {
+public class DocsInfo implements IMarkdown, Serializable {
 
     public static DocsInfo create(String id, String title, String version) {
         return new DocsInfo(id, title, version);
@@ -293,5 +295,37 @@ public class DocsInfo implements Serializable {
             this.extensions.add(extension);
         }
         return this;
+    }
+
+    @Override
+    public String toMarkdown() {
+        StringBuilder md = new StringBuilder();
+        md.append("## ").append(title).append("\n\n");
+        md.append(StringUtils.trimToEmpty(description)).append("\n\n");
+        md.append("\n### ").append(I18N.formatMessage("apidocs-messages", "apidocs.content.overview", "Overview")).append("\n\n");
+        md.append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.version", "Version")).append("|").append(version).append("|\n");
+        md.append("|---|---|\n");
+        if (license != null) {
+            md.append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.license", "License")).append("|").append(license.toMarkdown()).append("|\n");
+        }
+        if (contact != null) {
+            md.append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.author", "Author")).append("|").append(contact.toMarkdown()).append("|\n");
+        }
+        if (!changelogs.isEmpty()) {
+            md.append("\n#### ").append(I18N.formatMessage("apidocs-messages", "apidocs.content.changelog", "Changelog")).append("\n\n");
+            for (ChangelogInfo changelog : changelogs) {
+                md.append(changelog.toMarkdown()).append("\n");
+            }
+        }
+        if (!extensions.isEmpty()) {
+            md.append("\n#### ").append(I18N.formatMessage("apidocs-messages", "apidocs.content.extensions", "Extensions")).append("\n\n");
+            for (ExtensionInfo extension : extensions) {
+                md.append("\n").append(extension.toMarkdown()).append("\n");
+            }
+        }
+        for (ApiInfo api : apis) {
+            md.append(api.toMarkdown()).append("\n");
+        }
+        return md.toString();
     }
 }
