@@ -303,14 +303,14 @@ public class DocsInfo implements IMarkdown, Serializable {
         md.append("## ").append(title).append("\n\n");
         md.append(StringUtils.trimToEmpty(description)).append("\n\n");
         md.append("\n### ").append(I18N.formatMessage("apidocs-messages", "apidocs.content.overview", "Overview")).append("\n\n");
-        md.append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.version", "Version")).append("|").append(version).append("|\n");
-        md.append("|---|---|\n");
+        md.append("|-|-|\n|---|---|\n");
         if (license != null) {
             md.append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.license", "License")).append("|").append(license.toMarkdown()).append("|\n");
         }
         if (contact != null) {
             md.append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.author", "Author")).append("|").append(contact.toMarkdown()).append("|\n");
         }
+        md.append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.version", "Version")).append("|").append(version).append("|\n");
         if (!changelogs.isEmpty()) {
             md.append("\n#### ").append(I18N.formatMessage("apidocs-messages", "apidocs.content.changelog", "Changelog")).append("\n\n");
             for (ChangelogInfo changelog : changelogs) {

@@ -82,7 +82,7 @@ public class PropertyInfo implements IMarkdown, Serializable {
         if (StringUtils.isNotBlank(name)) {
             md.append("> **").append(name).append("**");
             if (StringUtils.isNotBlank(description)) {
-                md.append(" _").append(description).append("_\n");
+                md.append(" ").append(description).append("\n");
             } else {
                 md.append("\n");
             }
