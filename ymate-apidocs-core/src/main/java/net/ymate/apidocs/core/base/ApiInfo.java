@@ -24,6 +24,8 @@ import org.apache.commons.lang.StringUtils;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -66,6 +68,9 @@ public class ApiInfo implements IMarkdown, Serializable {
                 }
                 if (targetClass.isAnnotationPresent(ApiResponses.class)) {
                     ApiResponses _responses = targetClass.getAnnotation(ApiResponses.class);
+                    if (!Void.class.equals(_responses.type())) {
+                        _apiInfo.setResponseType(ResponseTypeInfo.create(_responses));
+                    }
                     for (ApiResponse _response : _responses.value()) {
                         _apiInfo.addResponse(ResponseInfo.create(_response));
                     }
@@ -109,6 +114,11 @@ public class ApiInfo implements IMarkdown, Serializable {
      * 接口全局参数定义
      */
     private List<ParamInfo> params;
+
+    /**
+     * 接口全局响应数据类型
+     */
+    private ResponseTypeInfo responseType;
 
     /**
      * 接口全局响应信息集合
@@ -224,6 +234,15 @@ public class ApiInfo implements IMarkdown, Serializable {
         if (param != null) {
             this.params.add(param);
         }
+        return this;
+    }
+
+    public ResponseTypeInfo getResponseType() {
+        return responseType;
+    }
+
+    public ApiInfo setResponseType(ResponseTypeInfo responseType) {
+        this.responseType = responseType;
         return this;
     }
 
@@ -355,16 +374,26 @@ public class ApiInfo implements IMarkdown, Serializable {
                 md.append(param.toMarkdown()).append("\n");
             }
         }
+        if (responseType != null) {
+            md.append("\n##### ").append(I18N.formatMessage("apidocs-messages", "apidocs.content.global_response_parameters", "Global response parameters")).append("\n\n");
+            md.append(responseType.toMarkdown()).append("\n");
+        }
         if (!responses.isEmpty()) {
             md.append("\n#### ").append(I18N.formatMessage("apidocs-messages", "apidocs.content.global_responses", "Global responses")).append("\n\n");
-            md.append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.table_field_response_code", "Code")).append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.table_field_type", "Type")).append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.table_field_description", "Description")).append("|\n");
-            md.append("|---|---|---|\n");
+            md.append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.table_field_response_code", "Code")).append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.table_field_description", "Description")).append("|\n");
+            md.append("|---|---|\n");
             for (ResponseInfo response : responses) {
                 md.append(response.toMarkdown()).append("\n");
             }
         }
         if (!actions.isEmpty()) {
             md.append("\n");
+            Collections.sort(actions, new Comparator<ActionInfo>() {
+                @Override
+                public int compare(ActionInfo o1, ActionInfo o2) {
+                    return o1.getMapping().compareTo(o2.getMapping());
+                }
+            });
             for (ActionInfo action : actions) {
                 md.append(action.toMarkdown()).append("\n");
             }

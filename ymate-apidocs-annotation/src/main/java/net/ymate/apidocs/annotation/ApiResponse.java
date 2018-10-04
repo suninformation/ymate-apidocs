@@ -44,11 +44,6 @@ public @interface ApiResponse {
     String message();
 
     /**
-     * @return 响应数据类型
-     */
-    Class<?> type() default Void.class;
-
-    /**
      * @return 响应头信息集合
      */
     ApiHeader[] headers() default {};

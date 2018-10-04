@@ -39,14 +39,11 @@ public class ResponseInfo implements IMarkdown, Serializable {
 
     public static ResponseInfo create(ApiResponse response) {
         if (response != null) {
-            ResponseInfo _responseInfo = new ResponseInfo(response.code(), response.message()).setHttpStatus(response.httpStatus());
-            if (!Void.class.equals(response.type())) {
-                _responseInfo.setType(response.type().getSimpleName());
+            ResponseInfo responseInfo = new ResponseInfo(response.code(), response.message()).setHttpStatus(response.httpStatus());
+            for (ApiHeader header : response.headers()) {
+                responseInfo.addHeader(HeaderInfo.create(header));
             }
-            for (ApiHeader _header : response.headers()) {
-                _responseInfo.addHeader(HeaderInfo.create(_header));
-            }
-            return _responseInfo;
+            return responseInfo;
         }
         return null;
     }
@@ -65,11 +62,6 @@ public class ResponseInfo implements IMarkdown, Serializable {
      * 响应信息
      */
     private String message;
-
-    /**
-     * 响应数据类型
-     */
-    private String type;
 
     /**
      * 响应头信息集合
@@ -105,15 +97,6 @@ public class ResponseInfo implements IMarkdown, Serializable {
         return message;
     }
 
-    public String getType() {
-        return type;
-    }
-
-    public ResponseInfo setType(String type) {
-        this.type = type;
-        return this;
-    }
-
     public List<HeaderInfo> getHeaders() {
         return headers;
     }
@@ -134,6 +117,6 @@ public class ResponseInfo implements IMarkdown, Serializable {
 
     @Override
     public String toMarkdown() {
-        return "|`" + code + "`|" + type + "|" + StringUtils.replaceEach(message, new String[]{"\r\n", "\r", "\n", "\t"}, new String[]{"[\\r][\\n]", "[\\r]", "[\\n]", "[\\t]"}) + "|";
+        return "|`" + code + "`|" + StringUtils.replaceEach(message, new String[]{"\r\n", "\r", "\n", "\t"}, new String[]{"[\\r][\\n]", "[\\r]", "[\\n]", "[\\t]"}) + "|";
     }
 }

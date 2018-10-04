@@ -29,6 +29,21 @@ import java.lang.annotation.*;
 public @interface ApiResponses {
 
     /**
+     * @return 响应数据类型
+     */
+    Class<?> type() default Void.class;
+
+    /**
+     * @return 响应数据类型名称
+     */
+    String name() default "";
+
+    /**
+     * @return 描述
+     */
+    String description() default "";
+
+    /**
      * @return 响应信息集合
      */
     ApiResponse[] value();

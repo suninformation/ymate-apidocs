@@ -23,20 +23,20 @@ import java.lang.annotation.*;
  * @author 刘镇 (suninformation@163.com) on 2018/4/15 上午12:00
  * @version 1.0
  */
-@Target(ElementType.ANNOTATION_TYPE)
+@Target({ElementType.FIELD, ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface ApiExtensionProperty {
+public @interface ApiProperty {
 
     /**
      * @return 属性名称
      */
-    String name();
+    String name() default "";
 
     /**
      * @return 属性值
      */
-    String value();
+    String value() default "";
 
     /**
      * @return 属性描述

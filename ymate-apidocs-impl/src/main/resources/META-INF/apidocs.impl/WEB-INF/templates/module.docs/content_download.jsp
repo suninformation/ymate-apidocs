@@ -1708,6 +1708,227 @@
                             </w:pPr>
                         </w:p>
                     </wx:sub-section></c:if>
+                    <c:if test="${not empty _apiInfo.responseType}"><wx:sub-section>
+                        <w:p wsp:rsidR="00BD4233" wsp:rsidRPr="00C73EB6" wsp:rsidRDefault="00BD4233" wsp:rsidP="00DB1FC0">
+                            <w:pPr>
+                                <w:pStyle w:val="3"/>
+                                <w:rPr>
+                                    <w:rFonts w:ascii="SimSun" w:fareast="SimSun" w:h-ansi="SimSun" w:hint="fareast"/>
+                                    <wx:font wx:val="SimSun"/>
+                                </w:rPr>
+                            </w:pPr>
+                            <w:r wsp:rsidRPr="00C73EB6">
+                                <w:rPr>
+                                    <w:rFonts w:ascii="SimSun" w:fareast="SimSun" w:h-ansi="SimSun" w:hint="fareast"/>
+                                    <wx:font wx:val="SimSun"/>
+                                </w:rPr>
+                                <w:t><ymweb:i18n key="apidocs.content.global_response_parameters" resourceName="apidocs-messages" defaultValue="Global response parameters"/></w:t>
+                            </w:r>
+                        </w:p>
+                        <w:p wsp:rsidR="00654C9E" wsp:rsidRPr="00C73EB6" wsp:rsidRDefault="00654C9E" wsp:rsidP="00BD4233">
+                            <w:pPr>
+                                <w:spacing w:line="360" w:line-rule="auto"/>
+                                <w:rPr>
+                                    <w:rFonts w:ascii="SimSun" w:fareast="SimSun" w:h-ansi="SimSun" w:hint="fareast"/>
+                                    <wx:font wx:val="SimSun"/>
+                                </w:rPr>
+                            </w:pPr>
+                            <w:r wsp:rsidRPr="00C73EB6">
+                                <w:rPr>
+                                    <w:rFonts w:ascii="SimSun" w:fareast="SimSun" w:h-ansi="SimSun" w:hint="fareast"/>
+                                    <wx:font wx:val="SimSun"/>
+                                    <w:b/>
+                                </w:rPr>
+                                <w:t>${_apiInfo.responseType.name}</w:t>
+                            </w:r>
+                        </w:p>
+                        <w:p wsp:rsidR="00654C9E" wsp:rsidRPr="00C73EB6" wsp:rsidRDefault="00654C9E" wsp:rsidP="00BD4233">
+                            <w:pPr>
+                                <w:spacing w:line="360" w:line-rule="auto"/>
+                                <w:rPr>
+                                    <w:rFonts w:ascii="SimSun" w:fareast="SimSun" w:h-ansi="SimSun" w:hint="fareast"/>
+                                    <wx:font wx:val="SimSun"/>
+                                </w:rPr>
+                            </w:pPr>
+                            <w:r wsp:rsidRPr="00C73EB6">
+                                <w:rPr>
+                                    <w:rFonts w:ascii="SimSun" w:fareast="SimSun" w:h-ansi="SimSun" w:hint="fareast"/>
+                                    <wx:font wx:val="SimSun"/>
+                                    <w:b/>
+                                </w:rPr>
+                                <w:t>${_apiInfo.responseType.description}</w:t>
+                            </w:r>
+                        </w:p>
+                        <w:tbl>
+                            <w:tblPr>
+                                <w:tblW w:w="0" w:type="auto"/>
+                                <w:tblBorders>
+                                    <w:top w:val="single" w:sz="4" wx:bdrwidth="10" w:space="0" w:color="auto"/>
+                                    <w:left w:val="single" w:sz="4" wx:bdrwidth="10" w:space="0" w:color="auto"/>
+                                    <w:bottom w:val="single" w:sz="4" wx:bdrwidth="10" w:space="0" w:color="auto"/>
+                                    <w:right w:val="single" w:sz="4" wx:bdrwidth="10" w:space="0" w:color="auto"/>
+                                    <w:insideH w:val="single" w:sz="4" wx:bdrwidth="10" w:space="0" w:color="auto"/>
+                                    <w:insideV w:val="single" w:sz="4" wx:bdrwidth="10" w:space="0" w:color="auto"/>
+                                </w:tblBorders>
+                                <w:tblLook w:val="04A0"/>
+                            </w:tblPr>
+                            <w:tblGrid>
+                                <w:gridCol w:w="4145"/>
+                                <w:gridCol w:w="4145"/>
+                            </w:tblGrid>
+                            <w:tr wsp:rsidR="00654C9E" wsp:rsidRPr="00286EAC" wsp:rsidTr="00286EAC">
+                                <w:tc>
+                                    <w:tcPr>
+                                        <w:tcW w:w="4145" w:type="dxa"/>
+                                        <w:shd w:val="clear" w:color="auto" w:fill="auto"/>
+                                    </w:tcPr>
+                                    <w:p wsp:rsidR="00654C9E" wsp:rsidRPr="00286EAC" wsp:rsidRDefault="00654C9E" wsp:rsidP="00286EAC">
+                                        <w:pPr>
+                                            <w:spacing w:line="360" w:line-rule="auto"/>
+                                            <w:rPr>
+                                                <w:rFonts w:ascii="SimSun" w:fareast="SimSun" w:h-ansi="SimSun" w:hint="fareast"/>
+                                                <wx:font wx:val="SimSun"/>
+                                                <w:b/>
+                                            </w:rPr>
+                                        </w:pPr>
+                                        <w:r wsp:rsidRPr="00286EAC">
+                                            <w:rPr>
+                                                <w:rFonts w:ascii="SimSun" w:fareast="SimSun" w:h-ansi="SimSun" w:hint="fareast"/>
+                                                <wx:font wx:val="SimSun"/>
+                                                <w:b/>
+                                            </w:rPr>
+                                            <w:t><ymweb:i18n key="apidocs.content.table_field_param_name" resourceName="apidocs-messages" defaultValue="Parameter name"/></w:t>
+                                        </w:r>
+                                    </w:p>
+                                </w:tc>
+                                <w:tc>
+                                    <w:tcPr>
+                                        <w:tcW w:w="4145" w:type="dxa"/>
+                                        <w:shd w:val="clear" w:color="auto" w:fill="auto"/>
+                                    </w:tcPr>
+                                    <w:p wsp:rsidR="00654C9E" wsp:rsidRPr="00286EAC" wsp:rsidRDefault="00654C9E" wsp:rsidP="00286EAC">
+                                        <w:pPr>
+                                            <w:spacing w:line="360" w:line-rule="auto"/>
+                                            <w:rPr>
+                                                <w:rFonts w:ascii="SimSun" w:fareast="SimSun" w:h-ansi="SimSun" w:hint="fareast"/>
+                                                <wx:font wx:val="SimSun"/>
+                                                <w:b/>
+                                            </w:rPr>
+                                        </w:pPr>
+                                        <w:r wsp:rsidRPr="00286EAC">
+                                            <w:rPr>
+                                                <w:rFonts w:ascii="SimSun" w:fareast="SimSun" w:h-ansi="SimSun" w:hint="fareast"/>
+                                                <wx:font wx:val="SimSun"/>
+                                                <w:b/>
+                                            </w:rPr>
+                                            <w:t><ymweb:i18n key="apidocs.content.table_field_type" resourceName="apidocs-messages" defaultValue="Type"/></w:t>
+                                        </w:r>
+                                    </w:p>
+                                </w:tc>
+                                <w:tc>
+                                    <w:tcPr>
+                                        <w:tcW w:w="4145" w:type="dxa"/>
+                                        <w:shd w:val="clear" w:color="auto" w:fill="auto"/>
+                                    </w:tcPr>
+                                    <w:p wsp:rsidR="00654C9E" wsp:rsidRPr="00286EAC" wsp:rsidRDefault="00654C9E" wsp:rsidP="00286EAC">
+                                        <w:pPr>
+                                            <w:spacing w:line="360" w:line-rule="auto"/>
+                                            <w:rPr>
+                                                <w:rFonts w:ascii="SimSun" w:fareast="SimSun" w:h-ansi="SimSun" w:hint="fareast"/>
+                                                <wx:font wx:val="SimSun"/>
+                                                <w:b/>
+                                            </w:rPr>
+                                        </w:pPr>
+                                        <w:r wsp:rsidRPr="00286EAC">
+                                            <w:rPr>
+                                                <w:rFonts w:ascii="SimSun" w:fareast="SimSun" w:h-ansi="SimSun" w:hint="fareast"/>
+                                                <wx:font wx:val="SimSun"/>
+                                                <w:b/>
+                                            </w:rPr>
+                                            <w:t><ymweb:i18n key="apidocs.content.table_field_description" resourceName="apidocs-messages" defaultValue="Description"/></w:t>
+                                        </w:r>
+                                    </w:p>
+                                </w:tc>
+                            </w:tr>
+                            <c:forEach var="_apiResponseProps" items="${_apiInfo.responseType.properties}"><w:tr wsp:rsidR="00654C9E" wsp:rsidRPr="00286EAC" wsp:rsidTr="00286EAC">
+                                <w:tc>
+                                    <w:tcPr>
+                                        <w:tcW w:w="4145" w:type="dxa"/>
+                                        <w:shd w:val="clear" w:color="auto" w:fill="auto"/>
+                                    </w:tcPr>
+                                    <w:p wsp:rsidR="00654C9E" wsp:rsidRPr="00286EAC" wsp:rsidRDefault="00654C9E" wsp:rsidP="00286EAC">
+                                        <w:pPr>
+                                            <w:spacing w:line="360" w:line-rule="auto"/>
+                                            <w:rPr>
+                                                <w:rFonts w:ascii="SimSun" w:fareast="SimSun" w:h-ansi="SimSun"/>
+                                                <wx:font wx:val="SimSun"/>
+                                            </w:rPr>
+                                        </w:pPr>
+                                        <w:r wsp:rsidRPr="00286EAC">
+                                            <w:rPr>
+                                                <w:rFonts w:ascii="SimSun" w:fareast="SimSun" w:h-ansi="SimSun"/>
+                                                <wx:font wx:val="SimSun"/>
+                                            </w:rPr>
+                                            <w:t>${_apiResponseProps.name}</w:t>
+                                        </w:r>
+                                    </w:p>
+                                </w:tc>
+                                <w:tc>
+                                    <w:tcPr>
+                                        <w:tcW w:w="4145" w:type="dxa"/>
+                                        <w:shd w:val="clear" w:color="auto" w:fill="auto"/>
+                                    </w:tcPr>
+                                    <w:p wsp:rsidR="00654C9E" wsp:rsidRPr="00286EAC" wsp:rsidRDefault="00654C9E" wsp:rsidP="00286EAC">
+                                        <w:pPr>
+                                            <w:spacing w:line="360" w:line-rule="auto"/>
+                                            <w:rPr>
+                                                <w:rFonts w:ascii="SimSun" w:fareast="SimSun" w:h-ansi="SimSun"/>
+                                                <wx:font wx:val="SimSun"/>
+                                            </w:rPr>
+                                        </w:pPr>
+                                        <w:r wsp:rsidRPr="00286EAC">
+                                            <w:rPr>
+                                                <w:rFonts w:ascii="SimSun" w:fareast="SimSun" w:h-ansi="SimSun"/>
+                                                <wx:font wx:val="SimSun"/>
+                                            </w:rPr>
+                                            <w:t>${_apiResponseProps.value}</w:t>
+                                        </w:r>
+                                    </w:p>
+                                </w:tc>
+                                <w:tc>
+                                    <w:tcPr>
+                                        <w:tcW w:w="4145" w:type="dxa"/>
+                                        <w:shd w:val="clear" w:color="auto" w:fill="auto"/>
+                                    </w:tcPr>
+                                    <w:p wsp:rsidR="00654C9E" wsp:rsidRPr="00286EAC" wsp:rsidRDefault="00654C9E" wsp:rsidP="00286EAC">
+                                        <w:pPr>
+                                            <w:spacing w:line="360" w:line-rule="auto"/>
+                                            <w:rPr>
+                                                <w:rFonts w:ascii="SimSun" w:fareast="SimSun" w:h-ansi="SimSun"/>
+                                                <wx:font wx:val="SimSun"/>
+                                            </w:rPr>
+                                        </w:pPr>
+                                        <w:r wsp:rsidRPr="00286EAC">
+                                            <w:rPr>
+                                                <w:rFonts w:ascii="SimSun" w:fareast="SimSun" w:h-ansi="SimSun"/>
+                                                <wx:font wx:val="SimSun"/>
+                                            </w:rPr>
+                                            <w:t>${_apiResponseProps.description}</w:t>
+                                        </w:r>
+                                    </w:p>
+                                </w:tc>
+                            </w:tr></c:forEach>
+                        </w:tbl>
+                        <w:p wsp:rsidR="00654C9E" wsp:rsidRPr="00C73EB6" wsp:rsidRDefault="00654C9E" wsp:rsidP="00BD4233">
+                            <w:pPr>
+                                <w:spacing w:line="360" w:line-rule="auto"/>
+                                <w:rPr>
+                                    <w:rFonts w:ascii="SimSun" w:fareast="SimSun" w:h-ansi="SimSun"/>
+                                    <wx:font wx:val="SimSun"/>
+                                </w:rPr>
+                            </w:pPr>
+                        </w:p>
+                    </wx:sub-section></c:if>
                     <c:if test="${not empty _apiInfo.responses}"><wx:sub-section>
                         <w:p wsp:rsidR="00BD4233" wsp:rsidRPr="00C73EB6" wsp:rsidRDefault="00BD4233" wsp:rsidP="00DB1FC0">
                             <w:pPr>
@@ -1740,7 +1961,6 @@
                             </w:tblPr>
                             <w:tblGrid>
                                 <w:gridCol w:w="2129"/>
-                                <w:gridCol w:w="2111"/>
                                 <w:gridCol w:w="4114"/>
                             </w:tblGrid>
                             <w:tr wsp:rsidR="00FF010F" wsp:rsidRPr="00286EAC" wsp:rsidTr="00286EAC">
@@ -1765,30 +1985,6 @@
                                                 <w:b/>
                                             </w:rPr>
                                             <w:t><ymweb:i18n key="apidocs.content.table_field_response_code" resourceName="apidocs-messages" defaultValue="Code"/></w:t>
-                                        </w:r>
-                                    </w:p>
-                                </w:tc>
-                                <w:tc>
-                                    <w:tcPr>
-                                        <w:tcW w:w="2111" w:type="dxa"/>
-                                        <w:shd w:val="clear" w:color="auto" w:fill="auto"/>
-                                    </w:tcPr>
-                                    <w:p wsp:rsidR="001B5237" wsp:rsidRPr="00286EAC" wsp:rsidRDefault="001B5237" wsp:rsidP="00286EAC">
-                                        <w:pPr>
-                                            <w:spacing w:line="360" w:line-rule="auto"/>
-                                            <w:rPr>
-                                                <w:rFonts w:ascii="SimSun" w:fareast="SimSun" w:h-ansi="SimSun" w:hint="fareast"/>
-                                                <wx:font wx:val="SimSun"/>
-                                                <w:b/>
-                                            </w:rPr>
-                                        </w:pPr>
-                                        <w:r wsp:rsidRPr="00286EAC">
-                                            <w:rPr>
-                                                <w:rFonts w:ascii="SimSun" w:fareast="SimSun" w:h-ansi="SimSun" w:hint="fareast"/>
-                                                <wx:font wx:val="SimSun"/>
-                                                <w:b/>
-                                            </w:rPr>
-                                            <w:t><ymweb:i18n key="apidocs.content.table_field_type" resourceName="apidocs-messages" defaultValue="Type"/></w:t>
                                         </w:r>
                                     </w:p>
                                 </w:tc>
@@ -1837,28 +2033,6 @@
                                                 <wx:font wx:val="SimSun"/>
                                             </w:rPr>
                                             <w:t>${_apiResponseItem.code}</w:t>
-                                        </w:r>
-                                    </w:p>
-                                </w:tc>
-                                <w:tc>
-                                    <w:tcPr>
-                                        <w:tcW w:w="2111" w:type="dxa"/>
-                                        <w:shd w:val="clear" w:color="auto" w:fill="auto"/>
-                                    </w:tcPr>
-                                    <w:p wsp:rsidR="001B5237" wsp:rsidRPr="00286EAC" wsp:rsidRDefault="001B5237" wsp:rsidP="00286EAC">
-                                        <w:pPr>
-                                            <w:spacing w:line="360" w:line-rule="auto"/>
-                                            <w:rPr>
-                                                <w:rFonts w:ascii="SimSun" w:fareast="SimSun" w:h-ansi="SimSun"/>
-                                                <wx:font wx:val="SimSun"/>
-                                            </w:rPr>
-                                        </w:pPr>
-                                        <w:r wsp:rsidRPr="00286EAC">
-                                            <w:rPr>
-                                                <w:rFonts w:ascii="SimSun" w:fareast="SimSun" w:h-ansi="SimSun"/>
-                                                <wx:font wx:val="SimSun"/>
-                                            </w:rPr>
-                                            <w:t>${_apiResponseItem.type}</w:t>
                                         </w:r>
                                     </w:p>
                                 </w:tc>
@@ -3111,6 +3285,227 @@
                                 </w:pPr>
                             </w:p>
                         </wx:sub-section></c:if>
+                        <c:if test="${not empty _actionInfo.responseType}"><wx:sub-section>
+                            <w:p wsp:rsidR="00BD4233" wsp:rsidRPr="00C73EB6" wsp:rsidRDefault="00BD4233" wsp:rsidP="00DB1FC0">
+                                <w:pPr>
+                                    <w:pStyle w:val="4"/>
+                                    <w:rPr>
+                                        <w:rFonts w:ascii="SimSun" w:fareast="SimSun" w:h-ansi="SimSun" w:hint="fareast"/>
+                                        <wx:font wx:val="SimSun"/>
+                                    </w:rPr>
+                                </w:pPr>
+                                <w:r wsp:rsidRPr="00C73EB6">
+                                    <w:rPr>
+                                        <w:rFonts w:ascii="SimSun" w:fareast="SimSun" w:h-ansi="SimSun" w:hint="fareast"/>
+                                        <wx:font wx:val="SimSun"/>
+                                    </w:rPr>
+                                    <w:t><ymweb:i18n key="apidocs.content.response_parameters" resourceName="apidocs-messages" defaultValue="Response parameters"/></w:t>
+                                </w:r>
+                            </w:p>
+                            <w:p wsp:rsidR="00B30B65" wsp:rsidRPr="00C73EB6" wsp:rsidRDefault="00B30B65" wsp:rsidP="00B30B65">
+                                <w:pPr>
+                                    <w:spacing w:line="360" w:line-rule="auto"/>
+                                    <w:rPr>
+                                        <w:rFonts w:ascii="SimSun" w:fareast="SimSun" w:h-ansi="SimSun" w:hint="fareast"/>
+                                        <wx:font wx:val="SimSun"/>
+                                    </w:rPr>
+                                </w:pPr>
+                                <w:r wsp:rsidRPr="00C73EB6">
+                                    <w:rPr>
+                                        <w:rFonts w:ascii="SimSun" w:fareast="SimSun" w:h-ansi="SimSun" w:hint="fareast"/>
+                                        <wx:font wx:val="SimSun"/>
+                                        <w:b/>
+                                    </w:rPr>
+                                    <w:t>${_actionInfo.responseType.name}</w:t>
+                                </w:r>
+                            </w:p>
+                            <w:p wsp:rsidR="00B30B65" wsp:rsidRPr="00C73EB6" wsp:rsidRDefault="00B30B65" wsp:rsidP="00B30B65">
+                                <w:pPr>
+                                    <w:spacing w:line="360" w:line-rule="auto"/>
+                                    <w:rPr>
+                                        <w:rFonts w:ascii="SimSun" w:fareast="SimSun" w:h-ansi="SimSun" w:hint="fareast"/>
+                                        <wx:font wx:val="SimSun"/>
+                                    </w:rPr>
+                                </w:pPr>
+                                <w:r wsp:rsidRPr="00C73EB6">
+                                    <w:rPr>
+                                        <w:rFonts w:ascii="SimSun" w:fareast="SimSun" w:h-ansi="SimSun" w:hint="fareast"/>
+                                        <wx:font wx:val="SimSun"/>
+                                        <w:b/>
+                                    </w:rPr>
+                                    <w:t>${_actionInfo.responseType.description}</w:t>
+                                </w:r>
+                            </w:p>
+                            <w:tbl>
+                                <w:tblPr>
+                                    <w:tblW w:w="0" w:type="auto"/>
+                                    <w:tblBorders>
+                                        <w:top w:val="single" w:sz="4" wx:bdrwidth="10" w:space="0" w:color="auto"/>
+                                        <w:left w:val="single" w:sz="4" wx:bdrwidth="10" w:space="0" w:color="auto"/>
+                                        <w:bottom w:val="single" w:sz="4" wx:bdrwidth="10" w:space="0" w:color="auto"/>
+                                        <w:right w:val="single" w:sz="4" wx:bdrwidth="10" w:space="0" w:color="auto"/>
+                                        <w:insideH w:val="single" w:sz="4" wx:bdrwidth="10" w:space="0" w:color="auto"/>
+                                        <w:insideV w:val="single" w:sz="4" wx:bdrwidth="10" w:space="0" w:color="auto"/>
+                                    </w:tblBorders>
+                                    <w:tblLook w:val="04A0"/>
+                                </w:tblPr>
+                                <w:tblGrid>
+                                    <w:gridCol w:w="4145"/>
+                                    <w:gridCol w:w="4145"/>
+                                </w:tblGrid>
+                                <w:tr wsp:rsidR="00FF010F" wsp:rsidRPr="00286EAC" wsp:rsidTr="00286EAC">
+                                    <w:tc>
+                                        <w:tcPr>
+                                            <w:tcW w:w="4145" w:type="dxa"/>
+                                            <w:shd w:val="clear" w:color="auto" w:fill="auto"/>
+                                        </w:tcPr>
+                                        <w:p wsp:rsidR="00B30B65" wsp:rsidRPr="00286EAC" wsp:rsidRDefault="00B30B65" wsp:rsidP="00286EAC">
+                                            <w:pPr>
+                                                <w:spacing w:line="360" w:line-rule="auto"/>
+                                                <w:rPr>
+                                                    <w:rFonts w:ascii="SimSun" w:fareast="SimSun" w:h-ansi="SimSun" w:hint="fareast"/>
+                                                    <wx:font wx:val="SimSun"/>
+                                                    <w:b/>
+                                                </w:rPr>
+                                            </w:pPr>
+                                            <w:r wsp:rsidRPr="00286EAC">
+                                                <w:rPr>
+                                                    <w:rFonts w:ascii="SimSun" w:fareast="SimSun" w:h-ansi="SimSun" w:hint="fareast"/>
+                                                    <wx:font wx:val="SimSun"/>
+                                                    <w:b/>
+                                                </w:rPr>
+                                                <w:t><ymweb:i18n key="apidocs.content.table_field_param_name" resourceName="apidocs-messages" defaultValue="Parameter name"/></w:t>
+                                            </w:r>
+                                        </w:p>
+                                    </w:tc>
+                                    <w:tc>
+                                        <w:tcPr>
+                                            <w:tcW w:w="4145" w:type="dxa"/>
+                                            <w:shd w:val="clear" w:color="auto" w:fill="auto"/>
+                                        </w:tcPr>
+                                        <w:p wsp:rsidR="00B30B65" wsp:rsidRPr="00286EAC" wsp:rsidRDefault="00B30B65" wsp:rsidP="00286EAC">
+                                            <w:pPr>
+                                                <w:spacing w:line="360" w:line-rule="auto"/>
+                                                <w:rPr>
+                                                    <w:rFonts w:ascii="SimSun" w:fareast="SimSun" w:h-ansi="SimSun" w:hint="fareast"/>
+                                                    <wx:font wx:val="SimSun"/>
+                                                    <w:b/>
+                                                </w:rPr>
+                                            </w:pPr>
+                                            <w:r wsp:rsidRPr="00286EAC">
+                                                <w:rPr>
+                                                    <w:rFonts w:ascii="SimSun" w:fareast="SimSun" w:h-ansi="SimSun" w:hint="fareast"/>
+                                                    <wx:font wx:val="SimSun"/>
+                                                    <w:b/>
+                                                </w:rPr>
+                                                <w:t><ymweb:i18n key="apidocs.content.table_field_type" resourceName="apidocs-messages" defaultValue="Type"/></w:t>
+                                            </w:r>
+                                        </w:p>
+                                    </w:tc>
+                                    <w:tc>
+                                        <w:tcPr>
+                                            <w:tcW w:w="4145" w:type="dxa"/>
+                                            <w:shd w:val="clear" w:color="auto" w:fill="auto"/>
+                                        </w:tcPr>
+                                        <w:p wsp:rsidR="00B30B65" wsp:rsidRPr="00286EAC" wsp:rsidRDefault="00B30B65" wsp:rsidP="00286EAC">
+                                            <w:pPr>
+                                                <w:spacing w:line="360" w:line-rule="auto"/>
+                                                <w:rPr>
+                                                    <w:rFonts w:ascii="SimSun" w:fareast="SimSun" w:h-ansi="SimSun" w:hint="fareast"/>
+                                                    <wx:font wx:val="SimSun"/>
+                                                    <w:b/>
+                                                </w:rPr>
+                                            </w:pPr>
+                                            <w:r wsp:rsidRPr="00286EAC">
+                                                <w:rPr>
+                                                    <w:rFonts w:ascii="SimSun" w:fareast="SimSun" w:h-ansi="SimSun" w:hint="fareast"/>
+                                                    <wx:font wx:val="SimSun"/>
+                                                    <w:b/>
+                                                </w:rPr>
+                                                <w:t><ymweb:i18n key="apidocs.content.table_field_description" resourceName="apidocs-messages" defaultValue="Description"/></w:t>
+                                            </w:r>
+                                        </w:p>
+                                    </w:tc>
+                                </w:tr>
+                                <c:forEach var="_actionResponseProps" items="${_actionInfo.responseType.properties}"><w:tr wsp:rsidR="00FF010F" wsp:rsidRPr="00286EAC" wsp:rsidTr="00286EAC">
+                                    <w:tc>
+                                        <w:tcPr>
+                                            <w:tcW w:w="4145" w:type="dxa"/>
+                                            <w:shd w:val="clear" w:color="auto" w:fill="auto"/>
+                                        </w:tcPr>
+                                        <w:p wsp:rsidR="00B30B65" wsp:rsidRPr="00286EAC" wsp:rsidRDefault="00B30B65" wsp:rsidP="00286EAC">
+                                            <w:pPr>
+                                                <w:spacing w:line="360" w:line-rule="auto"/>
+                                                <w:rPr>
+                                                    <w:rFonts w:ascii="SimSun" w:fareast="SimSun" w:h-ansi="SimSun"/>
+                                                    <wx:font wx:val="SimSun"/>
+                                                </w:rPr>
+                                            </w:pPr>
+                                            <w:r wsp:rsidRPr="00286EAC">
+                                                <w:rPr>
+                                                    <w:rFonts w:ascii="SimSun" w:fareast="SimSun" w:h-ansi="SimSun"/>
+                                                    <wx:font wx:val="SimSun"/>
+                                                </w:rPr>
+                                                <w:t>${_actionResponseProps.name}</w:t>
+                                            </w:r>
+                                        </w:p>
+                                    </w:tc>
+                                    <w:tc>
+                                        <w:tcPr>
+                                            <w:tcW w:w="4145" w:type="dxa"/>
+                                            <w:shd w:val="clear" w:color="auto" w:fill="auto"/>
+                                        </w:tcPr>
+                                        <w:p wsp:rsidR="00B30B65" wsp:rsidRPr="00286EAC" wsp:rsidRDefault="00B30B65" wsp:rsidP="00286EAC">
+                                            <w:pPr>
+                                                <w:spacing w:line="360" w:line-rule="auto"/>
+                                                <w:rPr>
+                                                    <w:rFonts w:ascii="SimSun" w:fareast="SimSun" w:h-ansi="SimSun"/>
+                                                    <wx:font wx:val="SimSun"/>
+                                                </w:rPr>
+                                            </w:pPr>
+                                            <w:r wsp:rsidRPr="00286EAC">
+                                                <w:rPr>
+                                                    <w:rFonts w:ascii="SimSun" w:fareast="SimSun" w:h-ansi="SimSun"/>
+                                                    <wx:font wx:val="SimSun"/>
+                                                </w:rPr>
+                                                <w:t>${_actionResponseProps.value}</w:t>
+                                            </w:r>
+                                        </w:p>
+                                    </w:tc>
+                                    <w:tc>
+                                        <w:tcPr>
+                                            <w:tcW w:w="4145" w:type="dxa"/>
+                                            <w:shd w:val="clear" w:color="auto" w:fill="auto"/>
+                                        </w:tcPr>
+                                        <w:p wsp:rsidR="00B30B65" wsp:rsidRPr="00286EAC" wsp:rsidRDefault="00B30B65" wsp:rsidP="00286EAC">
+                                            <w:pPr>
+                                                <w:spacing w:line="360" w:line-rule="auto"/>
+                                                <w:rPr>
+                                                    <w:rFonts w:ascii="SimSun" w:fareast="SimSun" w:h-ansi="SimSun"/>
+                                                    <wx:font wx:val="SimSun"/>
+                                                </w:rPr>
+                                            </w:pPr>
+                                            <w:r wsp:rsidRPr="00286EAC">
+                                                <w:rPr>
+                                                    <w:rFonts w:ascii="SimSun" w:fareast="SimSun" w:h-ansi="SimSun"/>
+                                                    <wx:font wx:val="SimSun"/>
+                                                </w:rPr>
+                                                <w:t>${_actionResponseProps.description}</w:t>
+                                            </w:r>
+                                        </w:p>
+                                    </w:tc>
+                                </w:tr></c:forEach>
+                            </w:tbl>
+                            <w:p wsp:rsidR="00B30B65" wsp:rsidRPr="00C73EB6" wsp:rsidRDefault="00B30B65" wsp:rsidP="00BD4233">
+                                <w:pPr>
+                                    <w:spacing w:line="360" w:line-rule="auto"/>
+                                    <w:rPr>
+                                        <w:rFonts w:ascii="SimSun" w:fareast="SimSun" w:h-ansi="SimSun" w:hint="fareast"/>
+                                        <wx:font wx:val="SimSun"/>
+                                    </w:rPr>
+                                </w:pPr>
+                            </w:p>
+                        </wx:sub-section></c:if>
                         <c:if test="${not empty _actionInfo.responses}"><wx:sub-section>
                             <w:p wsp:rsidR="00BD4233" wsp:rsidRPr="00C73EB6" wsp:rsidRDefault="00BD4233" wsp:rsidP="00DB1FC0">
                                 <w:pPr>
@@ -3143,7 +3538,6 @@
                                 </w:tblPr>
                                 <w:tblGrid>
                                     <w:gridCol w:w="2129"/>
-                                    <w:gridCol w:w="2111"/>
                                     <w:gridCol w:w="4114"/>
                                 </w:tblGrid>
                                 <w:tr wsp:rsidR="00FF010F" wsp:rsidRPr="00286EAC" wsp:rsidTr="00286EAC">
@@ -3168,30 +3562,6 @@
                                                     <w:b/>
                                                 </w:rPr>
                                                 <w:t><ymweb:i18n key="apidocs.content.table_field_response_code" resourceName="apidocs-messages" defaultValue="Code"/></w:t>
-                                            </w:r>
-                                        </w:p>
-                                    </w:tc>
-                                    <w:tc>
-                                        <w:tcPr>
-                                            <w:tcW w:w="2111" w:type="dxa"/>
-                                            <w:shd w:val="clear" w:color="auto" w:fill="auto"/>
-                                        </w:tcPr>
-                                        <w:p wsp:rsidR="00745B8E" wsp:rsidRPr="00286EAC" wsp:rsidRDefault="00745B8E" wsp:rsidP="00286EAC">
-                                            <w:pPr>
-                                                <w:spacing w:line="360" w:line-rule="auto"/>
-                                                <w:rPr>
-                                                    <w:rFonts w:ascii="SimSun" w:fareast="SimSun" w:h-ansi="SimSun" w:hint="fareast"/>
-                                                    <wx:font wx:val="SimSun"/>
-                                                    <w:b/>
-                                                </w:rPr>
-                                            </w:pPr>
-                                            <w:r wsp:rsidRPr="00286EAC">
-                                                <w:rPr>
-                                                    <w:rFonts w:ascii="SimSun" w:fareast="SimSun" w:h-ansi="SimSun" w:hint="fareast"/>
-                                                    <wx:font wx:val="SimSun"/>
-                                                    <w:b/>
-                                                </w:rPr>
-                                                <w:t><ymweb:i18n key="apidocs.content.table_field_type" resourceName="apidocs-messages" defaultValue="Type"/></w:t>
                                             </w:r>
                                         </w:p>
                                     </w:tc>
@@ -3240,28 +3610,6 @@
                                                     <wx:font wx:val="SimSun"/>
                                                 </w:rPr>
                                                 <w:t>${_actionResponseItem.code}</w:t>
-                                            </w:r>
-                                        </w:p>
-                                    </w:tc>
-                                    <w:tc>
-                                        <w:tcPr>
-                                            <w:tcW w:w="2111" w:type="dxa"/>
-                                            <w:shd w:val="clear" w:color="auto" w:fill="auto"/>
-                                        </w:tcPr>
-                                        <w:p wsp:rsidR="00745B8E" wsp:rsidRPr="00286EAC" wsp:rsidRDefault="00745B8E" wsp:rsidP="00286EAC">
-                                            <w:pPr>
-                                                <w:spacing w:line="360" w:line-rule="auto"/>
-                                                <w:rPr>
-                                                    <w:rFonts w:ascii="SimSun" w:fareast="SimSun" w:h-ansi="SimSun"/>
-                                                    <wx:font wx:val="SimSun"/>
-                                                </w:rPr>
-                                            </w:pPr>
-                                            <w:r wsp:rsidRPr="00286EAC">
-                                                <w:rPr>
-                                                    <w:rFonts w:ascii="SimSun" w:fareast="SimSun" w:h-ansi="SimSun"/>
-                                                    <wx:font wx:val="SimSun"/>
-                                                </w:rPr>
-                                                <w:t>${_actionResponseItem.type}</w:t>
                                             </w:r>
                                         </w:p>
                                     </w:tc>

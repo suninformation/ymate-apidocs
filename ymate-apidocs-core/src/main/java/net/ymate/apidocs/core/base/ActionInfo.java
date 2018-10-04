@@ -143,6 +143,9 @@ public class ActionInfo implements IMarkdown, Serializable {
                 //
                 if (method.isAnnotationPresent(ApiResponses.class)) {
                     ApiResponses _responses = method.getAnnotation(ApiResponses.class);
+                    if (!Void.class.equals(_responses.type())) {
+                        _actionInfo.setResponseType(ResponseTypeInfo.create(_responses));
+                    }
                     for (ApiResponse _response : _responses.value()) {
                         _actionInfo.addResponse(ResponseInfo.create(_response));
                     }
@@ -174,6 +177,9 @@ public class ActionInfo implements IMarkdown, Serializable {
      */
     private String description;
 
+    /**
+     * 文档锚点URL路径名
+     */
     private String linkUrl;
 
     /**
@@ -220,6 +226,11 @@ public class ActionInfo implements IMarkdown, Serializable {
      * 接口方法参数定义
      */
     private List<ParamInfo> params;
+
+    /**
+     * 接口方法响应数据类型
+     */
+    private ResponseTypeInfo responseType;
 
     /**
      * 接口方法响应信息集合
@@ -424,6 +435,15 @@ public class ActionInfo implements IMarkdown, Serializable {
         return this;
     }
 
+    public ResponseTypeInfo getResponseType() {
+        return responseType;
+    }
+
+    public ActionInfo setResponseType(ResponseTypeInfo responseType) {
+        this.responseType = responseType;
+        return this;
+    }
+
     public List<ResponseInfo> getResponses() {
         return responses;
     }
@@ -548,10 +568,14 @@ public class ActionInfo implements IMarkdown, Serializable {
                 md.append(param.toMarkdown()).append("\n");
             }
         }
+        if (responseType != null) {
+            md.append("\n##### ").append(I18N.formatMessage("apidocs-messages", "apidocs.content.response_parameters", "Response parameters")).append("\n\n");
+            md.append(responseType.toMarkdown()).append("\n");
+        }
         if (!responses.isEmpty()) {
             md.append("\n##### ").append(I18N.formatMessage("apidocs-messages", "apidocs.content.responses", "Responses")).append("\n\n");
-            md.append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.table_field_response_code", "Code")).append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.table_field_type", "Type")).append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.table_field_description", "Description")).append("|\n");
-            md.append("|---|---|---|\n");
+            md.append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.table_field_response_code", "Code")).append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.table_field_description", "Description")).append("|\n");
+            md.append("|---|---|\n");
             for (ResponseInfo response : responses) {
                 md.append(response.toMarkdown()).append("\n");
             }

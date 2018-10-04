@@ -15,11 +15,12 @@
  */
 package net.ymate.apidocs.core.base;
 
-import net.ymate.apidocs.annotation.ApiExtensionProperty;
+import net.ymate.apidocs.annotation.ApiProperty;
 import net.ymate.apidocs.core.IMarkdown;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.Serializable;
+import java.lang.reflect.Field;
 
 /**
  * 描述一个自定义属性
@@ -33,11 +34,21 @@ public class PropertyInfo implements IMarkdown, Serializable {
         return new PropertyInfo();
     }
 
-    public static PropertyInfo create(ApiExtensionProperty property) {
+    public static PropertyInfo create(ApiProperty property) {
         if (property != null) {
             return new PropertyInfo()
                     .setName(property.name())
                     .setValue(property.value())
+                    .setDescription(property.description());
+        }
+        return null;
+    }
+
+    public static PropertyInfo create(ApiProperty property, Field field) {
+        if (property != null) {
+            return new PropertyInfo()
+                    .setName(StringUtils.defaultIfBlank(property.name(), field.getName()))
+                    .setValue(StringUtils.defaultIfBlank(property.value(), field.getType().getSimpleName()))
                     .setDescription(property.description());
         }
         return null;
@@ -48,6 +59,8 @@ public class PropertyInfo implements IMarkdown, Serializable {
     private String value;
 
     private String description;
+
+    private boolean useTable;
 
     public String getName() {
         return name;
@@ -76,23 +89,32 @@ public class PropertyInfo implements IMarkdown, Serializable {
         return this;
     }
 
+    public PropertyInfo useTable() {
+        this.useTable = true;
+        return this;
+    }
+
     @Override
     public String toMarkdown() {
-        StringBuilder md = new StringBuilder();
-        if (StringUtils.isNotBlank(name)) {
-            md.append("> **").append(name).append("**");
-            if (StringUtils.isNotBlank(description)) {
-                md.append(" ").append(description).append("\n");
-            } else {
-                md.append("\n");
+        if (useTable) {
+            return "|`" + name + "`|" + StringUtils.trimToEmpty(value) + "|" + StringUtils.replaceEach(StringUtils.trimToEmpty(description), new String[]{"\r\n", "\r", "\n", "\t"}, new String[]{"[\\r][\\n]", "[\\r]", "[\\n]", "[\\t]"}) + "|";
+        } else {
+            StringBuilder md = new StringBuilder();
+            if (StringUtils.isNotBlank(name)) {
+                md.append("> **").append(name).append("**");
+                if (StringUtils.isNotBlank(description)) {
+                    md.append(" ").append(description).append("\n");
+                } else {
+                    md.append("\n");
+                }
             }
-        }
-        if (StringUtils.isNotBlank(value)) {
-            if (md.length() > 0) {
-                md.append(">\n");
+            if (StringUtils.isNotBlank(value)) {
+                if (md.length() > 0) {
+                    md.append(">\n");
+                }
+                md.append(">").append(value).append("\n");
             }
-            md.append(">").append(value).append("\n");
+            return md.toString();
         }
-        return md.toString();
     }
 }

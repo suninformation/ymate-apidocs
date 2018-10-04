@@ -23,6 +23,8 @@ import org.apache.commons.lang.StringUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -324,6 +326,12 @@ public class DocsInfo implements IMarkdown, Serializable {
             }
         }
         for (ApiInfo api : apis) {
+            Collections.sort(apis, new Comparator<ApiInfo>() {
+                @Override
+                public int compare(ApiInfo o1, ApiInfo o2) {
+                    return o1.getId().compareTo(o2.getId());
+                }
+            });
             md.append(api.toMarkdown()).append("\n");
         }
         return md.toString();

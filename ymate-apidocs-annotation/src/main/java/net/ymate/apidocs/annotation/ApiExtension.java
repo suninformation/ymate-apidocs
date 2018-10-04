@@ -41,5 +41,5 @@ public @interface ApiExtension {
     /**
      * @return 扩展属性集合
      */
-    ApiExtensionProperty[] properties();
+    ApiProperty[] properties();
 }

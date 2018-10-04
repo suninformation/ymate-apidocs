@@ -15,53 +15,54 @@
  */
 package net.ymate.apidocs.core.base;
 
-import net.ymate.apidocs.annotation.ApiExtension;
 import net.ymate.apidocs.annotation.ApiProperty;
+import net.ymate.apidocs.annotation.ApiResponses;
 import net.ymate.apidocs.core.IMarkdown;
+import net.ymate.platform.core.i18n.I18N;
+import net.ymate.platform.core.util.ClassUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 /**
- * 描述一个扩展信息
- *
- * @author 刘镇 (suninformation@163.com) on 2018/5/8 上午1:29
+ * @author 刘镇 (suninformation@163.com) on 2018/10/4 下午12:26
  * @version 1.0
  */
-public class ExtensionInfo implements IMarkdown, Serializable {
+public class ResponseTypeInfo implements IMarkdown, Serializable {
 
-    public static ExtensionInfo create(PropertyInfo... properties) {
-        return new ExtensionInfo(properties);
-    }
-
-    public static ExtensionInfo create(ApiExtension extension) {
-        ExtensionInfo _extensionInfo = new ExtensionInfo().setName(extension.name()).setDescription(extension.description());
-        for (ApiProperty _property : extension.properties()) {
-            _extensionInfo.addProperty(PropertyInfo.create(_property));
+    public static ResponseTypeInfo create(ApiResponses responses) {
+        ResponseTypeInfo _responseTypeInfo = new ResponseTypeInfo().setName(responses.name()).setDescription(responses.description());
+        ClassUtils.BeanWrapper<?> _wrapper = ClassUtils.wrapper(responses.type());
+        for (Field _field : _wrapper.getFields()) {
+            ApiProperty _property = _field.getAnnotation(ApiProperty.class);
+            if (_property != null) {
+                _responseTypeInfo.addProperty(PropertyInfo.create(_property, _field));
+            }
         }
-        return _extensionInfo;
+        return _responseTypeInfo;
     }
 
     /**
-     * 扩展名称
+     * 响应数据类型名称
      */
     private String name;
 
     /**
-     * 扩展描述
+     * 响应数据类型描述
      */
     private String description;
 
     /**
-     * 自定义属性
+     * 响应数据类型属性
      */
     private List<PropertyInfo> properties;
 
-    public ExtensionInfo(PropertyInfo... properties) {
+    public ResponseTypeInfo(PropertyInfo... properties) {
         this.properties = new ArrayList<PropertyInfo>();
         if (ArrayUtils.isNotEmpty(properties)) {
             this.properties.addAll(Arrays.asList(properties));
@@ -72,7 +73,7 @@ public class ExtensionInfo implements IMarkdown, Serializable {
         return name;
     }
 
-    public ExtensionInfo setName(String name) {
+    public ResponseTypeInfo setName(String name) {
         this.name = name;
         return this;
     }
@@ -81,7 +82,7 @@ public class ExtensionInfo implements IMarkdown, Serializable {
         return description;
     }
 
-    public ExtensionInfo setDescription(String description) {
+    public ResponseTypeInfo setDescription(String description) {
         this.description = description;
         return this;
     }
@@ -90,14 +91,14 @@ public class ExtensionInfo implements IMarkdown, Serializable {
         return properties;
     }
 
-    public ExtensionInfo setProperties(List<PropertyInfo> properties) {
+    public ResponseTypeInfo setProperties(List<PropertyInfo> properties) {
         if (properties != null) {
             this.properties.addAll(properties);
         }
         return this;
     }
 
-    public ExtensionInfo addProperty(PropertyInfo property) {
+    public ResponseTypeInfo addProperty(PropertyInfo property) {
         if (property != null) {
             this.properties.add(property);
         }
@@ -108,7 +109,7 @@ public class ExtensionInfo implements IMarkdown, Serializable {
     public String toMarkdown() {
         StringBuilder md = new StringBuilder();
         if (StringUtils.isNotBlank(name)) {
-            md.append(name).append("\n");
+            md.append("> **").append(name).append("**").append("\n");
         }
         if (StringUtils.isNotBlank(description)) {
             if (md.length() > 0) {
@@ -116,8 +117,12 @@ public class ExtensionInfo implements IMarkdown, Serializable {
             }
             md.append(description).append("\n");
         }
-        for (PropertyInfo property : properties) {
-            md.append("\n").append(property.toMarkdown()).append("\n");
+        if (properties != null && !properties.isEmpty()) {
+            md.append("\n|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.table_field_param_name", "Parameter name")).append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.table_field_type", "Type")).append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.table_field_description", "Description")).append("|\n");
+            md.append("|---|---|---|\n");
+            for (PropertyInfo property : properties) {
+                md.append(property.useTable().toMarkdown()).append("\n");
+            }
         }
         return md.toString();
     }

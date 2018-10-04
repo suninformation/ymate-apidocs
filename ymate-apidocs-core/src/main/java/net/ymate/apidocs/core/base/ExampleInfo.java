@@ -73,6 +73,11 @@ public class ExampleInfo implements IMarkdown, Serializable {
 
     @Override
     public String toMarkdown() {
-        return "\n```" + StringUtils.trimToEmpty(type) + "\n" + content + "\n```\n";
+        StringBuilder md = new StringBuilder();
+        if (StringUtils.isNotBlank(type)) {
+            md.append("\n").append(type).append("\n");
+        }
+        md.append("\n```\n").append(content).append("\n```\n");
+        return md.toString();
     }
 }

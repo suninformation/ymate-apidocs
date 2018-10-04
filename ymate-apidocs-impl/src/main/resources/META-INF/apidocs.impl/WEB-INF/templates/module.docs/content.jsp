@@ -174,21 +174,39 @@
                                         </tr></c:forEach></tbody>
                                     </bs:table></jsp:body>
                             </bs:panel></c:if>
+                            <!-- Global response parameters -->
+                            <c:if test="${not empty _apiInfo.responseType}"><bs:panel>
+                                <jsp:attribute name="title"><ymweb:i18n key="apidocs.content.global_response_parameters" resourceName="apidocs-messages" defaultValue="Global response parameters"/></jsp:attribute>
+                                <jsp:body><bs:panel-body><p>${_apiInfo.responseType.name}</p><p>${_apiInfo.responseType.description}</p></bs:panel-body>
+                                    <bs:table hover="true" condensed="true" bordered="true" responsive="true">
+                                    <thead>
+                                    <tr>
+                                        <th><ymweb:i18n key="apidocs.content.table_field_param_name" resourceName="apidocs-messages" defaultValue="Parameter name"/></th>
+                                        <th><ymweb:i18n key="apidocs.content.table_field_type" resourceName="apidocs-messages" defaultValue="Type"/></th>
+                                        <th><ymweb:i18n key="apidocs.content.table_field_description" resourceName="apidocs-messages" defaultValue="Description"/></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <c:forEach var="_apiResponseItem" items="${_apiInfo.responseType.properties}"><tr>
+                                        <td>${_apiResponseItem.name}</td>
+                                        <td>${_apiResponseItem.value}</td>
+                                        <td>${_apiResponseItem.description}</td></tr></c:forEach>
+                                    </tbody>
+                                </bs:table></jsp:body>
+                            </bs:panel></c:if>
                             <!-- Global responses -->
                             <c:if test="${not empty _apiInfo.responses}"><bs:panel>
-                                    <jsp:attribute name="title"><ymweb:i18n key="apidocs.content.global_responses" resourceName="apidocs-messages" defaultValue="Global responses"/></jsp:attribute>
+                                    <jsp:attribute name="title"><ymweb:i18n key="apidocs.content.global_responses" resourceName="apidocs-messages" defaultValue="Global response codes"/></jsp:attribute>
                                     <jsp:body><bs:table hover="true" condensed="true" bordered="true" responsive="true">
                                         <thead>
                                             <tr>
                                                 <th><ymweb:i18n key="apidocs.content.table_field_response_code" resourceName="apidocs-messages" defaultValue="Code"/></th>
-                                                <th><ymweb:i18n key="apidocs.content.table_field_type" resourceName="apidocs-messages" defaultValue="Type"/></th>
                                                 <th><ymweb:i18n key="apidocs.content.table_field_description" resourceName="apidocs-messages" defaultValue="Description"/></th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                         <c:forEach var="_apiResponseItem" items="${_apiInfo.responses}"><tr>
                                             <td>${_apiResponseItem.code}</td>
-                                            <td>${_apiResponseItem.type}</td>
                                             <td><c:if test="${not empty _apiResponseItem.message}"><p>${_apiResponseItem.message}</p></c:if><c:if test="${not empty _apiResponseItem.headers}">
                                                 <p><bs:label><ymweb:i18n key="apidocs.content.response_headers" resourceName="apidocs-messages" defaultValue="Response headers"/></bs:label></p>
                                                 <bs:table hover="true" condensed="true" striped="true">
@@ -327,6 +345,26 @@
                                         </tr></c:forEach></tbody>
                                     </bs:table></jsp:body>
                                 </bs:panel></c:if>
+                                <!-- Response parameters -->
+                                <c:if test="${not empty _actionInfo.responseType}"><bs:panel>
+                                    <jsp:attribute name="title"><ymweb:i18n key="apidocs.content.response_parameters" resourceName="apidocs-messages" defaultValue="Response parameters"/></jsp:attribute>
+                                    <jsp:body><bs:panel-body><p>${_actionInfo.responseType.name}</p><p>${_actionInfo.responseType.description}</p></bs:panel-body>
+                                        <bs:table hover="true" condensed="true" bordered="true" responsive="true">
+                                        <thead>
+                                        <tr>
+                                            <th><ymweb:i18n key="apidocs.content.table_field_param_name" resourceName="apidocs-messages" defaultValue="Parameter name"/></th>
+                                            <th><ymweb:i18n key="apidocs.content.table_field_type" resourceName="apidocs-messages" defaultValue="Type"/></th>
+                                            <th><ymweb:i18n key="apidocs.content.table_field_description" resourceName="apidocs-messages" defaultValue="Description"/></th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <c:forEach var="_actionResponseItem" items="${_actionInfo.responseType.properties}"><tr>
+                                            <td>${_actionResponseItem.name}</td>
+                                            <td>${_actionResponseItem.value}</td>
+                                            <td>${_actionResponseItem.description}</td></tr></c:forEach>
+                                        </tbody>
+                                    </bs:table></jsp:body>
+                                </bs:panel></c:if>
                                 <!-- Responses -->
                                 <c:if test="${not empty _actionInfo.responses}"><bs:panel>
                                     <jsp:attribute name="title"><ymweb:i18n key="apidocs.content.responses" resourceName="apidocs-messages" defaultValue="Responses"/></jsp:attribute>
@@ -334,14 +372,12 @@
                                         <thead>
                                         <tr>
                                             <th><ymweb:i18n key="apidocs.content.table_field_response_code" resourceName="apidocs-messages" defaultValue="Code"/></th>
-                                            <th><ymweb:i18n key="apidocs.content.table_field_type" resourceName="apidocs-messages" defaultValue="Type"/></th>
                                             <th><ymweb:i18n key="apidocs.content.table_field_description" resourceName="apidocs-messages" defaultValue="Description"/></th>
                                         </tr>
                                         </thead>
                                         <tbody>
                                         <c:forEach var="_actionResponseItem" items="${_actionInfo.responses}"><tr>
                                             <td>${_actionResponseItem.code}</td>
-                                            <td>${_actionResponseItem.type}</td>
                                             <td><c:if test="${not empty _actionResponseItem.message}"><p>${_actionResponseItem.message}</p></c:if><c:if test="${not empty _actionResponseItem.headers}">
                                                 <p><bs:label><ymweb:i18n key="apidocs.content.response_headers" resourceName="apidocs-messages" defaultValue="Response headers"/></bs:label></p>
                                                 <bs:table hover="true" condensed="true" striped="true">
