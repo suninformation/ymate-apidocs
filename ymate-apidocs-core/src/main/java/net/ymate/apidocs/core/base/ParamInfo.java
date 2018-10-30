@@ -208,6 +208,6 @@ public class ParamInfo implements IMarkdown, Serializable {
             }
             _desc.append(I18N.formatMessage("apidocs-messages", "apidocs.content.param_value_range", "Value Range")).append(": ").append(allowValues);
         }
-        return "|`" + name + "`|" + type + "|" + StringUtils.trimToEmpty(defaultValue) + "|" + StringUtils.replaceEach(_desc.toString(), new String[]{"\r\n", "\r", "\n", "\t"}, new String[]{"[\\r][\\n]", "[\\r]", "[\\n]", "[\\t]"}) + "|";
+        return "|`" + name + "`|" + type + "|" + StringUtils.trimToEmpty(defaultValue) + "|" + StringUtils.replaceEach(_desc.toString(), new String[]{"\r\n", "\r", "\n", "\t", "|"}, new String[]{"[\\r][\\n]", "[\\r]", "[\\n]", "[\\t]", "\\|"}) + "|";
     }
 }

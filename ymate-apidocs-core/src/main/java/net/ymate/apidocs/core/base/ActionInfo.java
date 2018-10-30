@@ -562,10 +562,25 @@ public class ActionInfo implements IMarkdown, Serializable {
         }
         if (!params.isEmpty()) {
             md.append("\n##### ").append(I18N.formatMessage("apidocs-messages", "apidocs.content.parameters", "Parameters")).append("\n\n");
-            md.append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.table_field_param_name", "Parameter name")).append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.table_field_type", "Type")).append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.table_field_default_value", "Default")).append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.table_field_description", "Description")).append("|\n");
-            md.append("|---|---|---|---|\n");
+            //
+            StringBuilder _tHeader = new StringBuilder();
+            _tHeader.append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.table_field_param_name", "Parameter name")).append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.table_field_type", "Type")).append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.table_field_default_value", "Default")).append("|").append(I18N.formatMessage("apidocs-messages", "apidocs.content.table_field_description", "Description")).append("|\n");
+            _tHeader.append("|---|---|---|---|\n");
+            //
+            boolean _flag = false;
+            md.append(_tHeader);
             for (ParamInfo param : params) {
+                if (_flag) {
+                    md.append(_tHeader);
+                    _flag = false;
+                }
                 md.append(param.toMarkdown()).append("\n");
+                if (!param.getExamples().isEmpty()) {
+                    for (ExampleInfo _exam : param.getExamples()) {
+                        md.append(_exam.toMarkdown()).append("\n");
+                    }
+                    _flag = true;
+                }
             }
         }
         if (responseType != null) {
