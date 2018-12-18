@@ -18,9 +18,8 @@ package net.ymate.apidocs.core.impl;
 import net.ymate.apidocs.core.IDocs;
 import net.ymate.apidocs.core.IDocsModuleCfg;
 import net.ymate.platform.core.YMP;
-import net.ymate.platform.core.lang.BlurObject;
-import net.ymate.platform.core.util.RuntimeUtils;
-import org.apache.commons.lang.StringUtils;
+import net.ymate.platform.core.support.IConfigReader;
+import net.ymate.platform.core.support.impl.MapSafeConfigReader;
 
 import java.util.Collections;
 import java.util.Map;
@@ -29,7 +28,7 @@ import java.util.Map;
  * @author 刘镇 (suninformation@163.com) on 2018/04/15 下午 12:07
  * @version 1.0
  */
-public class DefaultModuleCfg implements IDocsModuleCfg {
+public class DefaultDocsModuleCfg implements IDocsModuleCfg {
 
     private String __title;
 
@@ -41,15 +40,15 @@ public class DefaultModuleCfg implements IDocsModuleCfg {
 
     private Map<String, String> __params;
 
-    public DefaultModuleCfg(YMP owner) {
-        Map<String, String> _moduleCfgs = owner.getConfig().getModuleConfigs(IDocs.MODULE_NAME);
+    public DefaultDocsModuleCfg(YMP owner) {
+        IConfigReader _moduleCfg = MapSafeConfigReader.bind(owner.getConfig().getModuleConfigs(IDocs.MODULE_NAME));
         //
-        __title = StringUtils.defaultIfBlank(_moduleCfgs.get("title"), "ApiDocs");
-        __brand = StringUtils.defaultIfBlank(_moduleCfgs.get("brand"), __title);
-        __description = StringUtils.defaultIfBlank(_moduleCfgs.get("description"), "A simple development tool for document generation.");
-        __disabled = BlurObject.bind(_moduleCfgs.get("disabled")).toBooleanValue();
+        __title = _moduleCfg.getString("title", "ApiDocs");
+        __brand = _moduleCfg.getString("brand", __title);
+        __description = _moduleCfg.getString("description", "A simple development tool for document generation.");
+        __disabled = _moduleCfg.getBoolean("disabled");
         //
-        __params = RuntimeUtils.keyStartsWith(_moduleCfgs, "params.");
+        __params = _moduleCfg.getMap("params.");
     }
 
     @Override

@@ -58,7 +58,7 @@ public class ApidocsController {
     public IView content(@RequestParam String doc) throws Exception {
         Map<String, DocsInfo> docs = Docs.get().getDocsMap();
         if (StringUtils.isBlank(doc) || !docs.keySet().contains(doc)) {
-            return View.httpStatusView(404);
+            return HttpStatusView.NOT_FOUND;
         }
         DocsInfo docsInfo = docs.get(doc);
         List<NavItem> navs = new ArrayList<NavItem>();
@@ -82,7 +82,7 @@ public class ApidocsController {
     public IView download(@RequestParam String doc, @RequestParam(defaultValue = "doc") String type) throws Exception {
         Map<String, DocsInfo> docs = Docs.get().getDocsMap();
         if (StringUtils.isBlank(doc) || !docs.keySet().contains(doc)) {
-            return View.httpStatusView(404);
+            return HttpStatusView.NOT_FOUND;
         }
         DocsInfo docsInfo = docs.get(doc);
         String attachName = docsInfo.getTitle() + "_" + docsInfo.getVersion() + "_" + DateTimeUtils.formatTime(System.currentTimeMillis(), "_yyyyMMdd_HHmm_ss");

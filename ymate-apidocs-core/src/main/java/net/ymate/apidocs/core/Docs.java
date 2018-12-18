@@ -22,7 +22,7 @@ import net.ymate.apidocs.annotation.Apis;
 import net.ymate.apidocs.core.base.ApiInfo;
 import net.ymate.apidocs.core.base.DocsInfo;
 import net.ymate.apidocs.core.handle.DocsHandler;
-import net.ymate.apidocs.core.impl.DefaultModuleCfg;
+import net.ymate.apidocs.core.impl.DefaultDocsModuleCfg;
 import net.ymate.platform.core.Version;
 import net.ymate.platform.core.YMP;
 import net.ymate.platform.core.module.IModule;
@@ -44,7 +44,7 @@ public class Docs implements IModule, IDocs {
 
     private static final Log _LOG = LogFactory.getLog(Docs.class);
 
-    public static final Version VERSION = new Version(1, 0, 0, Docs.class.getPackage().getImplementationVersion(), Version.VersionType.Alphal);
+    public static final Version VERSION = new Version(1, 0, 0, Docs.class.getPackage().getImplementationVersion(), Version.VersionType.Alpha);
 
     private static volatile IDocs __instance;
 
@@ -79,7 +79,7 @@ public class Docs implements IModule, IDocs {
             _LOG.info("Initializing ymate-apidocs-core-" + VERSION);
             //
             __owner = owner;
-            __moduleCfg = new DefaultModuleCfg(owner);
+            __moduleCfg = new DefaultDocsModuleCfg(owner);
             if (!__moduleCfg.isDisabled()) {
                 __owner.registerHandler(Api.class, new DocsHandler(this));
             }

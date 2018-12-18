@@ -325,13 +325,13 @@ public class DocsInfo implements IMarkdown, Serializable {
                 md.append("\n").append(extension.toMarkdown()).append("\n");
             }
         }
+        Collections.sort(apis, new Comparator<ApiInfo>() {
+            @Override
+            public int compare(ApiInfo o1, ApiInfo o2) {
+                return o1.getId().compareTo(o2.getId());
+            }
+        });
         for (ApiInfo api : apis) {
-            Collections.sort(apis, new Comparator<ApiInfo>() {
-                @Override
-                public int compare(ApiInfo o1, ApiInfo o2) {
-                    return o1.getId().compareTo(o2.getId());
-                }
-            });
             md.append(api.toMarkdown()).append("\n");
         }
         return md.toString();

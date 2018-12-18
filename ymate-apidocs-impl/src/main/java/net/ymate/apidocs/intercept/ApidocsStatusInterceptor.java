@@ -22,6 +22,8 @@ import net.ymate.platform.core.beans.intercept.InterceptContext;
 import net.ymate.platform.webmvc.context.WebContext;
 import net.ymate.platform.webmvc.view.View;
 
+import javax.servlet.http.HttpServletResponse;
+
 /**
  * @author 刘镇 (suninformation@163.com) on 2018/5/11 上午3:12
  * @version 1.0
@@ -32,7 +34,7 @@ public class ApidocsStatusInterceptor extends AbstractInterceptor {
     protected Object __before(InterceptContext context) throws Exception {
         IDocsModuleCfg _moduleCfg = Docs.get().getModuleCfg();
         if (_moduleCfg.isDisabled()) {
-            return View.httpStatusView(403);
+            return View.httpStatusView(HttpServletResponse.SC_FORBIDDEN);
         }
         WebContext.getRequest().setAttribute("__title", _moduleCfg.getTitle());
         WebContext.getRequest().setAttribute("__brand", _moduleCfg.getBrand());
