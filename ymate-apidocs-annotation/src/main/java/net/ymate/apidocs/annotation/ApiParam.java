@@ -34,7 +34,7 @@ public @interface ApiParam {
     String name() default "";
 
     /**
-     * 参数说明
+     * @return 参数说明
      */
     String value() default "";
 

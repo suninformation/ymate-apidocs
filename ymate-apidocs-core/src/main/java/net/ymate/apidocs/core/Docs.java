@@ -44,7 +44,7 @@ public class Docs implements IModule, IDocs {
 
     private static final Log _LOG = LogFactory.getLog(Docs.class);
 
-    public static final Version VERSION = new Version(1, 0, 0, Docs.class.getPackage().getImplementationVersion(), Version.VersionType.Alpha);
+    public static final Version VERSION = new Version(1, 0, 0, Docs.class.getPackage().getImplementationVersion(), Version.VersionType.Release);
 
     private static volatile IDocs __instance;
 
