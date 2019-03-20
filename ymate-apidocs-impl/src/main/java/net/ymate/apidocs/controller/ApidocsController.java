@@ -35,9 +35,7 @@ import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author 刘镇 (suninformation@163.com) on 2018/5/11 上午1:27
@@ -51,48 +49,61 @@ public class ApidocsController {
     @RequestMapping("/")
     public IView index() throws Exception {
         List<DocsInfo> docs = new ArrayList<DocsInfo>(Docs.get().getDocsMap().values());
+        Collections.sort(docs, new Comparator<DocsInfo>() {
+            @Override
+            public int compare(DocsInfo o1, DocsInfo o2) {
+                return StringUtils.trimToEmpty(o2.getId()).compareTo(StringUtils.trimToEmpty(o1.getId()));
+            }
+        });
         return View.jspView(IDocs.MODULE_NAME + "/index").addAttribute("_docs", docs);
+    }
+
+    private DocsInfo __doCheckAndGetDocs(String doc) {
+        Map<String, DocsInfo> docs = Docs.get().getDocsMap();
+        if (StringUtils.isNotBlank(doc) && docs.keySet().contains(doc)) {
+            return docs.get(doc);
+        }
+        return null;
     }
 
     @RequestMapping("/content")
     public IView content(@RequestParam String doc) throws Exception {
-        Map<String, DocsInfo> docs = Docs.get().getDocsMap();
-        if (StringUtils.isBlank(doc) || !docs.keySet().contains(doc)) {
-            return HttpStatusView.NOT_FOUND;
+        DocsInfo docsInfo = __doCheckAndGetDocs(doc);
+        if (docsInfo != null) {
+            List<NavItem> navs = new ArrayList<NavItem>();
+            NavItem overview = new NavItem(I18N.formatMessage("apidocs-messages", "apidocs.content.overview", "Overview"), "overview")
+                    .addSubItem(new NavItem(I18N.formatMessage("apidocs-messages", "apidocs.content.basic", "Basic"), "basic"));
+            if (!docsInfo.getChangelogs().isEmpty()) {
+                overview.addSubItem(new NavItem(I18N.formatMessage("apidocs-messages", "apidocs.content.changelog", "Changelog"), "changelog"));
+            }
+            if (!docsInfo.getExtensions().isEmpty()) {
+                overview.addSubItem(new NavItem(I18N.formatMessage("apidocs-messages", "apidocs.content.extensions", "Extensions"), "extensions"));
+            }
+            navs.add(overview);
+            //
+            navs.addAll(NavItem.create(docsInfo.getApis()));
+            //
+            return View.jspView(IDocs.MODULE_NAME + "/content")
+                    .addAttribute("_docInfo", docsInfo)
+                    .addAttribute("_navs", navs);
         }
-        DocsInfo docsInfo = docs.get(doc);
-        List<NavItem> navs = new ArrayList<NavItem>();
-        NavItem overview = new NavItem(I18N.formatMessage("apidocs-messages", "apidocs.content.overview", "Overview"), "overview")
-                .addSubItem(new NavItem(I18N.formatMessage("apidocs-messages", "apidocs.content.basic", "Basic"), "basic"));
-        if (!docsInfo.getChangelogs().isEmpty()) {
-            overview.addSubItem(new NavItem(I18N.formatMessage("apidocs-messages", "apidocs.content.changelog", "Changelog"), "changelog"));
-        }
-        if (!docsInfo.getExtensions().isEmpty()) {
-            overview.addSubItem(new NavItem(I18N.formatMessage("apidocs-messages", "apidocs.content.extensions", "Extensions"), "extensions"));
-        }
-        navs.add(overview);
-        navs.addAll(NavItem.create(docsInfo.getApis()));
-        //
-        return View.jspView(IDocs.MODULE_NAME + "/content")
-                .addAttribute("_docInfo", docsInfo)
-                .addAttribute("_navs", navs);
+        return HttpStatusView.NOT_FOUND;
     }
 
     @RequestMapping("/download")
     public IView download(@RequestParam String doc, @RequestParam(defaultValue = "doc") String type) throws Exception {
-        Map<String, DocsInfo> docs = Docs.get().getDocsMap();
-        if (StringUtils.isBlank(doc) || !docs.keySet().contains(doc)) {
-            return HttpStatusView.NOT_FOUND;
+        DocsInfo docsInfo = __doCheckAndGetDocs(doc);
+        if (docsInfo != null) {
+            String attachName = docsInfo.getTitle() + "_" + docsInfo.getVersion() + "_" + DateTimeUtils.formatTime(System.currentTimeMillis(), "_yyyyMMdd_HHmm_ss");
+            if (StringUtils.equalsIgnoreCase(type, "markdown")) {
+                return new BinaryView(docsInfo.toMarkdown().getBytes(WebContext.getRequest().getCharacterEncoding())).useAttachment(attachName + ".md");
+            } else if (StringUtils.equalsIgnoreCase(type, "doc")) {
+                File tmpFile = File.createTempFile(IDocs.MODULE_NAME + "_", ".doc");
+                View.jspView(IDocs.MODULE_NAME + "/content_download").addAttribute("_docInfo", docsInfo).render(new FileOutputStream(tmpFile));
+                return View.binaryView(tmpFile).useAttachment(attachName + ".doc");
+            }
+            return HttpStatusView.BAD_REQUEST;
         }
-        DocsInfo docsInfo = docs.get(doc);
-        String attachName = docsInfo.getTitle() + "_" + docsInfo.getVersion() + "_" + DateTimeUtils.formatTime(System.currentTimeMillis(), "_yyyyMMdd_HHmm_ss");
-        if (StringUtils.equalsIgnoreCase(type, "markdown")) {
-            return new BinaryView(docsInfo.toMarkdown().getBytes(WebContext.getRequest().getCharacterEncoding())).useAttachment(attachName + ".md");
-        } else if (StringUtils.equalsIgnoreCase(type, "doc")) {
-            File tmpFile = File.createTempFile(IDocs.MODULE_NAME + "_", ".doc");
-            View.jspView(IDocs.MODULE_NAME + "/content_download").addAttribute("_docInfo", docsInfo).render(new FileOutputStream(tmpFile));
-            return View.binaryView(tmpFile).useAttachment(attachName + ".doc");
-        }
-        return HttpStatusView.BAD_REQUEST;
+        return HttpStatusView.NOT_FOUND;
     }
 }

@@ -227,6 +227,12 @@ public class DocsInfo implements IMarkdown, Serializable {
     }
 
     public List<ApiInfo> getApis() {
+        Collections.sort(apis, new Comparator<ApiInfo>() {
+            @Override
+            public int compare(ApiInfo o1, ApiInfo o2) {
+                return StringUtils.trimToEmpty(o2.getName()).compareTo(StringUtils.trimToEmpty(o1.getName()));
+            }
+        });
         return apis;
     }
 
@@ -325,13 +331,7 @@ public class DocsInfo implements IMarkdown, Serializable {
                 md.append("\n").append(extension.toMarkdown()).append("\n");
             }
         }
-        Collections.sort(apis, new Comparator<ApiInfo>() {
-            @Override
-            public int compare(ApiInfo o1, ApiInfo o2) {
-                return o1.getId().compareTo(o2.getId());
-            }
-        });
-        for (ApiInfo api : apis) {
+        for (ApiInfo api : getApis()) {
             md.append(api.toMarkdown()).append("\n");
         }
         return md.toString();

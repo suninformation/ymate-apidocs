@@ -406,7 +406,7 @@ public class ApiInfo implements IMarkdown, Serializable {
             Collections.sort(actions, new Comparator<ActionInfo>() {
                 @Override
                 public int compare(ActionInfo o1, ActionInfo o2) {
-                    return o1.getMapping().compareTo(o2.getMapping());
+                    return o2.getMapping().compareTo(o1.getMapping());
                 }
             });
             for (ActionInfo action : actions) {
