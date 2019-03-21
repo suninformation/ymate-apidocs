@@ -305,6 +305,12 @@ public class ApiInfo implements IMarkdown, Serializable {
     }
 
     public List<ActionInfo> getActions() {
+        Collections.sort(actions, new Comparator<ActionInfo>() {
+            @Override
+            public int compare(ActionInfo o1, ActionInfo o2) {
+                return StringUtils.trimToEmpty(o2.getName()).compareTo(StringUtils.trimToEmpty(o1.getName()));
+            }
+        });
         return actions;
     }
 
@@ -403,13 +409,7 @@ public class ApiInfo implements IMarkdown, Serializable {
         }
         if (!actions.isEmpty()) {
             md.append("\n");
-            Collections.sort(actions, new Comparator<ActionInfo>() {
-                @Override
-                public int compare(ActionInfo o1, ActionInfo o2) {
-                    return o2.getMapping().compareTo(o1.getMapping());
-                }
-            });
-            for (ActionInfo action : actions) {
+            for (ActionInfo action : getActions()) {
                 md.append(action.toMarkdown()).append("\n");
             }
         }
