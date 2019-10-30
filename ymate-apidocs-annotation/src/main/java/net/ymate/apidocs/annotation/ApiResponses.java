@@ -34,6 +34,11 @@ public @interface ApiResponses {
     Class<?> type() default Void.class;
 
     /**
+     * @return 响应数据属性集合
+     */
+    ApiProperty[] properties() default {};
+
+    /**
      * @return 响应数据类型名称
      */
     String name() default "";

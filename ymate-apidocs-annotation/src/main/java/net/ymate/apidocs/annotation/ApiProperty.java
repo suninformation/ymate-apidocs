@@ -39,6 +39,16 @@ public @interface ApiProperty {
     String value() default "";
 
     /**
+     * @return 是否为模型对象
+     */
+    boolean model() default false;
+
+    /**
+     * @return 指定模型对象类型(主要用于当成员对象为集合类型时)
+     */
+    Class<?> modelClass() default Void.class;
+
+    /**
      * @return 属性描述
      */
     String description() default "";

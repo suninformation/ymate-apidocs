@@ -143,9 +143,7 @@ public class ActionInfo implements IMarkdown, Serializable {
                 //
                 if (method.isAnnotationPresent(ApiResponses.class)) {
                     ApiResponses _responses = method.getAnnotation(ApiResponses.class);
-                    if (!Void.class.equals(_responses.type())) {
-                        _actionInfo.setResponseType(ResponseTypeInfo.create(_responses));
-                    }
+                    _actionInfo.setResponseType(ResponseTypeInfo.create(_responses));
                     for (ApiResponse _response : _responses.value()) {
                         _actionInfo.addResponse(ResponseInfo.create(_response));
                     }

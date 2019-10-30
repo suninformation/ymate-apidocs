@@ -45,9 +45,16 @@ public class PropertyInfo implements IMarkdown, Serializable {
     }
 
     public static PropertyInfo create(ApiProperty property, Field field) {
+        return create(property, null, field);
+    }
+
+    public static PropertyInfo create(ApiProperty property, String prefix, Field field) {
         if (property != null) {
+            if (StringUtils.isNotBlank(prefix)) {
+                prefix += ".";
+            }
             return new PropertyInfo()
-                    .setName(StringUtils.defaultIfBlank(property.name(), field.getName()))
+                    .setName(String.format("%s%s", StringUtils.trimToEmpty(prefix), StringUtils.defaultIfBlank(property.name(), field.getName())))
                     .setValue(StringUtils.defaultIfBlank(property.value(), field.getType().getSimpleName()))
                     .setDescription(property.description());
         }

@@ -37,14 +37,30 @@ public class ResponseTypeInfo implements IMarkdown, Serializable {
 
     public static ResponseTypeInfo create(ApiResponses responses) {
         ResponseTypeInfo _responseTypeInfo = new ResponseTypeInfo().setName(responses.name()).setDescription(responses.description());
-        ClassUtils.BeanWrapper<?> _wrapper = ClassUtils.wrapper(responses.type());
+        for (ApiProperty _property : responses.properties()) {
+            _responseTypeInfo.addProperty(PropertyInfo.create(_property));
+        }
+        if (!Void.class.equals(responses.type())) {
+            processProperties(_responseTypeInfo, null, responses.type());
+        }
+        return _responseTypeInfo;
+    }
+
+    private static void processProperties(ResponseTypeInfo resultData, String prefix, Class<?> type) {
+        ClassUtils.BeanWrapper<?> _wrapper = ClassUtils.wrapper(type);
         for (Field _field : _wrapper.getFields()) {
             ApiProperty _property = _field.getAnnotation(ApiProperty.class);
             if (_property != null) {
-                _responseTypeInfo.addProperty(PropertyInfo.create(_property, _field));
+                if (_property.model()) {
+                    if (StringUtils.isNotBlank(prefix)) {
+                        prefix += ".";
+                    }
+                    processProperties(resultData, StringUtils.trimToEmpty(prefix) + StringUtils.defaultIfBlank(_property.name(), _field.getName()), Void.class.equals(_property.modelClass()) ? _field.getType() : _property.modelClass());
+                } else {
+                    resultData.addProperty(PropertyInfo.create(_property, prefix, _field));
+                }
             }
         }
-        return _responseTypeInfo;
     }
 
     /**
