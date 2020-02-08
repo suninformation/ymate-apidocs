@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2018 the original author or authors.
+ * Copyright 2007-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,7 @@ import java.lang.annotation.*;
 /**
  * 声明API接口文档信息
  *
- * @author 刘镇 (suninformation@163.com) on 2018/4/15 上午12:52
- * @version 1.0
+ * @author 刘镇 (suninformation@163.com) on 2018/04/15 00:52
  */
 @Target(ElementType.PACKAGE)
 @Retention(RetentionPolicy.RUNTIME)
@@ -40,32 +39,13 @@ public @interface Apis {
     String version();
 
     /**
+     * @return 自定义排序
+     * @since 2.0.0
+     */
+    int order() default 0;
+
+    /**
      * @return 文档描述
      */
     String description() default "";
-
-    /**
-     * @return 接口分组
-     */
-    ApiGroup[] groups() default {};
-
-    /**
-     * @return 作者信息
-     */
-    ApiAuthor contact() default @ApiAuthor(name = "");
-
-    /**
-     * @return 协议信息
-     */
-    ApiLicense license() default @ApiLicense(name = "");
-
-    /**
-     * @return 接口文档变更记录
-     */
-    ApiChangelog[] changelog() default {};
-
-    /**
-     * @return 扩展信息集合
-     */
-    ApiExtension[] extensions() default {};
 }

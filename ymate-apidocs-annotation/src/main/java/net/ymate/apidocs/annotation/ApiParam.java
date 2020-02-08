@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2018 the original author or authors.
+ * Copyright 2007-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,23 +20,23 @@ import java.lang.annotation.*;
 /**
  * 接口方法参数
  *
- * @author 刘镇 (suninformation@163.com) on 2018/4/14 下午11:36
- * @version 1.0
+ * @author 刘镇 (suninformation@163.com) on 2018/04/14 23:36
  */
-@Target({ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER})
+@Target({ElementType.PACKAGE, ElementType.TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
+@Repeatable(ApiParams.class)
 public @interface ApiParam {
 
     /**
      * @return 参数名称
      */
-    String name() default "";
+    String value() default "";
 
     /**
      * @return 参数说明
      */
-    String value() default "";
+    String description() default "";
 
     /**
      * @return 参数默认值
@@ -44,9 +44,9 @@ public @interface ApiParam {
     String defaultValue() default "";
 
     /**
-     * @return 参数可选值
+     * @return 参数可选值集合
      */
-    String allowValues() default "";
+    String[] allowValues() default {};
 
     /**
      * @return 参数是否必须
@@ -56,7 +56,7 @@ public @interface ApiParam {
     /**
      * @return 参数类型
      */
-    String type() default "";
+    Class<?> type() default String.class;
 
     /**
      * @return 是否为模型对象
@@ -69,12 +69,23 @@ public @interface ApiParam {
     boolean multiple() default false;
 
     /**
+     * @return 是否为文件上传
+     * @since 2.0.0
+     */
+    boolean multipart() default false;
+
+    /**
+     * @return 简单参数示例
+     */
+    String example() default "";
+
+    /**
      * @return 参数示例
      */
     ApiExample[] examples() default {};
 
     /**
-     * @return 是否隐藏此接口
+     * @return 是否隐藏
      */
     boolean hidden() default false;
 }

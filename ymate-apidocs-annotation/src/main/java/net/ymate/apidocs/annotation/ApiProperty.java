@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2018 the original author or authors.
+ * Copyright 2007-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,9 @@ import java.lang.annotation.*;
 /**
  * 自定义属性
  *
- * @author 刘镇 (suninformation@163.com) on 2018/4/15 上午12:00
- * @version 1.0
+ * @author 刘镇 (suninformation@163.com) on 2018/04/15 00:00
  */
-@Target({ElementType.FIELD, ElementType.ANNOTATION_TYPE})
+@Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface ApiProperty {

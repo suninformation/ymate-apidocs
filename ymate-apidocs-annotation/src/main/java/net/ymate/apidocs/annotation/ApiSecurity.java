@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2018 the original author or authors.
+ * Copyright 2007-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,7 @@ import java.lang.annotation.*;
 /**
  * 接口访问权限
  *
- * @author 刘镇 (suninformation@163.com) on 2018/4/15 上午3:42
- * @version 1.0
+ * @author 刘镇 (suninformation@163.com) on 2018/04/15 03:42
  */
 @Target({ElementType.PACKAGE, ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -41,14 +40,26 @@ public @interface ApiSecurity {
     /**
      * @return 逻辑类型
      */
-    LogicType logicType() default LogicType.OR;
+    LogicalType logicalType() default LogicalType.OR;
 
     /**
      * @return 描述
      */
     String description() default "";
 
-    enum LogicType {
-        AND, OR
+    /**
+     * 逻辑类型枚举
+     */
+    enum LogicalType {
+
+        /**
+         * 与
+         */
+        AND,
+
+        /**
+         * 或
+         */
+        OR
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2018 the original author or authors.
+ * Copyright 2007-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,18 +20,18 @@ import java.lang.annotation.*;
 /**
  * 接口开发者信息
  *
- * @author 刘镇 (suninformation@163.com) on 2018/4/15 上午1:04
- * @version 1.0
+ * @author 刘镇 (suninformation@163.com) on 2018/04/15 01:04
  */
-@Target(ElementType.ANNOTATION_TYPE)
+@Target({ElementType.PACKAGE, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
+@Repeatable(ApiAuthors.class)
 public @interface ApiAuthor {
 
     /**
      * @return 开发者名称
      */
-    String name();
+    String value();
 
     /**
      * @return 开发者主页地址

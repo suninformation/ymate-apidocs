@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2018 the original author or authors.
+ * Copyright 2007-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,18 +20,23 @@ import java.lang.annotation.*;
 /**
  * 变更记录信息
  *
- * @author 刘镇 (suninformation@163.com) on 2018/4/15 上午1:37
- * @version 1.0
+ * @author 刘镇 (suninformation@163.com) on 2018/04/15 01:37
  */
-@Target(ElementType.ANNOTATION_TYPE)
+@Target({ElementType.PACKAGE, ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface ApiChangelog {
+@Repeatable(ApiChangeLogs.class)
+public @interface ApiChangeLog {
 
     /**
      * @return 日期，格式如：2018-04-15 01:37
      */
     String date();
+
+    /**
+     * @return 变更内容描述
+     */
+    String description();
 
     /**
      * @return 变更动作，默认为：UPDATE
@@ -44,14 +49,10 @@ public @interface ApiChangelog {
     ApiAuthor author();
 
     /**
-     * @return 变更内容描述
-     */
-    String description() default "";
-
-    /**
      * 动作枚举
      */
     enum Action {
+
         /**
          * 创建
          */

@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2018 the original author or authors.
+ * Copyright 2007-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,15 +18,25 @@ package net.ymate.apidocs.annotation;
 import java.lang.annotation.*;
 
 /**
- * 接口示例
+ * 示例
  *
- * @author 刘镇 (suninformation@163.com) on 2018/4/15 上午3:05
- * @version 1.0
+ * @author 刘镇 (suninformation@163.com) on 2018/04/15 03:05
  */
-@Target(ElementType.ANNOTATION_TYPE)
+@Target({ElementType.METHOD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
+@Repeatable(ApiExamples.class)
 public @interface ApiExample {
+
+    /**
+     * @return 示例名称
+     */
+    String name() default "";
+
+    /**
+     * @return 示例描述
+     */
+    String description() default "";
 
     /**
      * @return 类型，如：json, xml或java等

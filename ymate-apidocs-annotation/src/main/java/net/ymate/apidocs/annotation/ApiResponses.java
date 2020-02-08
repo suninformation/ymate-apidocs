@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2018 the original author or authors.
+ * Copyright 2007-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,23 +20,12 @@ import java.lang.annotation.*;
 /**
  * 接口方法响应信息集合
  *
- * @author 刘镇 (suninformation@163.com) on 2018/4/15 上午12:29
- * @version 1.0
+ * @author 刘镇 (suninformation@163.com) on 2018/04/15 00:29
  */
-@Target({ElementType.METHOD, ElementType.TYPE})
+@Target({ElementType.PACKAGE, ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface ApiResponses {
-
-    /**
-     * @return 响应数据类型
-     */
-    Class<?> type() default Void.class;
-
-    /**
-     * @return 响应数据属性集合
-     */
-    ApiProperty[] properties() default {};
 
     /**
      * @return 响应数据类型名称
@@ -52,4 +41,14 @@ public @interface ApiResponses {
      * @return 响应信息集合
      */
     ApiResponse[] value();
+
+    /**
+     * @return 响应数据类型
+     */
+    Class<?> type() default Void.class;
+
+    /**
+     * @return 响应数据属性集合
+     */
+    ApiProperty[] properties() default {};
 }

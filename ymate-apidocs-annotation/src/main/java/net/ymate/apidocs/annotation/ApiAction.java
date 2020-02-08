@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2018 the original author or authors.
+ * Copyright 2007-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,7 @@ import java.lang.annotation.*;
 /**
  * 声明一个API接口方法
  *
- * @author 刘镇 (suninformation@163.com) on 2018/4/14 下午11:35
- * @version 1.0
+ * @author 刘镇 (suninformation@163.com) on 2018/04/14 23:35
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
@@ -29,7 +28,7 @@ import java.lang.annotation.*;
 public @interface ApiAction {
 
     /**
-     * @return 接口方法显示示名称
+     * @return 接口方法显示名称
      */
     String value();
 
@@ -41,17 +40,17 @@ public @interface ApiAction {
     /**
      * @return 请求URL地址映射
      */
-    String mapping();
+    String mapping() default "";
 
     /**
      * @return 接口方法提示内容
      */
-    String notes() default "";
+    String[] notes() default {};
 
     /**
      * @return 接口方法所属分组
      */
-    String[] groups() default {};
+    String group() default "";
 
     /**
      * @return HTTP请求响应状态值
@@ -64,32 +63,25 @@ public @interface ApiAction {
     String[] httpMethod() default {};
 
     /**
-     * @return 参数集合
+     * @return 请求ContentType类型, 可选值: json|xml, 默认空表示标准HTTP请求
+     * @since 2.0.0
      */
-    ApiParam[] params() default {};
+    String requestType() default "";
 
     /**
-     * @return HTTP请求头信息集合
+     * @return 授权范围集合
+     * @since 2.0.0
      */
-    ApiHeader[] headers() default {};
+    String[] scopes() default {};
 
     /**
-     * @return 接口方法变更记录
+     * @return 自定义排序
+     * @since 2.0.0
      */
-    ApiChangelog[] changelog() default {};
+    int order() default 0;
 
     /**
-     * @return 扩展信息集合
-     */
-    ApiExtension[] extensions() default {};
-
-    /**
-     * @return 接口示例
-     */
-    ApiExample[] examples() default {};
-
-    /**
-     * @return 是否隐藏此接口
+     * @return 是否隐藏
      */
     boolean hidden() default false;
 }

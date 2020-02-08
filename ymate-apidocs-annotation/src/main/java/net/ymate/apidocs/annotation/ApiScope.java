@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2018 the original author or authors.
+ * Copyright 2007-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,7 @@ import java.lang.annotation.*;
 /**
  * 授权范围
  *
- * @author 刘镇 (suninformation@163.com) on 2018/4/15 上午3:38
- * @version 1.0
+ * @author 刘镇 (suninformation@163.com) on 2018/04/15 03:38
  */
 @Target(ElementType.ANNOTATION_TYPE)
 @Retention(RetentionPolicy.RUNTIME)
@@ -31,10 +30,10 @@ public @interface ApiScope {
     /**
      * @return 名称
      */
-    String name();
+    String value();
 
     /**
      * @return 描述
      */
-    String description();
+    String description() default "";
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2018 the original author or authors.
+ * Copyright 2007-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,28 +18,23 @@ package net.ymate.apidocs.annotation;
 import java.lang.annotation.*;
 
 /**
- * 接口/方法分组
+ * 定义分组
  *
- * @author 刘镇 (suninformation@163.com) on 2018/4/15 上午1:00
- * @version 1.0
+ * @author 刘镇 (suninformation@163.com) on 2018/04/15 01:00
  */
-@Target(ElementType.ANNOTATION_TYPE)
+@Target({ElementType.PACKAGE, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
+@Repeatable(ApiGroups.class)
 public @interface ApiGroup {
 
     /**
      * @return 分组名称
      */
-    String name();
+    String value();
 
     /**
      * @return 分组描述信息
      */
     String description() default "";
-
-    /**
-     * @return 扩展信息集合
-     */
-    ApiExtension[] extensions() default {};
 }

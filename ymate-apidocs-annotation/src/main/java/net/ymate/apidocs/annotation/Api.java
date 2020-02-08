@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2018 the original author or authors.
+ * Copyright 2007-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,7 @@ import java.lang.annotation.*;
 /**
  * 声明一个类为API接口并支持文档自动生成
  *
- * @author 刘镇 (suninformation@163.com) on 2018/4/2 上午4:19
- * @version 1.0
+ * @author 刘镇 (suninformation@163.com) on 2018/04/02 04:19
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
@@ -34,24 +33,21 @@ public @interface Api {
     String value();
 
     /**
-     * @return 所属API分组
+     * @return 请求URL地址映射
+     * @since 2.0.0
+     */
+    String mapping() default "";
+
+    /**
+     * @return 所属分组名称
      */
     String group() default "";
 
     /**
-     * @return 接口方法分组
+     * @return 自定义排序
+     * @since 2.0.0
      */
-    ApiGroup[] groups() default {};
-
-    /**
-     * @return 参数集合
-     */
-    ApiParam[] params() default {};
-
-    /**
-     * @return 接口变更记录
-     */
-    ApiChangelog[] changelog() default {};
+    int order() default 0;
 
     /**
      * @return API接口描述
@@ -59,7 +55,13 @@ public @interface Api {
     String description() default "";
 
     /**
-     * @return 是否隐藏此接口
+     * @return 授权范围集合
+     * @since 2.0.0
+     */
+    String[] scopes() default {};
+
+    /**
+     * @return 是否隐藏
      */
     boolean hidden() default false;
 }
