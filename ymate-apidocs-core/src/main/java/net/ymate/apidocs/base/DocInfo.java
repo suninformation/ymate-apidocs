@@ -90,6 +90,21 @@ public class DocInfo implements IMarkdown {
     private final List<GroupInfo> groups = new ArrayList<>();
 
     /**
+     * 文档全局HTTP请求头信息集合
+     */
+    private final List<HeaderInfo> requestHeaders = new ArrayList<>();
+
+    /**
+     * 文档全局HTTP响应头信息集合
+     */
+    private final List<HeaderInfo> responseHeaders = new ArrayList<>();
+
+    /**
+     * 文档全局参数定义
+     */
+    private final List<ParamInfo> params = new ArrayList<>();
+
+    /**
      * 响应数据类型集合
      */
     private final Map<String, ResponseTypeInfo> responseTypes = new ConcurrentHashMap<>();
@@ -263,6 +278,72 @@ public class DocInfo implements IMarkdown {
         return this;
     }
 
+    public boolean hasRequestHeader(HeaderInfo header) {
+        return requestHeaders.contains(header);
+    }
+
+    public List<HeaderInfo> getRequestHeaders() {
+        return requestHeaders;
+    }
+
+    public DocInfo addRequestHeaders(List<HeaderInfo> requestHeaders) {
+        if (requestHeaders != null) {
+            requestHeaders.forEach(this::addRequestHeader);
+        }
+        return this;
+    }
+
+    public DocInfo addRequestHeader(HeaderInfo requestHeader) {
+        if (requestHeader != null && !hasRequestHeader(requestHeader)) {
+            this.requestHeaders.add(requestHeader);
+        }
+        return this;
+    }
+
+    public boolean hasResponseHeader(HeaderInfo header) {
+        return responseHeaders.contains(header);
+    }
+
+    public List<HeaderInfo> getResponseHeaders() {
+        return responseHeaders;
+    }
+
+    public DocInfo addResponseHeaders(List<HeaderInfo> responseHeaders) {
+        if (responseHeaders != null) {
+            responseHeaders.forEach(this::addResponseHeader);
+        }
+        return this;
+    }
+
+    public DocInfo addResponseHeader(HeaderInfo responseHeader) {
+        if (responseHeader != null && !hasResponseHeader(responseHeader)) {
+            this.responseHeaders.add(responseHeader);
+        }
+        return this;
+    }
+
+    public boolean hasParam(ParamInfo param) {
+        return params.contains(param);
+    }
+
+    public List<ParamInfo> getParams() {
+        return params;
+    }
+
+    public DocInfo addParams(List<ParamInfo> params) {
+        if (params != null) {
+            params.forEach(this::addParam);
+        }
+        return this;
+    }
+
+    public DocInfo addParam(ParamInfo param) {
+        if (param != null && !hasParam(param)) {
+            this.params.add(param);
+        }
+        return this;
+    }
+
     @JSONField(serialize = false)
     public Map<String, ResponseTypeInfo> getResponseTypes() {
         return responseTypes;
@@ -284,6 +365,10 @@ public class DocInfo implements IMarkdown {
         return this;
     }
 
+    public boolean hasResponse(ResponseInfo response) {
+        return responses.containsKey(response.getCode());
+    }
+
     @JSONField(serialize = false)
     public Map<String, ResponseInfo> getResponses() {
         return responses;
@@ -297,10 +382,8 @@ public class DocInfo implements IMarkdown {
     }
 
     public DocInfo addResponse(ResponseInfo response) {
-        if (response != null) {
-            if (!this.responses.containsKey(response.getCode())) {
-                this.responses.put(response.getCode(), response);
-            }
+        if (response != null && !hasResponse(response)) {
+            this.responses.put(response.getCode(), response);
         }
         return this;
     }
@@ -386,6 +469,15 @@ public class DocInfo implements IMarkdown {
             if (StringUtils.isNotBlank(securityMarkdown)) {
                 markdownBuilder.p().title("Security", 3).append(securityMarkdown);
             }
+        }
+        if (!params.isEmpty()) {
+            markdownBuilder.p().title("Request parameters", 3).p().append(ParamInfo.toMarkdown(params));
+        }
+        if (!requestHeaders.isEmpty()) {
+            markdownBuilder.p().title("Request headers", 3).p().append(HeaderInfo.toMarkdown(requestHeaders));
+        }
+        if (!responseHeaders.isEmpty()) {
+            markdownBuilder.p().title("Response headers", 3).p().append(HeaderInfo.toMarkdown(responseHeaders));
         }
         if (!changeLogs.isEmpty()) {
             markdownBuilder.p().title("Changelog", 3).p().append(ChangeLogInfo.toMarkdown(changeLogs));

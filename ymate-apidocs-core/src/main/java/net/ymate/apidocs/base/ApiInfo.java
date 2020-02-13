@@ -55,7 +55,10 @@ public class ApiInfo implements IMarkdown {
                         .addGroups(GroupInfo.create(targetClass.getAnnotation(ApiGroups.class)))
                         .addGroup(GroupInfo.create(targetClass.getAnnotation(ApiGroup.class)))
                         .addChangeLogs(ChangeLogInfo.create(targetClass.getAnnotation(ApiChangeLogs.class)))
-                        .addChangeLog(ChangeLogInfo.create(targetClass.getAnnotation(ApiChangeLog.class)));
+                        .addChangeLog(ChangeLogInfo.create(targetClass.getAnnotation(ApiChangeLog.class)))
+                        .addResponse(ResponseInfo.create(targetClass.getAnnotation(ApiResponse.class)))
+                        .addRequestHeaders(HeaderInfo.create(targetClass.getAnnotation(ApiRequestHeaders.class)))
+                        .addResponseHeaders(HeaderInfo.create(targetClass.getAnnotation(ApiResponseHeaders.class)));
                 //
                 ApiResponses apiResponses = targetClass.getAnnotation(ApiResponses.class);
                 if (apiResponses != null) {
@@ -119,6 +122,16 @@ public class ApiInfo implements IMarkdown {
      * 接口方法分组定义
      */
     private final List<GroupInfo> groups = new ArrayList<>();
+
+    /**
+     * 接口全局HTTP请求头信息集合
+     */
+    private final List<HeaderInfo> requestHeaders = new ArrayList<>();
+
+    /**
+     * 接口全局HTTP响应头信息集合
+     */
+    private final List<HeaderInfo> responseHeaders = new ArrayList<>();
 
     /**
      * 接口全局参数定义
@@ -251,19 +264,67 @@ public class ApiInfo implements IMarkdown {
         return this;
     }
 
+    public boolean hasRequestHeader(HeaderInfo header) {
+        return requestHeaders.contains(header) || owner.hasRequestHeader(header);
+    }
+
+    public List<HeaderInfo> getRequestHeaders() {
+        return requestHeaders;
+    }
+
+    public ApiInfo addRequestHeaders(List<HeaderInfo> requestHeaders) {
+        if (requestHeaders != null) {
+            requestHeaders.forEach(this::addRequestHeader);
+        }
+        return this;
+    }
+
+    public ApiInfo addRequestHeader(HeaderInfo requestHeader) {
+        if (requestHeader != null && !hasRequestHeader(requestHeader)) {
+            this.requestHeaders.add(requestHeader);
+        }
+        return this;
+    }
+
+    public boolean hasResponseHeader(HeaderInfo header) {
+        return responseHeaders.contains(header) || owner.hasResponseHeader(header);
+    }
+
+    public List<HeaderInfo> getResponseHeaders() {
+        return responseHeaders;
+    }
+
+    public ApiInfo addResponseHeaders(List<HeaderInfo> responseHeaders) {
+        if (responseHeaders != null) {
+            responseHeaders.forEach(this::addResponseHeader);
+        }
+        return this;
+    }
+
+    public ApiInfo addResponseHeader(HeaderInfo responseHeader) {
+        if (responseHeader != null && !hasResponseHeader(responseHeader)) {
+            this.responseHeaders.add(responseHeader);
+        }
+        return this;
+    }
+
+    public boolean hasParam(ParamInfo param) {
+        return params.contains(param) || owner.hasParam(param);
+    }
+
     public List<ParamInfo> getParams() {
         return params;
     }
 
     public ApiInfo addParams(List<ParamInfo> params) {
         if (params != null) {
-            this.params.addAll(params);
+            params.forEach(this::addParam);
         }
         return this;
     }
 
     public ApiInfo addParam(ParamInfo param) {
-        if (param != null) {
+        if (param != null && !hasParam(param)) {
             this.params.add(param);
         }
         return this;
@@ -278,6 +339,10 @@ public class ApiInfo implements IMarkdown {
         return this;
     }
 
+    public boolean hasResponse(ResponseInfo response) {
+        return responses.contains(response);
+    }
+
     public List<ResponseInfo> getResponses() {
         return responses;
     }
@@ -290,10 +355,8 @@ public class ApiInfo implements IMarkdown {
     }
 
     public ApiInfo addResponse(ResponseInfo response) {
-        if (response != null) {
-            if (!this.responses.contains(response)) {
-                this.responses.add(response);
-            }
+        if (response != null && !hasResponse(response)) {
+            this.responses.add(response);
         }
         return this;
     }
@@ -409,6 +472,18 @@ public class ApiInfo implements IMarkdown {
             if (StringUtils.isNotBlank(securityMarkdown)) {
                 markdownBuilder.p().title("Security", 4).append(securityMarkdown);
             }
+        }
+        if (!params.isEmpty()) {
+            markdownBuilder.p().title("Request parameters", 4).p().append(ParamInfo.toMarkdown(params));
+        }
+        if (!requestHeaders.isEmpty()) {
+            markdownBuilder.p().title("Request headers", 4).p().append(HeaderInfo.toMarkdown(requestHeaders));
+        }
+        if (!responseHeaders.isEmpty()) {
+            markdownBuilder.p().title("Response headers", 4).p().append(HeaderInfo.toMarkdown(responseHeaders));
+        }
+        if (!responses.isEmpty()) {
+            markdownBuilder.p().title("Response codes", 4).p().append(ResponseInfo.toMarkdown(responses));
         }
         if (!changeLogs.isEmpty()) {
             markdownBuilder.p().title("Changelog", 4).p().append(ChangeLogInfo.toMarkdown(changeLogs));

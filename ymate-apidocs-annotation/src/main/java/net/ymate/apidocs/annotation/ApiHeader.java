@@ -30,7 +30,12 @@ public @interface ApiHeader {
     /**
      * @return 名称
      */
-    String value();
+    String name();
+
+    /**
+     * @return 值
+     */
+    String value() default "";
 
     /**
      * @return 内容描述
@@ -40,5 +45,5 @@ public @interface ApiHeader {
     /**
      * @return 数据类型
      */
-    Class<?> type() default Void.class;
+    Class<?> type() default String.class;
 }

@@ -30,6 +30,7 @@ import net.ymate.platform.core.module.IModuleConfigurer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -151,8 +152,21 @@ public class Docs implements IModule, IDocs {
                     .addExtension(ExtensionInfo.create(apisPackage.getAnnotation(ApiExtension.class)))
                     .addGroups(GroupInfo.create(apisPackage.getAnnotation(ApiGroups.class)))
                     .addGroup(GroupInfo.create(apisPackage.getAnnotation(ApiGroup.class)))
+                    .addParams(ParamInfo.create(targetClass.getAnnotation(ApiParams.class)))
+                    .addParam(ParamInfo.create(targetClass.getAnnotation(ApiParam.class)))
                     .addServers(ServerInfo.create(apisPackage.getAnnotation(ApiServers.class)))
-                    .addServer(ServerInfo.create(apisPackage.getAnnotation(ApiServer.class))));
+                    .addServer(ServerInfo.create(apisPackage.getAnnotation(ApiServer.class))))
+                    .addResponse(ResponseInfo.create(apisPackage.getAnnotation(ApiResponse.class)))
+                    .addRequestHeaders(HeaderInfo.create(apisPackage.getAnnotation(ApiRequestHeaders.class)))
+                    .addResponseHeaders(HeaderInfo.create(apisPackage.getAnnotation(ApiResponseHeaders.class)));
+            //
+            ApiResponses apiResponses = targetClass.getAnnotation(ApiResponses.class);
+            if (apiResponses != null) {
+                if (!Void.class.equals(apiResponses.type())) {
+                    docInfo.addResponseType(ResponseTypeInfo.create(apiResponses));
+                }
+                Arrays.stream(apiResponses.value()).map(ResponseInfo::create).forEachOrdered(docInfo::addResponse);
+            }
             docInfo.addApi(ApiInfo.create(docInfo, targetClass));
         }
     }

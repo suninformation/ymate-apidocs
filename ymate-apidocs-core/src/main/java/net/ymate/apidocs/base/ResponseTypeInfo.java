@@ -36,11 +36,14 @@ public class ResponseTypeInfo implements Serializable {
     public static ResponseTypeInfo create(ApiResponses responses) {
         ResponseTypeInfo responseTypeInfo = new ResponseTypeInfo()
                 .setName(responses.name())
+                .setMultiple(responses.multiple())
                 .setDescription(responses.description());
         Arrays.stream(responses.properties()).map(PropertyInfo::create).forEachOrdered(responseTypeInfo::addProperty);
         if (!Void.class.equals(responses.type())) {
-            responseTypeInfo.setName(StringUtils.defaultIfBlank(responseTypeInfo.getName(), responses.type().getSimpleName()));
-            processProperties(responseTypeInfo, null, responses.type());
+            Class<?> responseType = responses.type().isArray() ? ClassUtils.getArrayClassType(responses.type()) : responses.type();
+            responseTypeInfo.setName(StringUtils.defaultIfBlank(responseTypeInfo.getName(), responseType.getTypeName()));
+            responseTypeInfo.setMultiple(responses.multiple() || responses.type().isArray());
+            processProperties(responseTypeInfo, null, responseType);
         }
         return responseTypeInfo;
     }
@@ -68,6 +71,11 @@ public class ResponseTypeInfo implements Serializable {
     private String name;
 
     /**
+     * 是否为数组集合
+     */
+    private boolean multiple;
+
+    /**
      * 响应数据类型描述
      */
     private String description;
@@ -89,6 +97,15 @@ public class ResponseTypeInfo implements Serializable {
 
     public ResponseTypeInfo setName(String name) {
         this.name = name;
+        return this;
+    }
+
+    public boolean isMultiple() {
+        return multiple;
+    }
+
+    public ResponseTypeInfo setMultiple(boolean multiple) {
+        this.multiple = multiple;
         return this;
     }
 
@@ -139,6 +156,6 @@ public class ResponseTypeInfo implements Serializable {
 
     @Override
     public String toString() {
-        return String.format("ResponseTypeInfo{name='%s', description='%s', properties=%s}", name, description, properties);
+        return String.format("ResponseTypeInfo{name='%s', multiple=%s, description='%s', properties=%s}", name, multiple, description, properties);
     }
 }

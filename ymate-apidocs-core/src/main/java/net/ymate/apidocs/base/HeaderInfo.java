@@ -16,6 +16,8 @@
 package net.ymate.apidocs.base;
 
 import net.ymate.apidocs.annotation.ApiHeader;
+import net.ymate.apidocs.annotation.ApiRequestHeaders;
+import net.ymate.apidocs.annotation.ApiResponseHeaders;
 import net.ymate.platform.commons.markdown.IMarkdown;
 import net.ymate.platform.commons.markdown.MarkdownBuilder;
 import net.ymate.platform.commons.markdown.Table;
@@ -46,14 +48,26 @@ public class HeaderInfo implements IMarkdown {
         return Collections.emptyList();
     }
 
+    public static List<HeaderInfo> create(ApiRequestHeaders requestHeaders) {
+        if (requestHeaders != null) {
+            return Arrays.stream(requestHeaders.value()).map(HeaderInfo::create).filter(Objects::nonNull).collect(Collectors.toList());
+        }
+        return Collections.emptyList();
+    }
+
+    public static List<HeaderInfo> create(ApiResponseHeaders requestHeaders) {
+        if (requestHeaders != null) {
+            return Arrays.stream(requestHeaders.value()).map(HeaderInfo::create).filter(Objects::nonNull).collect(Collectors.toList());
+        }
+        return Collections.emptyList();
+    }
+
     public static HeaderInfo create(ApiHeader apiHeader) {
-        if (apiHeader != null && StringUtils.isNotBlank(apiHeader.value())) {
-            HeaderInfo headerInfo = new HeaderInfo(apiHeader.value())
+        if (apiHeader != null && StringUtils.isNotBlank(apiHeader.name())) {
+            return new HeaderInfo(apiHeader.name())
+                    .setValue(apiHeader.value())
+                    .setType(apiHeader.type().getTypeName())
                     .setDescription(apiHeader.description());
-            if (!Void.class.equals(apiHeader.type())) {
-                headerInfo.setType(apiHeader.type().getSimpleName());
-            }
-            return headerInfo;
         }
         return null;
     }
@@ -63,6 +77,7 @@ public class HeaderInfo implements IMarkdown {
         if (!headers.isEmpty()) {
             markdownBuilder.append(Table.create()
                     .addHeader("Name", Table.Align.LEFT)
+                    .addHeader("Value", Table.Align.LEFT)
                     .addHeader("Type", Table.Align.LEFT)
                     .addHeader("Description", Table.Align.LEFT));
             headers.forEach(markdownBuilder::append);
@@ -74,6 +89,11 @@ public class HeaderInfo implements IMarkdown {
      * 名称
      */
     private String name;
+
+    /**
+     * 值
+     */
+    private String value;
 
     /**
      * 数据类型
@@ -94,6 +114,15 @@ public class HeaderInfo implements IMarkdown {
 
     public String getName() {
         return name;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public HeaderInfo setValue(String value) {
+        this.value = value;
+        return this;
     }
 
     public String getType() {
@@ -132,11 +161,11 @@ public class HeaderInfo implements IMarkdown {
 
     @Override
     public String toMarkdown() {
-        return Table.create().addRow().addColumn(name).addColumn(type).addColumn(description).build().toMarkdown();
+        return Table.create().addRow().addColumn(name).addColumn(value).addColumn(type).addColumn(description).build().toMarkdown();
     }
 
     @Override
     public String toString() {
-        return String.format("HeaderInfo{name='%s', type='%s', description='%s'}", name, type, description);
+        return String.format("HeaderInfo{name='%s', value='%s', type='%s', description='%s'}", name, value, type, description);
     }
 }

@@ -113,7 +113,10 @@ public class ActionInfo implements IMarkdown {
                         .addExamples(ExampleInfo.create(method.getAnnotation(ApiExamples.class)))
                         .addExample(ExampleInfo.create(method.getAnnotation(ApiExample.class)))
                         .addParams(ParamInfo.create(method.getAnnotation(ApiParams.class)))
-                        .addParam(ParamInfo.create(method.getAnnotation(ApiParam.class)));
+                        .addParam(ParamInfo.create(method.getAnnotation(ApiParam.class)))
+                        .addResponse(ResponseInfo.create(method.getAnnotation(ApiResponse.class)))
+                        .addRequestHeaders(HeaderInfo.create(method.getAnnotation(ApiRequestHeaders.class)))
+                        .addResponseHeaders(HeaderInfo.create(method.getAnnotation(ApiResponseHeaders.class)));
                 //
                 String[] paramNames = ClassUtils.getMethodParamNames(method);
                 Parameter[] parameters = method.getParameters();
@@ -130,16 +133,6 @@ public class ActionInfo implements IMarkdown {
                             actionInfo.addParam(paramInfo);
                         }
                     }
-                }
-                //
-                ApiRequestHeaders apiRequestHeaders = method.getAnnotation(ApiRequestHeaders.class);
-                if (apiRequestHeaders != null) {
-                    actionInfo.addRequestHeaders(HeaderInfo.create(apiRequestHeaders.value()));
-                }
-                //
-                ApiResponseHeaders apiResponseHeaders = method.getAnnotation(ApiResponseHeaders.class);
-                if (apiResponseHeaders != null) {
-                    actionInfo.addResponseHeaders(HeaderInfo.create(apiResponseHeaders.value()));
                 }
                 //
                 ApiResponses apiResponses = method.getAnnotation(ApiResponses.class);
@@ -422,22 +415,30 @@ public class ActionInfo implements IMarkdown {
         return this;
     }
 
+    public boolean hasRequestHeader(HeaderInfo header) {
+        return requestHeaders.contains(header) || owner.hasRequestHeader(header);
+    }
+
     public List<HeaderInfo> getRequestHeaders() {
         return requestHeaders;
     }
 
     public ActionInfo addRequestHeaders(List<HeaderInfo> requestHeaders) {
         if (requestHeaders != null) {
-            this.requestHeaders.addAll(requestHeaders);
+            requestHeaders.forEach(this::addRequestHeader);
         }
         return this;
     }
 
     public ActionInfo addRequestHeader(HeaderInfo requestHeader) {
-        if (requestHeader != null) {
+        if (requestHeader != null && !hasRequestHeader(requestHeader)) {
             this.requestHeaders.add(requestHeader);
         }
         return this;
+    }
+
+    public boolean hasResponseHeader(HeaderInfo header) {
+        return responseHeaders.contains(header) || owner.hasResponseHeader(header);
     }
 
     public List<HeaderInfo> getResponseHeaders() {
@@ -446,16 +447,20 @@ public class ActionInfo implements IMarkdown {
 
     public ActionInfo addResponseHeaders(List<HeaderInfo> responseHeaders) {
         if (responseHeaders != null) {
-            this.responseHeaders.addAll(responseHeaders);
+            responseHeaders.forEach(this::addResponseHeader);
         }
         return this;
     }
 
     public ActionInfo addResponseHeader(HeaderInfo responseHeader) {
-        if (responseHeader != null) {
+        if (responseHeader != null && !hasResponseHeader(responseHeader)) {
             this.responseHeaders.add(responseHeader);
         }
         return this;
+    }
+
+    public boolean hasParam(ParamInfo param) {
+        return params.contains(param) || owner.hasParam(param);
     }
 
     public List<ParamInfo> getParams() {
@@ -464,13 +469,13 @@ public class ActionInfo implements IMarkdown {
 
     public ActionInfo addParams(List<ParamInfo> params) {
         if (params != null) {
-            this.params.addAll(params);
+            params.forEach(this::addParam);
         }
         return this;
     }
 
     public ActionInfo addParam(ParamInfo param) {
-        if (param != null) {
+        if (param != null && !hasParam(param)) {
             this.params.add(param);
         }
         return this;
@@ -494,6 +499,10 @@ public class ActionInfo implements IMarkdown {
         return this;
     }
 
+    public boolean hasResponse(ResponseInfo response) {
+        return responses.contains(response) || owner.hasResponse(response);
+    }
+
     public List<ResponseInfo> getResponses() {
         return responses;
     }
@@ -506,7 +515,7 @@ public class ActionInfo implements IMarkdown {
     }
 
     public ActionInfo addResponse(ResponseInfo response) {
-        if (response != null) {
+        if (response != null && !hasResponse(response)) {
             this.responses.add(response);
             this.responses.sort(Comparator.comparing(ResponseInfo::getCode));
         }
@@ -608,11 +617,11 @@ public class ActionInfo implements IMarkdown {
             markdownBuilder.p().title("Request methods", 6).p();
             methods.forEach((method) -> markdownBuilder.code(method.toUpperCase()).space());
         }
-        if (!requestHeaders.isEmpty()) {
-            markdownBuilder.p().title("Request headers", 6).p().append(HeaderInfo.toMarkdown(requestHeaders));
-        }
         if (!params.isEmpty()) {
             markdownBuilder.p().title("Request parameters", 6).p().append(ParamInfo.toMarkdown(params));
+        }
+        if (!requestHeaders.isEmpty()) {
+            markdownBuilder.p().title("Request headers", 6).p().append(HeaderInfo.toMarkdown(requestHeaders));
         }
         if (!responseHeaders.isEmpty()) {
             markdownBuilder.p().title("Response headers", 6).p().append(HeaderInfo.toMarkdown(responseHeaders));

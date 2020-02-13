@@ -40,7 +40,12 @@ public @interface ApiResponses {
     /**
      * @return 响应信息集合
      */
-    ApiResponse[] value();
+    ApiResponse[] value() default {};
+
+    /**
+     * @return 是否为数组集合
+     */
+    boolean multiple() default false;
 
     /**
      * @return 响应数据类型
