@@ -20,6 +20,7 @@ import net.ymate.apidocs.base.*;
 import net.ymate.apidocs.handle.DocsHandler;
 import net.ymate.apidocs.impl.DefaultDocsConfig;
 import net.ymate.platform.commons.ReentrantLockHelper;
+import net.ymate.platform.commons.util.ClassUtils;
 import net.ymate.platform.core.IApplication;
 import net.ymate.platform.core.YMP;
 import net.ymate.platform.core.beans.IBeanLoadFactory;
@@ -126,12 +127,7 @@ public class Docs implements IModule, IDocs {
 
     @Override
     public Package apisPackageLookup(Class<? extends Api> targetClass) {
-        Package packageObj = targetClass.getPackage();
-        do {
-            if (packageObj == null || packageObj.isAnnotationPresent(Apis.class)) {
-                break;
-            }
-        } while ((packageObj = targetClass.getSuperclass().getPackage()) != null);
+        Package packageObj = ClassUtils.getPackage(targetClass, Apis.class);
         return packageObj == null || !packageObj.isAnnotationPresent(Apis.class) ? Docs.class.getPackage() : packageObj;
     }
 

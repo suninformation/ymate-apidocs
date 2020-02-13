@@ -78,8 +78,6 @@ public class BuildMojo extends AbstractMojo {
     @SuppressWarnings("unchecked")
     public void execute() throws MojoExecutionException, MojoFailureException {
         try (IApplication application = YMP.run()) {
-            application.initialize();
-            //
             List<URL> urls = new ArrayList<>();
             urls.add(new File(mavenProject.getBuild().getOutputDirectory()).toURI().toURL());
             for (Artifact dependency : mavenProject.getArtifacts()) {

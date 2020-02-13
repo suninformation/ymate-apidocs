@@ -571,7 +571,7 @@ public class ActionInfo implements IMarkdown {
     @Override
     public String toMarkdown() {
         MarkdownBuilder markdownBuilder = MarkdownBuilder.create()
-                .title(Text.create(String.format("%s %s", displayName, mapping), deprecated ? Text.Style.STRIKEOUT : null), 5);
+                .title(Text.create(String.format("%s %s", displayName, Text.create(mapping, Text.Style.ITALIC)), deprecated ? Text.Style.STRIKEOUT : null), 5);
         if (StringUtils.isNotBlank(description)) {
             markdownBuilder.p().text(description, deprecated ? Text.Style.STRIKEOUT : null);
         }

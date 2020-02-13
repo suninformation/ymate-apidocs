@@ -370,9 +370,10 @@ public class DocInfo implements IMarkdown {
         if (license != null) {
             table.addRow().addColumn("License").addColumn(license);
         }
-        if (!authors.isEmpty()) {
-            table.addRow().addColumn("Authors").addColumn(AuthorInfo.toMarkdown(authors));
+        if (authors.isEmpty()) {
+            authors.add(AuthorInfo.create("YMP-ApiDocs").setUrl("https://www.ymate.net/"));
         }
+        table.addRow().addColumn("Authors").addColumn(AuthorInfo.toMarkdown(authors));
         markdownBuilder.p(2).title("Overview", 2).p().append(table);
         if (!servers.isEmpty()) {
             markdownBuilder.p().title("Servers", 3).p().append(ServerInfo.toMarkdown(servers));
