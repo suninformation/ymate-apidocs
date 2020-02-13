@@ -91,4 +91,9 @@ public abstract class AbstractBaseInfo<T extends AbstractBaseInfo<?>> implements
     public int hashCode() {
         return Objects.hash(name);
     }
+
+    @Override
+    public String toString() {
+        return toMarkdown();
+    }
 }

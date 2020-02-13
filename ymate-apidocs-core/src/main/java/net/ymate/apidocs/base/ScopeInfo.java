@@ -33,9 +33,4 @@ public class ScopeInfo extends AbstractBaseInfo<ScopeInfo> {
     public ScopeInfo(String name) {
         super(name);
     }
-
-    @Override
-    public String toString() {
-        return String.format("ScopeInfo{name='%s', description='%s'}", getName(), getDescription());
-    }
 }

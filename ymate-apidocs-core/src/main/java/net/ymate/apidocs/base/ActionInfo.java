@@ -647,6 +647,6 @@ public class ActionInfo implements IMarkdown {
 
     @Override
     public String toString() {
-        return String.format("ActionInfo{name='%s', displayName='%s', mapping='%s', description='%s', notes=%s, httpStatus=%d, security=%s, scopes=%s, group='%s', order=%d, deprecated=%s, methods=%s, requestHeaders=%s, responseHeaders=%s, params=%s, requestType='%s', responseType=%s, responses=%s, changeLogs=%s, examples=%s, extensions=%s}", name, displayName, mapping, description, notes, httpStatus, security, scopes, group, order, deprecated, methods, requestHeaders, responseHeaders, params, requestType, responseType, responses, changeLogs, examples, extensions);
+        return toMarkdown();
     }
 }

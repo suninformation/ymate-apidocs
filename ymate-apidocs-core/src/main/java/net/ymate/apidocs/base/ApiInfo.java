@@ -56,6 +56,8 @@ public class ApiInfo implements IMarkdown {
                         .addGroup(GroupInfo.create(targetClass.getAnnotation(ApiGroup.class)))
                         .addChangeLogs(ChangeLogInfo.create(targetClass.getAnnotation(ApiChangeLogs.class)))
                         .addChangeLog(ChangeLogInfo.create(targetClass.getAnnotation(ApiChangeLog.class)))
+                        .addExtensions(ExtensionInfo.create(targetClass.getAnnotation(ApiExtensions.class)))
+                        .addExtension(ExtensionInfo.create(targetClass.getAnnotation(ApiExtension.class)))
                         .addResponse(ResponseInfo.create(targetClass.getAnnotation(ApiResponse.class)))
                         .addRequestHeaders(HeaderInfo.create(targetClass.getAnnotation(ApiRequestHeaders.class)))
                         .addResponseHeaders(HeaderInfo.create(targetClass.getAnnotation(ApiResponseHeaders.class)));
@@ -172,6 +174,11 @@ public class ApiInfo implements IMarkdown {
      * 接口变更记录
      */
     private final List<ChangeLogInfo> changeLogs = new ArrayList<>();
+
+    /**
+     * 扩展信息
+     */
+    private final List<ExtensionInfo> extensions = new ArrayList<>();
 
     public ApiInfo(DocInfo owner, String id, String name) {
         if (owner == null) {
@@ -454,6 +461,24 @@ public class ApiInfo implements IMarkdown {
         return this;
     }
 
+    public List<ExtensionInfo> getExtensions() {
+        return extensions;
+    }
+
+    public ApiInfo addExtensions(List<ExtensionInfo> extensions) {
+        if (extensions != null) {
+            this.extensions.addAll(extensions);
+        }
+        return this;
+    }
+
+    public ApiInfo addExtension(ExtensionInfo extension) {
+        if (extension != null) {
+            this.extensions.add(extension);
+        }
+        return this;
+    }
+
     @Override
     public String toMarkdown() {
         MarkdownBuilder markdownBuilder = MarkdownBuilder.create().title(Text.create(name, deprecated ? Text.Style.STRIKEOUT : null), 3);
@@ -462,6 +487,9 @@ public class ApiInfo implements IMarkdown {
         }
         if (StringUtils.isNotBlank(group)) {
             markdownBuilder.p().title("Group", 4).p().code(group);
+        }
+        if (!changeLogs.isEmpty()) {
+            markdownBuilder.p().title("Changelog", 4).p().append(ChangeLogInfo.toMarkdown(changeLogs));
         }
         if (!scopes.isEmpty()) {
             markdownBuilder.p().title("Authorization", 4).p().text("Scopes:", Text.Style.BOLD).space();
@@ -485,8 +513,8 @@ public class ApiInfo implements IMarkdown {
         if (!responses.isEmpty()) {
             markdownBuilder.p().title("Response codes", 4).p().append(ResponseInfo.toMarkdown(responses));
         }
-        if (!changeLogs.isEmpty()) {
-            markdownBuilder.p().title("Changelog", 4).p().append(ChangeLogInfo.toMarkdown(changeLogs));
+        if (!extensions.isEmpty()) {
+            markdownBuilder.p().title("Extensions", 4).p().append(ExtensionInfo.toMarkdown(extensions));
         }
         if (!actions.isEmpty()) {
             markdownBuilder.p(2).title("Actions", 4).p();
@@ -503,6 +531,6 @@ public class ApiInfo implements IMarkdown {
 
     @Override
     public String toString() {
-        return String.format("ApiInfo{id='%s', name='%s', group='%s', order=%d, deprecated=%s, description='%s', groups=%s, params=%s, responseType=%s, responses=%s, security=%s, scopes=%s, actions=%s, changeLogs=%s}", id, name, group, order, deprecated, description, groups, params, responseType, responses, security, scopes, actions, changeLogs);
+        return toMarkdown();
     }
 }

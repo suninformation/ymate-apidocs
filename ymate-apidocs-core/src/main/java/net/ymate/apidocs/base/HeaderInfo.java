@@ -166,6 +166,6 @@ public class HeaderInfo implements IMarkdown {
 
     @Override
     public String toString() {
-        return String.format("HeaderInfo{name='%s', value='%s', type='%s', description='%s'}", name, value, type, description);
+        return toMarkdown();
     }
 }

@@ -29,9 +29,4 @@ public class PermissionInfo extends AbstractBaseInfo<PermissionInfo> {
     public PermissionInfo(String name) {
         super(name);
     }
-
-    @Override
-    public String toString() {
-        return String.format("PermissionInfo{name='%s', description='%s'}", getName(), getDescription());
-    }
 }

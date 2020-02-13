@@ -131,6 +131,6 @@ public class ChangeLogInfo implements IMarkdown {
 
     @Override
     public String toString() {
-        return String.format("ChangeLogInfo{date='%s', action='%s', author=%s, description='%s'}", date, action, author, description);
+        return toMarkdown();
     }
 }

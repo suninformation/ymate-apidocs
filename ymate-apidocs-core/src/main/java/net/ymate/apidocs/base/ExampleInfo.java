@@ -142,6 +142,6 @@ public class ExampleInfo implements IMarkdown {
 
     @Override
     public String toString() {
-        return String.format("ExampleInfo{name='%s', description='%s', type='%s', content='%s'}", name, description, type, content);
+        return toMarkdown();
     }
 }

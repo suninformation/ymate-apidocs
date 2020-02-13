@@ -144,6 +144,6 @@ public class AuthorInfo implements IMarkdown {
 
     @Override
     public String toString() {
-        return String.format("AuthorInfo{name='%s', url='%s', email='%s'}", name, url, email);
+        return toMarkdown();
     }
 }

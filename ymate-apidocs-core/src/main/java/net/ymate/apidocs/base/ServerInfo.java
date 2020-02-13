@@ -146,6 +146,6 @@ public class ServerInfo implements IMarkdown {
 
     @Override
     public String toString() {
-        return String.format("ServerInfo{host='%s', schemes=%s, description='%s'}", host, schemes, description);
+        return toMarkdown();
     }
 }

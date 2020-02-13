@@ -146,6 +146,6 @@ public class ResponseInfo implements IMarkdown {
 
     @Override
     public String toString() {
-        return String.format("ResponseInfo{httpStatus=%d, code='%s', message='%s', headers=%s}", httpStatus, code, message, headers);
+        return toMarkdown();
     }
 }

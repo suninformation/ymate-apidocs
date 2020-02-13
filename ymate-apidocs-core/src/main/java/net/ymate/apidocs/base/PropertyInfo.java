@@ -139,6 +139,6 @@ public class PropertyInfo implements IMarkdown {
 
     @Override
     public String toString() {
-        return String.format("PropertyInfo{name='%s', value='%s', description='%s'}", name, value, description);
+        return toMarkdown();
     }
 }

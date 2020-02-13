@@ -139,6 +139,6 @@ public class ExtensionInfo implements IMarkdown {
 
     @Override
     public String toString() {
-        return String.format("ExtensionInfo{name='%s', description='%s', properties=%s}", name, description, properties);
+        return toMarkdown();
     }
 }

@@ -185,6 +185,6 @@ public class SecurityInfo implements IMarkdown {
 
     @Override
     public String toString() {
-        return String.format("SecurityInfo{roles=%s, permissions=%s, logicalType=%s, description='%s'}", roles, permissions, logicalType, description);
+        return toMarkdown();
     }
 }

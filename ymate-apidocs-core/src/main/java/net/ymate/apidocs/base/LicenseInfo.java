@@ -98,6 +98,6 @@ public class LicenseInfo implements IMarkdown {
 
     @Override
     public String toString() {
-        return String.format("LicenseInfo{name='%s', url='%s', description='%s'}", name, url, description);
+        return toMarkdown();
     }
 }

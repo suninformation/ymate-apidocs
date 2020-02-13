@@ -241,6 +241,6 @@ public class AuthorizationInfo implements IMarkdown {
 
     @Override
     public String toString() {
-        return String.format("AuthorizationInfo{name='%s', url='%s', type='%s', description='%s', scopes=%s}", name, url, type, description, scopes);
+        return toMarkdown();
     }
 }

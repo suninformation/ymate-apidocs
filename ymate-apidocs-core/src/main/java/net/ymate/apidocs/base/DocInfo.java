@@ -16,10 +16,13 @@
 package net.ymate.apidocs.base;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import net.ymate.platform.commons.DateTimeHelper;
 import net.ymate.platform.commons.ReentrantLockHelper;
 import net.ymate.platform.commons.markdown.IMarkdown;
 import net.ymate.platform.commons.markdown.MarkdownBuilder;
 import net.ymate.platform.commons.markdown.Table;
+import net.ymate.platform.commons.markdown.Text;
+import net.ymate.platform.commons.util.DateTimeUtils;
 import org.apache.commons.lang.NullArgumentException;
 import org.apache.commons.lang3.StringUtils;
 
@@ -516,7 +519,13 @@ public class DocInfo implements IMarkdown {
         }
         markdownBuilder.p(5).hr()
                 .quote("This document is generated based on the `YMP-ApiDocs` module. Please visit [https://ymate.net/](https://ymate.net/) for more information.").br()
-                .quote("此文档基于 `YMP ApiDocs` 模块生成，请访问 [https://ymate.net/](https://ymate.net/) 了解更多信息。");
+                .quote("本文档基于 `YMP ApiDocs` 模块生成，请访问 [https://ymate.net/](https://ymate.net/) 了解更多信息。").br()
+                .quote(MarkdownBuilder.create().text("Create time:", Text.Style.BOLD).space().text(DateTimeHelper.now().toString(DateTimeUtils.YYYY_MM_DD_HH_MM), Text.Style.ITALIC));
         return markdownBuilder.toMarkdown();
+    }
+
+    @Override
+    public String toString() {
+        return toMarkdown();
     }
 }

@@ -356,6 +356,6 @@ public class ParamInfo implements IMarkdown {
 
     @Override
     public String toString() {
-        return String.format("ParamInfo{name='%s', description='%s', defaultValue='%s', allowValues=%s, type='%s', required=%s, model=%s, multiple=%s, multipart=%s, examples=%s}", name, description, defaultValue, allowValues, type, required, model, multiple, multipart, examples);
+        return toMarkdown();
     }
 }

@@ -29,9 +29,4 @@ public class RoleInfo extends AbstractBaseInfo<RoleInfo> {
     public RoleInfo(String name) {
         super(name);
     }
-
-    @Override
-    public String toString() {
-        return String.format("RoleInfo{name='%s', description='%s'}", getName(), getDescription());
-    }
 }
