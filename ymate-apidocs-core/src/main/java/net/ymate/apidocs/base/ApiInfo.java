@@ -511,6 +511,7 @@ public class ApiInfo implements IMarkdown {
             markdownBuilder.p().title("Response headers", 4).p().append(HeaderInfo.toMarkdown(responseHeaders));
         }
         if (!responses.isEmpty()) {
+            responses.sort((o1, o2) -> Integer.valueOf(o2.getCode()).compareTo(Integer.valueOf(o1.getCode())));
             markdownBuilder.p().title("Response codes", 4).p().append(ResponseInfo.toMarkdown(responses));
         }
         if (!extensions.isEmpty()) {

@@ -513,7 +513,7 @@ public class DocInfo implements IMarkdown {
             if (!responses.isEmpty()) {
                 markdownBuilder.title("Response codes", 3).p();
                 List<ResponseInfo> sorted = new ArrayList<>(responses.values());
-                sorted.sort(Comparator.comparing(ResponseInfo::getCode));
+                sorted.sort((o1, o2) -> Integer.valueOf(o2.getCode()).compareTo(Integer.valueOf(o1.getCode())));
                 markdownBuilder.append(ResponseInfo.toMarkdown(sorted));
             }
         }

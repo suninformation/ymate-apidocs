@@ -160,7 +160,20 @@ public class Docs implements IModule, IDocs {
                     .addRequestHeaders(HeaderInfo.create(apisPackage.getAnnotation(ApiRequestHeaders.class)))
                     .addResponseHeaders(HeaderInfo.create(apisPackage.getAnnotation(ApiResponseHeaders.class)));
             //
-            ApiResponses apiResponses = targetClass.getAnnotation(ApiResponses.class);
+            if (apisPackage.isAnnotationPresent(ApiDefaultResponses.class)) {
+                docInfo.addResponse(ResponseInfo.create("0", "请求成功"));
+                docInfo.addResponse(ResponseInfo.create("-1", "参数验证无效"));
+                docInfo.addResponse(ResponseInfo.create("-2", "访问的资源未找到或不存在"));
+                docInfo.addResponse(ResponseInfo.create("-3", "请求的方法不支持或不正确"));
+                docInfo.addResponse(ResponseInfo.create("-4", "请求的资源未授权或无权限"));
+                docInfo.addResponse(ResponseInfo.create("-5", "用户会话无效或超时"));
+                docInfo.addResponse(ResponseInfo.create("-6", "请求的操作被禁止"));
+                docInfo.addResponse(ResponseInfo.create("-7", "用户会话已授权(登录)"));
+                docInfo.addResponse(ResponseInfo.create("-20", "数据版本不匹配"));
+                docInfo.addResponse(ResponseInfo.create("-50", "系统内部错误"));
+            }
+            //
+            ApiResponses apiResponses = apisPackage.getAnnotation(ApiResponses.class);
             if (apiResponses != null) {
                 if (!Void.class.equals(apiResponses.type())) {
                     docInfo.addResponseType(ResponseTypeInfo.create(apiResponses));

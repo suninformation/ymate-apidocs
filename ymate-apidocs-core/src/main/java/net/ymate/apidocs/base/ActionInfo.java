@@ -28,7 +28,10 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * 描述一个API接口方法
@@ -517,7 +520,6 @@ public class ActionInfo implements IMarkdown {
     public ActionInfo addResponse(ResponseInfo response) {
         if (response != null && !hasResponse(response)) {
             this.responses.add(response);
-            this.responses.sort(Comparator.comparing(ResponseInfo::getCode));
         }
         return this;
     }
@@ -627,13 +629,16 @@ public class ActionInfo implements IMarkdown {
             markdownBuilder.p().title("Response headers", 6).p().append(HeaderInfo.toMarkdown(responseHeaders));
         }
         if (responseType != null) {
-            markdownBuilder.p().title("Response type", 6).p().text(responseType.getName());
-            if (StringUtils.isNotBlank(responseType.getDescription())) {
-                markdownBuilder.p().append(responseType.getDescription());
+            if (StringUtils.isNotBlank(responseType.getName()) || !responseType.getProperties().isEmpty()) {
+                markdownBuilder.p().title("Response type", 6).p().text(responseType.getName());
+                if (StringUtils.isNotBlank(responseType.getDescription())) {
+                    markdownBuilder.p().append(responseType.getDescription());
+                }
+                markdownBuilder.p().append(PropertyInfo.toMarkdownTable(responseType.getProperties()));
             }
-            markdownBuilder.p().append(PropertyInfo.toMarkdownTable(responseType.getProperties()));
         }
         if (!responses.isEmpty()) {
+            responses.sort((o1, o2) -> Integer.valueOf(o2.getCode()).compareTo(Integer.valueOf(o1.getCode())));
             markdownBuilder.p().title("Response codes", 6).p().append(ResponseInfo.toMarkdown(responses));
         }
         if (!extensions.isEmpty()) {
@@ -642,7 +647,7 @@ public class ActionInfo implements IMarkdown {
         if (!examples.isEmpty()) {
             markdownBuilder.p().title("Examples", 6).p().append(ExampleInfo.toMarkdown(examples));
         }
-        return markdownBuilder.toMarkdown();
+        return markdownBuilder.p().toMarkdown();
     }
 
     @Override

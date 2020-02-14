@@ -41,7 +41,7 @@ public class ResponseTypeInfo implements Serializable {
         Arrays.stream(responses.properties()).map(PropertyInfo::create).forEachOrdered(responseTypeInfo::addProperty);
         if (!Void.class.equals(responses.type())) {
             Class<?> responseType = responses.type().isArray() ? ClassUtils.getArrayClassType(responses.type()) : responses.type();
-            responseTypeInfo.setName(StringUtils.defaultIfBlank(responseTypeInfo.getName(), responseType.getTypeName()));
+            responseTypeInfo.setName(StringUtils.defaultIfBlank(responseTypeInfo.getName(), responseType.getSimpleName()));
             responseTypeInfo.setMultiple(responses.multiple() || responses.type().isArray());
             processProperties(responseTypeInfo, null, responseType);
         }
