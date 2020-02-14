@@ -60,7 +60,7 @@ public class ResponseInfo implements IMarkdown {
     /**
      * HTTP响应状态值
      */
-    private int httpStatus;
+    private int httpStatus = 200;
 
     /**
      * 业务响应码
