@@ -98,7 +98,7 @@ public class ParamInfo implements IMarkdown {
             if (!apiParam.hidden() && StringUtils.isNotBlank(paramName)) {
                 boolean required = apiParam.required() || annotatedElement.isAnnotationPresent(VRequired.class);
 
-                return new ParamInfo(paramName, paramType.getTypeName())
+                return new ParamInfo(paramName, paramType.getSimpleName())
                         .setDefaultValue(StringUtils.defaultIfBlank(apiParam.defaultValue(), requestParam != null ? StringUtils.defaultIfBlank(requestParam.defaultValue(), apiParam.defaultValue()) : apiParam.defaultValue()))
                         .addAllowValues(Arrays.asList(apiParam.allowValues()))
                         .setModel(apiParam.model() || annotatedElement.isAnnotationPresent(ModelBind.class))
@@ -116,7 +116,7 @@ public class ParamInfo implements IMarkdown {
     public static ParamInfo create(ApiParam apiParam) {
         if (apiParam != null) {
             if (!apiParam.hidden() && StringUtils.isNotBlank(apiParam.value())) {
-                return new ParamInfo(apiParam.value(), apiParam.type().getTypeName())
+                return new ParamInfo(apiParam.value(), apiParam.type().getSimpleName())
                         .setDefaultValue(apiParam.defaultValue())
                         .addAllowValues(Arrays.asList(apiParam.allowValues()))
                         .setModel(apiParam.model())

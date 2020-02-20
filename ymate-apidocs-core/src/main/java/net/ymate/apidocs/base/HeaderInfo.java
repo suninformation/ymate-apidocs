@@ -66,7 +66,7 @@ public class HeaderInfo implements IMarkdown {
         if (apiHeader != null && StringUtils.isNotBlank(apiHeader.name())) {
             return new HeaderInfo(apiHeader.name())
                     .setValue(apiHeader.value())
-                    .setType(apiHeader.type().getTypeName())
+                    .setType(apiHeader.type().getSimpleName())
                     .setDescription(apiHeader.description());
         }
         return null;

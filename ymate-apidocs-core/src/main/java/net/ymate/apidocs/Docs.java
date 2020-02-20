@@ -169,6 +169,10 @@ public class Docs implements IModule, IDocs {
                 docInfo.addResponse(ResponseInfo.create("-5", "用户会话无效或超时"));
                 docInfo.addResponse(ResponseInfo.create("-6", "请求的操作被禁止"));
                 docInfo.addResponse(ResponseInfo.create("-7", "用户会话已授权(登录)"));
+                docInfo.addResponse(ResponseInfo.create("-8", "参数签名无效"));
+                docInfo.addResponse(ResponseInfo.create("-9", "上传文件大小超出限制"));
+                docInfo.addResponse(ResponseInfo.create("-10", "上传文件总大小超出限制"));
+                docInfo.addResponse(ResponseInfo.create("-11", "上传文件类型无效"));
                 docInfo.addResponse(ResponseInfo.create("-20", "数据版本不匹配"));
                 docInfo.addResponse(ResponseInfo.create("-50", "系统内部错误"));
             }
