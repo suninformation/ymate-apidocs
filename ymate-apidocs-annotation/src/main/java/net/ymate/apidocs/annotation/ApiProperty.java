@@ -38,6 +38,11 @@ public @interface ApiProperty {
     String value() default "";
 
     /**
+     * @return 自定生成请求和响应报文示例时，为属性设置示例值
+     */
+    String demoValue() default "";
+
+    /**
      * @return 是否为模型对象
      */
     boolean model() default false;

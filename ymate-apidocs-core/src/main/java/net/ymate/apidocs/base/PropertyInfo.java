@@ -20,9 +20,11 @@ import net.ymate.platform.commons.markdown.IMarkdown;
 import net.ymate.platform.commons.markdown.MarkdownBuilder;
 import net.ymate.platform.commons.markdown.Table;
 import net.ymate.platform.commons.markdown.Text;
+import net.ymate.platform.commons.util.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -34,6 +36,28 @@ public class PropertyInfo implements IMarkdown {
 
     public static PropertyInfo create() {
         return new PropertyInfo();
+    }
+
+    public static List<PropertyInfo> create(String prefix, Class<?> targetClass) {
+        List<PropertyInfo> properties = new ArrayList<>();
+        ClassUtils.BeanWrapper<?> beanWrapper = ClassUtils.wrapper(targetClass);
+        for (Field field : beanWrapper.getFields()) {
+            ApiProperty apiProperty = field.getAnnotation(ApiProperty.class);
+            if (apiProperty != null) {
+                if (apiProperty.model()) {
+                    if (StringUtils.isNotBlank(prefix)) {
+                        prefix += ".";
+                    }
+                    List<PropertyInfo> props = create(StringUtils.trimToEmpty(prefix) + StringUtils.defaultIfBlank(apiProperty.name(), field.getName()), Void.class.equals(apiProperty.modelClass()) ? field.getType() : apiProperty.modelClass());
+                    if (!props.isEmpty()) {
+                        properties.addAll(props);
+                    }
+                } else {
+                    properties.add(PropertyInfo.create(apiProperty, prefix, field));
+                }
+            }
+        }
+        return properties;
     }
 
     public static PropertyInfo create(ApiProperty property) {

@@ -15,6 +15,7 @@
  */
 package net.ymate.apidocs.annotation;
 
+import java.io.Serializable;
 import java.lang.annotation.*;
 
 /**
@@ -26,4 +27,19 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface ApiDefaultResponses {
+
+    /**
+     * @return 自定义通用响应报文结构
+     */
+    Class<? extends Serializable> standardType() default Serializable.class;
+
+    /**
+     * @return 自定义分页查询响应报文结构
+     */
+    Class<? extends Serializable> pagingType() default Serializable.class;
+
+    /**
+     * @return 响应报文示例
+     */
+    ApiExample[] examples() default {};
 }

@@ -118,6 +118,16 @@ public class DocInfo implements IMarkdown {
     private final Map<String, ResponseInfo> responses = new ConcurrentHashMap<>();
 
     /**
+     * 响应报文属性集合
+     */
+    private final List<PropertyInfo> responseProperties = new ArrayList<>();
+
+    /**
+     * 响应报文示例
+     */
+    private final List<ExampleInfo> responseExamples = new ArrayList<>();
+
+    /**
      * 接口变更记录
      */
     private final List<ChangeLogInfo> changeLogs = new ArrayList<>();
@@ -391,6 +401,44 @@ public class DocInfo implements IMarkdown {
         return this;
     }
 
+    @JSONField(serialize = false)
+    public List<PropertyInfo> getResponseProperties() {
+        return responseProperties;
+    }
+
+    public DocInfo addResponseProperties(List<PropertyInfo> properties) {
+        if (properties != null) {
+            responseProperties.addAll(properties);
+        }
+        return this;
+    }
+
+    public DocInfo addResponseProperty(PropertyInfo propertyInfo) {
+        if (propertyInfo != null) {
+            responseProperties.add(propertyInfo);
+        }
+        return this;
+    }
+
+    @JSONField(serialize = false)
+    public List<ExampleInfo> getResponseExamples() {
+        return responseExamples;
+    }
+
+    public DocInfo addResponseExamples(List<ExampleInfo> examples) {
+        if (examples != null) {
+            responseExamples.addAll(examples);
+        }
+        return this;
+    }
+
+    public DocInfo addResponseExample(ExampleInfo example) {
+        if (example != null) {
+            responseExamples.add(example);
+        }
+        return this;
+    }
+
     public List<ChangeLogInfo> getChangeLogs() {
         return changeLogs;
     }
@@ -498,8 +546,21 @@ public class DocInfo implements IMarkdown {
                 markdownBuilder.append(ApiInfo.toMarkdown(apis));
             }
         }
-        if (!responses.isEmpty() || !responseTypes.isEmpty()) {
+        if (!responses.isEmpty() || !responseTypes.isEmpty() || !responseExamples.isEmpty() || !responseProperties.isEmpty()) {
             markdownBuilder.p(2).title("Appendix", 2).p();
+            if (!responseProperties.isEmpty()) {
+                markdownBuilder.title("Response structure", 3).p();
+                if (!responseExamples.isEmpty()) {
+                    markdownBuilder.text("Examples").p().append(ExampleInfo.toMarkdown(responseExamples)).p().text("Properties").p();
+                }
+                markdownBuilder.append(PropertyInfo.toMarkdownTable(responseProperties)).p();
+            }
+            if (!responses.isEmpty()) {
+                markdownBuilder.title("Response codes", 3).p();
+                List<ResponseInfo> sorted = new ArrayList<>(responses.values());
+                sorted.sort((o1, o2) -> Integer.valueOf(o2.getCode()).compareTo(Integer.valueOf(o1.getCode())));
+                markdownBuilder.append(ResponseInfo.toMarkdown(sorted));
+            }
             if (!responseTypes.isEmpty()) {
                 markdownBuilder.title("Response types", 3).p();
                 for (ResponseTypeInfo responseType : responseTypes.values()) {
@@ -509,12 +570,6 @@ public class DocInfo implements IMarkdown {
                     }
                     markdownBuilder.append(PropertyInfo.toMarkdownTable(responseType.getProperties())).p();
                 }
-            }
-            if (!responses.isEmpty()) {
-                markdownBuilder.title("Response codes", 3).p();
-                List<ResponseInfo> sorted = new ArrayList<>(responses.values());
-                sorted.sort((o1, o2) -> Integer.valueOf(o2.getCode()).compareTo(Integer.valueOf(o1.getCode())));
-                markdownBuilder.append(ResponseInfo.toMarkdown(sorted));
             }
         }
         markdownBuilder.p(5).hr()

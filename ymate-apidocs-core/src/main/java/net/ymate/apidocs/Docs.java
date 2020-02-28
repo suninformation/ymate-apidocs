@@ -27,9 +27,12 @@ import net.ymate.platform.core.beans.IBeanLoadFactory;
 import net.ymate.platform.core.beans.IBeanLoader;
 import net.ymate.platform.core.module.IModule;
 import net.ymate.platform.core.module.IModuleConfigurer;
+import net.ymate.platform.webmvc.base.Type;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
@@ -139,54 +142,102 @@ public class Docs implements IModule, IDocs {
             //
             Apis apisAnn = apisPackage.getAnnotation(Apis.class);
             String docsId = String.format("%s_%s", apisPackage.getName(), apisAnn.version());
-            DocInfo docInfo = ReentrantLockHelper.putIfAbsentAsync(docInfoMap, docsId, () -> DocInfo.create(docsId, apisAnn.title(), apisAnn.version())
-                    .setDescription(apisAnn.description())
-                    .setLicense(LicenseInfo.create(apisPackage.getAnnotation(ApiLicense.class)))
-                    .setAuthorization(AuthorizationInfo.create(apisPackage.getAnnotation(ApiAuthorization.class)))
-                    .setSecurity(SecurityInfo.create(apisPackage.getAnnotation(ApiSecurity.class), null))
-                    .addAuthors(AuthorInfo.create(apisPackage.getAnnotation(ApiAuthors.class)))
-                    .addAuthor(AuthorInfo.create(apisPackage.getAnnotation(ApiAuthor.class)))
-                    .addChangeLogs(ChangeLogInfo.create(apisPackage.getAnnotation(ApiChangeLogs.class)))
-                    .addChangeLog(ChangeLogInfo.create(apisPackage.getAnnotation(ApiChangeLog.class)))
-                    .addExtensions(ExtensionInfo.create(apisPackage.getAnnotation(ApiExtensions.class)))
-                    .addExtension(ExtensionInfo.create(apisPackage.getAnnotation(ApiExtension.class)))
-                    .addGroups(GroupInfo.create(apisPackage.getAnnotation(ApiGroups.class)))
-                    .addGroup(GroupInfo.create(apisPackage.getAnnotation(ApiGroup.class)))
-                    .addParams(ParamInfo.create(apisPackage.getAnnotation(ApiParams.class)))
-                    .addParam(ParamInfo.create(apisPackage.getAnnotation(ApiParam.class)))
-                    .addServers(ServerInfo.create(apisPackage.getAnnotation(ApiServers.class)))
-                    .addServer(ServerInfo.create(apisPackage.getAnnotation(ApiServer.class))))
-                    .addResponse(ResponseInfo.create(apisPackage.getAnnotation(ApiResponse.class)))
-                    .addRequestHeaders(HeaderInfo.create(apisPackage.getAnnotation(ApiRequestHeaders.class)))
-                    .addResponseHeaders(HeaderInfo.create(apisPackage.getAnnotation(ApiResponseHeaders.class)));
-            //
-            if (apisPackage.isAnnotationPresent(ApiDefaultResponses.class)) {
-                docInfo.addResponse(ResponseInfo.create("0", "请求成功"));
-                docInfo.addResponse(ResponseInfo.create("-1", "参数验证无效"));
-                docInfo.addResponse(ResponseInfo.create("-2", "访问的资源未找到或不存在"));
-                docInfo.addResponse(ResponseInfo.create("-3", "请求的方法不支持或不正确"));
-                docInfo.addResponse(ResponseInfo.create("-4", "请求的资源未授权或无权限"));
-                docInfo.addResponse(ResponseInfo.create("-5", "用户会话无效或超时"));
-                docInfo.addResponse(ResponseInfo.create("-6", "请求的操作被禁止"));
-                docInfo.addResponse(ResponseInfo.create("-7", "用户会话已授权(登录)"));
-                docInfo.addResponse(ResponseInfo.create("-8", "参数签名无效"));
-                docInfo.addResponse(ResponseInfo.create("-9", "上传文件大小超出限制"));
-                docInfo.addResponse(ResponseInfo.create("-10", "上传文件总大小超出限制"));
-                docInfo.addResponse(ResponseInfo.create("-11", "上传文件类型无效"));
-                docInfo.addResponse(ResponseInfo.create("-12", "用户会话确认状态无效"));
-                docInfo.addResponse(ResponseInfo.create("-13", "用户会话已强制下线"));
-                docInfo.addResponse(ResponseInfo.create("-20", "数据版本不匹配"));
-                docInfo.addResponse(ResponseInfo.create("-50", "系统内部错误"));
-            }
-            //
-            ApiResponses apiResponses = apisPackage.getAnnotation(ApiResponses.class);
-            if (apiResponses != null) {
-                if (!Void.class.equals(apiResponses.type())) {
-                    docInfo.addResponseType(ResponseTypeInfo.create(apiResponses));
+            DocInfo doc = ReentrantLockHelper.putIfAbsentAsync(docInfoMap, docsId, () -> {
+                DocInfo docInfo = DocInfo.create(docsId, apisAnn.title(), apisAnn.version())
+                        .setDescription(apisAnn.description())
+                        .setLicense(LicenseInfo.create(apisPackage.getAnnotation(ApiLicense.class)))
+                        .setAuthorization(AuthorizationInfo.create(apisPackage.getAnnotation(ApiAuthorization.class)))
+                        .setSecurity(SecurityInfo.create(apisPackage.getAnnotation(ApiSecurity.class), null))
+                        .addAuthors(AuthorInfo.create(apisPackage.getAnnotation(ApiAuthors.class)))
+                        .addAuthor(AuthorInfo.create(apisPackage.getAnnotation(ApiAuthor.class)))
+                        .addChangeLogs(ChangeLogInfo.create(apisPackage.getAnnotation(ApiChangeLogs.class)))
+                        .addChangeLog(ChangeLogInfo.create(apisPackage.getAnnotation(ApiChangeLog.class)))
+                        .addExtensions(ExtensionInfo.create(apisPackage.getAnnotation(ApiExtensions.class)))
+                        .addExtension(ExtensionInfo.create(apisPackage.getAnnotation(ApiExtension.class)))
+                        .addGroups(GroupInfo.create(apisPackage.getAnnotation(ApiGroups.class)))
+                        .addGroup(GroupInfo.create(apisPackage.getAnnotation(ApiGroup.class)))
+                        .addParams(ParamInfo.create(apisPackage.getAnnotation(ApiParams.class)))
+                        .addParam(ParamInfo.create(apisPackage.getAnnotation(ApiParam.class)))
+                        .addServers(ServerInfo.create(apisPackage.getAnnotation(ApiServers.class)))
+                        .addServer(ServerInfo.create(apisPackage.getAnnotation(ApiServer.class)))
+                        .addResponse(ResponseInfo.create(apisPackage.getAnnotation(ApiResponse.class)))
+                        .addRequestHeaders(HeaderInfo.create(apisPackage.getAnnotation(ApiRequestHeaders.class)))
+                        .addResponseHeaders(HeaderInfo.create(apisPackage.getAnnotation(ApiResponseHeaders.class)));
+                //
+                ApiDefaultResponses defaultResponses = apisPackage.getAnnotation(ApiDefaultResponses.class);
+                if (defaultResponses != null) {
+                    if (ArrayUtils.isNotEmpty(defaultResponses.examples())) {
+                        docInfo.addResponseExamples(ExampleInfo.create(defaultResponses.examples()));
+                    } else {
+                        docInfo.addResponseExample(ExampleInfo.create("{\n" +
+                                "    \"ret\": -1,\n" +
+                                "    \"msg\": \"参数验证无效\",\n" +
+                                "    \"data\": {\n" +
+                                "        \"username\": \"用户名称不能为空\",\n" +
+                                "        \"password\": \"密码不能为空\"\n" +
+                                "    }\n" +
+                                "}").setType("json").setName("Standard"));
+                        docInfo.addResponseExample(ExampleInfo.create("{\n" +
+                                "    \"ret\": 0,\n" +
+                                "    \"data\": {\n" +
+                                "        \"pageCount\": 1,\n" +
+                                "        \"pageNumber\": 1,\n" +
+                                "        \"pageSize\": 20,\n" +
+                                "        \"paginated\": true,\n" +
+                                "        \"recordCount\": 1,\n" +
+                                "        \"resultData\": [],\n" +
+                                "        \"resultsAvailable\": false\n" +
+                                "    }\n" +
+                                "}").setType("json").setName("Pagination"));
+                    }
+                    //
+                    if (Serializable.class.equals(defaultResponses.standardType())) {
+                        docInfo.addResponseProperty(PropertyInfo.create().setName(Type.Const.PARAM_RET).setValue(Integer.class.getSimpleName()).setDescription("响应码"));
+                        docInfo.addResponseProperty(PropertyInfo.create().setName(Type.Const.PARAM_MSG).setValue(String.class.getSimpleName()).setDescription("响应码描述，若响应码不等于0则此为必须项"));
+                        docInfo.addResponseProperty(PropertyInfo.create().setName(Type.Const.PARAM_DATA).setValue(Object.class.getSimpleName()).setDescription("业务数据内容，根据业务逻辑决定其具体数据类型及是否为必须项"));
+                    } else {
+                        docInfo.addResponseProperties(PropertyInfo.create(null, defaultResponses.standardType()));
+                    }
+                    if (Serializable.class.equals(defaultResponses.pagingType())) {
+                        docInfo.addResponseProperty(PropertyInfo.create().setName("pageCount").setValue(Integer.class.getSimpleName()).setDescription("分页参数：总页数"));
+                        docInfo.addResponseProperty(PropertyInfo.create().setName("pageNumber").setValue(Integer.class.getSimpleName()).setDescription("分页参数：当前查询页号"));
+                        docInfo.addResponseProperty(PropertyInfo.create().setName("pageSize").setValue(Integer.class.getSimpleName()).setDescription("分页参数：每页记录数"));
+                        docInfo.addResponseProperty(PropertyInfo.create().setName("paginated").setValue(Boolean.class.getSimpleName()).setDescription("分页参数：是否分页查询"));
+                        docInfo.addResponseProperty(PropertyInfo.create().setName("recordCount").setValue(Integer.class.getSimpleName()).setDescription("分页参数：记录总数"));
+                        docInfo.addResponseProperty(PropertyInfo.create().setName("resultData").setValue(Object[].class.getSimpleName()).setDescription("分页参数：结果集数据对象，根据业务逻辑决定其具体数据类型"));
+                        docInfo.addResponseProperty(PropertyInfo.create().setName("resultsAvailable").setValue(Boolean.class.getSimpleName()).setDescription("分页参数：结果集是否为过空"));
+                    } else {
+                        docInfo.addResponseProperties(PropertyInfo.create(Type.Const.PARAM_DATA, defaultResponses.pagingType()));
+                    }
+                    //
+                    docInfo.addResponse(ResponseInfo.create("0", "请求成功"));
+                    docInfo.addResponse(ResponseInfo.create("-1", "参数验证无效"));
+                    docInfo.addResponse(ResponseInfo.create("-2", "访问的资源未找到或不存在"));
+                    docInfo.addResponse(ResponseInfo.create("-3", "请求的方法不支持或不正确"));
+                    docInfo.addResponse(ResponseInfo.create("-4", "请求的资源未授权或无权限"));
+                    docInfo.addResponse(ResponseInfo.create("-5", "用户会话无效或超时"));
+                    docInfo.addResponse(ResponseInfo.create("-6", "请求的操作被禁止"));
+                    docInfo.addResponse(ResponseInfo.create("-7", "用户会话已授权(登录)"));
+                    docInfo.addResponse(ResponseInfo.create("-8", "参数签名无效"));
+                    docInfo.addResponse(ResponseInfo.create("-9", "上传文件大小超出限制"));
+                    docInfo.addResponse(ResponseInfo.create("-10", "上传文件总大小超出限制"));
+                    docInfo.addResponse(ResponseInfo.create("-11", "上传文件类型无效"));
+                    docInfo.addResponse(ResponseInfo.create("-12", "用户会话确认状态无效"));
+                    docInfo.addResponse(ResponseInfo.create("-13", "用户会话已强制下线"));
+                    docInfo.addResponse(ResponseInfo.create("-20", "数据版本不匹配"));
+                    docInfo.addResponse(ResponseInfo.create("-50", "系统内部错误"));
                 }
-                Arrays.stream(apiResponses.value()).map(ResponseInfo::create).forEachOrdered(docInfo::addResponse);
-            }
-            docInfo.addApi(ApiInfo.create(docInfo, targetClass));
+                //
+                ApiResponses apiResponses = apisPackage.getAnnotation(ApiResponses.class);
+                if (apiResponses != null) {
+                    if (!Void.class.equals(apiResponses.type())) {
+                        docInfo.addResponseType(ResponseTypeInfo.create(apiResponses));
+                    }
+                    Arrays.stream(apiResponses.value()).map(ResponseInfo::create).forEachOrdered(docInfo::addResponse);
+                }
+                return docInfo;
+            });
+            doc.addApi(ApiInfo.create(doc, targetClass));
         }
     }
 

@@ -44,6 +44,11 @@ public @interface ApiParam {
     String defaultValue() default "";
 
     /**
+     * @return 自定生成请求和响应报文示例时，为参数设置示例值
+     */
+    String demoValue() default "";
+
+    /**
      * @return 参数可选值集合
      */
     String[] allowValues() default {};

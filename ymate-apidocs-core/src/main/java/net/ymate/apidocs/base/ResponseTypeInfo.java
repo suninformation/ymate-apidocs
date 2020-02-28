@@ -15,14 +15,12 @@
  */
 package net.ymate.apidocs.base;
 
-import net.ymate.apidocs.annotation.ApiProperty;
 import net.ymate.apidocs.annotation.ApiResponses;
 import net.ymate.platform.commons.util.ClassUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -43,26 +41,9 @@ public class ResponseTypeInfo implements Serializable {
             Class<?> responseType = responses.type().isArray() ? ClassUtils.getArrayClassType(responses.type()) : responses.type();
             responseTypeInfo.setName(StringUtils.defaultIfBlank(responseTypeInfo.getName(), responseType.getSimpleName()));
             responseTypeInfo.setMultiple(responses.multiple() || responses.type().isArray());
-            processProperties(responseTypeInfo, null, responseType);
+            responseTypeInfo.addProperties(PropertyInfo.create(null, responseType));
         }
         return responseTypeInfo;
-    }
-
-    private static void processProperties(ResponseTypeInfo resultData, String prefix, Class<?> type) {
-        ClassUtils.BeanWrapper<?> beanWrapper = ClassUtils.wrapper(type);
-        for (Field field : beanWrapper.getFields()) {
-            ApiProperty apiProperty = field.getAnnotation(ApiProperty.class);
-            if (apiProperty != null) {
-                if (apiProperty.model()) {
-                    if (StringUtils.isNotBlank(prefix)) {
-                        prefix += ".";
-                    }
-                    processProperties(resultData, StringUtils.trimToEmpty(prefix) + StringUtils.defaultIfBlank(apiProperty.name(), field.getName()), Void.class.equals(apiProperty.modelClass()) ? field.getType() : apiProperty.modelClass());
-                } else {
-                    resultData.addProperty(PropertyInfo.create(apiProperty, prefix, field));
-                }
-            }
-        }
     }
 
     /**
