@@ -65,6 +65,7 @@ public class PropertyInfo implements IMarkdown {
             return new PropertyInfo()
                     .setName(property.name())
                     .setValue(property.value())
+                    .setDemoValue(property.demoValue())
                     .setDescription(property.description());
         }
         return null;
@@ -82,6 +83,7 @@ public class PropertyInfo implements IMarkdown {
             return new PropertyInfo()
                     .setName(StringUtils.trimToEmpty(prefix) + StringUtils.defaultIfBlank(property.name(), field.getName()))
                     .setValue(StringUtils.defaultIfBlank(property.value(), field.getType().getSimpleName()))
+                    .setDemoValue(property.demoValue())
                     .setDescription(property.description());
         }
         return null;
@@ -114,6 +116,8 @@ public class PropertyInfo implements IMarkdown {
 
     private String value;
 
+    private String demoValue;
+
     private String description;
 
     public String getName() {
@@ -131,6 +135,15 @@ public class PropertyInfo implements IMarkdown {
 
     public PropertyInfo setValue(String value) {
         this.value = value;
+        return this;
+    }
+
+    public String getDemoValue() {
+        return demoValue;
+    }
+
+    public PropertyInfo setDemoValue(String demoValue) {
+        this.demoValue = demoValue;
         return this;
     }
 

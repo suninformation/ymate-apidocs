@@ -97,9 +97,9 @@ public class ParamInfo implements IMarkdown {
             String paramName = StringUtils.defaultIfBlank(apiParam.value(), requestParam != null ? StringUtils.defaultIfBlank(requestParam.value(), defaultParamName) : defaultParamName);
             if (!apiParam.hidden() && StringUtils.isNotBlank(paramName)) {
                 boolean required = apiParam.required() || annotatedElement.isAnnotationPresent(VRequired.class);
-
                 return new ParamInfo(paramName, paramType.getSimpleName())
                         .setDefaultValue(StringUtils.defaultIfBlank(apiParam.defaultValue(), requestParam != null ? StringUtils.defaultIfBlank(requestParam.defaultValue(), apiParam.defaultValue()) : apiParam.defaultValue()))
+                        .setDemoValue(apiParam.demoValue())
                         .addAllowValues(Arrays.asList(apiParam.allowValues()))
                         .setModel(apiParam.model() || annotatedElement.isAnnotationPresent(ModelBind.class))
                         .setMultiple(apiParam.multiple() || paramType.isArray())
@@ -118,6 +118,7 @@ public class ParamInfo implements IMarkdown {
             if (!apiParam.hidden() && StringUtils.isNotBlank(apiParam.value())) {
                 return new ParamInfo(apiParam.value(), apiParam.type().getSimpleName())
                         .setDefaultValue(apiParam.defaultValue())
+                        .setDemoValue(apiParam.demoValue())
                         .addAllowValues(Arrays.asList(apiParam.allowValues()))
                         .setModel(apiParam.model())
                         .setMultiple(apiParam.multiple() || apiParam.type().isArray())
@@ -171,6 +172,8 @@ public class ParamInfo implements IMarkdown {
      * 参数默认值
      */
     private String defaultValue;
+
+    private String demoValue;
 
     /**
      * 参数可选值
@@ -239,6 +242,15 @@ public class ParamInfo implements IMarkdown {
 
     public ParamInfo setDefaultValue(String defaultValue) {
         this.defaultValue = defaultValue;
+        return this;
+    }
+
+    public String getDemoValue() {
+        return demoValue;
+    }
+
+    public ParamInfo setDemoValue(String demoValue) {
+        this.demoValue = demoValue;
         return this;
     }
 
