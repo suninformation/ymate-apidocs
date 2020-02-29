@@ -630,7 +630,10 @@ public class ActionInfo implements IMarkdown {
         }
         if (responseType != null) {
             if (StringUtils.isNotBlank(responseType.getName()) || !responseType.getProperties().isEmpty()) {
-                markdownBuilder.p().title("Response type", 6).p().text(responseType.getName());
+                markdownBuilder.p().title("Response type", 6);
+                if (StringUtils.isNotBlank(responseType.getName())) {
+                    markdownBuilder.p().text(responseType.getName());
+                }
                 if (StringUtils.isNotBlank(responseType.getDescription())) {
                     markdownBuilder.p().append(responseType.getDescription());
                 }
