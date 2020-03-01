@@ -82,7 +82,7 @@ public class PropertyInfo implements IMarkdown {
             }
             return new PropertyInfo()
                     .setName(StringUtils.trimToEmpty(prefix) + StringUtils.defaultIfBlank(property.name(), field.getName()))
-                    .setValue(StringUtils.defaultIfBlank(property.value(), field.getType().getSimpleName()))
+                    .setValue(Void.class.equals(property.valueClass()) ? StringUtils.defaultIfBlank(property.value(), field.getType().getSimpleName()) : property.valueClass().getSimpleName())
                     .setDemoValue(property.demoValue())
                     .setDescription(property.description());
         }

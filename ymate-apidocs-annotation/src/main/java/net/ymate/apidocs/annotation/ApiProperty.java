@@ -38,6 +38,11 @@ public @interface ApiProperty {
     String value() default "";
 
     /**
+     * @return 自定义值类型（需自行注册）
+     */
+    Class<?> valueClass() default Void.class;
+
+    /**
      * @return 自定生成请求和响应报文示例时，为属性设置示例值
      */
     String demoValue() default "";
