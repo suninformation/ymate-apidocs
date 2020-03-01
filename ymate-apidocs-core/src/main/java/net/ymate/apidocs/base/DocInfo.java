@@ -445,13 +445,14 @@ public class DocInfo implements IMarkdown {
 
     public DocInfo addChangeLogs(List<ChangeLogInfo> changeLogs) {
         if (changeLogs != null) {
-            this.changeLogs.addAll(changeLogs);
+            changeLogs.forEach(this::addChangeLog);
         }
         return this;
     }
 
     public DocInfo addChangeLog(ChangeLogInfo changeLogs) {
         if (changeLogs != null) {
+            addAuthor(changeLogs.getAuthor());
             this.changeLogs.add(changeLogs);
         }
         return this;

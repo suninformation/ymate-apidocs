@@ -15,23 +15,23 @@
  */
 package net.ymate.apidocs.base;
 
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import net.ymate.apidocs.annotation.*;
 import net.ymate.platform.commons.markdown.IMarkdown;
 import net.ymate.platform.commons.markdown.MarkdownBuilder;
 import net.ymate.platform.commons.markdown.Text;
 import net.ymate.platform.commons.util.ClassUtils;
+import net.ymate.platform.core.persistence.impl.DefaultResultSet;
 import net.ymate.platform.webmvc.annotation.RequestMapping;
 import net.ymate.platform.webmvc.base.Type;
+import net.ymate.platform.webmvc.util.WebResult;
 import org.apache.commons.lang.NullArgumentException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * 描述一个API接口方法
@@ -140,8 +140,31 @@ public class ActionInfo implements IMarkdown {
                 //
                 ApiResponses apiResponses = method.getAnnotation(ApiResponses.class);
                 if (apiResponses != null) {
-                    actionInfo.setResponseType(ResponseTypeInfo.create(apiResponses));
+                    ResponseTypeInfo responseTypeInfo = ResponseTypeInfo.create(apiResponses);
+                    actionInfo.setResponseType(responseTypeInfo);
                     Arrays.stream(apiResponses.value()).map(ResponseInfo::create).forEachOrdered(actionInfo::addResponse);
+                    //
+                    ApiExampleGenerate apiExampleGenerate = method.getAnnotation(ApiExampleGenerate.class);
+                    if (apiExampleGenerate != null && !Void.class.equals(apiResponses.type()) && !responseTypeInfo.getProperties().isEmpty()) {
+                        try {
+                            Object instance = ResponseTypeInfo.create(apiResponses.type());
+                            if (apiExampleGenerate.paging()) {
+                                instance = new DefaultResultSet<>(Collections.singletonList(instance), 1, 20, 1);
+                            } else if (responseTypeInfo.isMultiple()) {
+                                instance = Collections.singletonList(instance);
+                            }
+                            String content = WebResult.succeed().data(instance).toJSONObject().toString(SerializerFeature.WriteMapNullValue,
+                                    SerializerFeature.QuoteFieldNames,
+                                    SerializerFeature.PrettyFormat,
+                                    SerializerFeature.WriteNullBooleanAsFalse,
+                                    SerializerFeature.WriteNullListAsEmpty,
+                                    SerializerFeature.WriteNullNumberAsZero,
+                                    SerializerFeature.WriteNullStringAsEmpty,
+                                    SerializerFeature.WriteNullNumberAsZero);
+                            actionInfo.addExample(ExampleInfo.create(content).setName(apiExampleGenerate.name()).setType("json").setDescription(apiExampleGenerate.description()));
+                        } catch (Exception ignored) {
+                        }
+                    }
                 }
                 //
                 return actionInfo;

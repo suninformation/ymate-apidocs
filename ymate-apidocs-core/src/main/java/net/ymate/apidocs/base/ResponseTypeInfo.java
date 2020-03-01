@@ -15,16 +15,14 @@
  */
 package net.ymate.apidocs.base;
 
+import net.ymate.apidocs.annotation.ApiProperty;
 import net.ymate.apidocs.annotation.ApiResponses;
 import net.ymate.platform.commons.util.ClassUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author 刘镇 (suninformation@163.com) on 2018/10/04 12:26
@@ -44,6 +42,30 @@ public class ResponseTypeInfo implements Serializable {
             responseTypeInfo.addProperties(PropertyInfo.create(null, responseType));
         }
         return responseTypeInfo;
+    }
+
+    public static Object create(Class<?> targetClass) throws Exception {
+        ClassUtils.BeanWrapper<?> wrapper = ClassUtils.wrapper(targetClass.isArray() ? ClassUtils.getArrayClassType(targetClass).newInstance() : targetClass.newInstance());
+        wrapper.getFields().forEach(field -> {
+            ApiProperty apiProperty = field.getAnnotation(ApiProperty.class);
+            if (apiProperty != null && !field.getType().equals(Map.class)) {
+                try {
+                    if (field.getType().equals(List.class) && !Void.class.equals(apiProperty.valueClass())) {
+                        wrapper.setValue(field, Collections.singletonList(create(apiProperty.valueClass())));
+                    } else if (field.getType().equals(Set.class) && !Void.class.equals(apiProperty.valueClass())) {
+                        wrapper.setValue(field, Collections.singleton(create(apiProperty.valueClass())));
+                    } else if (field.getType().isArray() && !Void.class.equals(apiProperty.valueClass())) {
+                        wrapper.setValue(field, Collections.singletonList(create(apiProperty.valueClass())).toArray());
+                    } else if (!Void.class.equals(apiProperty.valueClass())) {
+                        wrapper.setValue(field, create(apiProperty.valueClass()));
+                    } else if (StringUtils.isNotBlank(apiProperty.demoValue())) {
+                        wrapper.setValue(field, apiProperty.demoValue());
+                    }
+                } catch (Exception ignored) {
+                }
+            }
+        });
+        return wrapper.getTargetObject();
     }
 
     /**
