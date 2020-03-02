@@ -144,24 +144,23 @@ public class ActionInfo implements IMarkdown {
                     actionInfo.setResponseType(responseTypeInfo);
                     Arrays.stream(apiResponses.value()).map(ResponseInfo::create).forEachOrdered(actionInfo::addResponse);
                     //
-                    ApiExampleGenerate apiExampleGenerate = method.getAnnotation(ApiExampleGenerate.class);
-                    if (apiExampleGenerate != null && !Void.class.equals(apiResponses.type()) && !responseTypeInfo.getProperties().isEmpty()) {
+                    ApiGenerateResponseExample apiGenerateResponseExample = method.getAnnotation(ApiGenerateResponseExample.class);
+                    if (apiGenerateResponseExample != null && !Void.class.equals(apiResponses.type()) && !responseTypeInfo.getProperties().isEmpty()) {
                         try {
                             Object instance = ResponseTypeInfo.create(apiResponses.type());
-                            if (apiExampleGenerate.paging()) {
+                            if (apiGenerateResponseExample.paging()) {
                                 instance = new DefaultResultSet<>(Collections.singletonList(instance), 1, 20, 1);
                             } else if (responseTypeInfo.isMultiple()) {
                                 instance = Collections.singletonList(instance);
                             }
-                            String content = WebResult.succeed().data(instance).toJSONObject().toString(SerializerFeature.WriteMapNullValue,
-                                    SerializerFeature.QuoteFieldNames,
-                                    SerializerFeature.PrettyFormat,
+                            String content = WebResult.succeed().data(instance).toJSONObject().toString(SerializerFeature.PrettyFormat,
+                                    SerializerFeature.WriteMapNullValue,
                                     SerializerFeature.WriteNullBooleanAsFalse,
                                     SerializerFeature.WriteNullListAsEmpty,
                                     SerializerFeature.WriteNullNumberAsZero,
                                     SerializerFeature.WriteNullStringAsEmpty,
                                     SerializerFeature.WriteNullNumberAsZero);
-                            actionInfo.addExample(ExampleInfo.create(content).setName(apiExampleGenerate.name()).setType("json").setDescription(apiExampleGenerate.description()));
+                            actionInfo.addExample(ExampleInfo.create(content).setName(apiGenerateResponseExample.name()).setType("json").setDescription(apiGenerateResponseExample.description()));
                         } catch (Exception ignored) {
                         }
                     }

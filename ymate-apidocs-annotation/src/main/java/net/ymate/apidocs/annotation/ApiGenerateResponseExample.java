@@ -18,14 +18,14 @@ package net.ymate.apidocs.annotation;
 import java.lang.annotation.*;
 
 /**
- * 用于配合@ApiResponses注解生成示例代码
+ * 用于配合@ApiResponses注解生成接口响应示例代码
  *
  * @author 刘镇 (suninformation@163.com) on 2020/03/01 19:55
  */
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface ApiExampleGenerate {
+public @interface ApiGenerateResponseExample {
 
     /**
      * @return 示例名称
