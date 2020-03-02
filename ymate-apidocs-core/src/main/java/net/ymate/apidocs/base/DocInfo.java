@@ -564,13 +564,16 @@ public class DocInfo implements IMarkdown {
             }
             if (!responseTypes.isEmpty()) {
                 markdownBuilder.title("Response types", 3).p();
-                for (ResponseTypeInfo responseType : responseTypes.values()) {
+                String[] keys = responseTypes.keySet().toArray(new String[0]);
+                Arrays.sort(keys);
+                Arrays.stream(keys).forEachOrdered(key -> {
+                    ResponseTypeInfo responseType = responseTypes.get(key);
                     markdownBuilder.title(responseType.getName(), 4).p();
                     if (StringUtils.isNotBlank(responseType.getDescription())) {
                         markdownBuilder.append(responseType.getDescription()).p();
                     }
                     markdownBuilder.append(PropertyInfo.toMarkdownTable(responseType.getProperties())).p();
-                }
+                });
             }
         }
         markdownBuilder.p(5).hr()
