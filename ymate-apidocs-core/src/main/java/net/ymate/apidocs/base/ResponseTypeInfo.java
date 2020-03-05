@@ -17,6 +17,7 @@ package net.ymate.apidocs.base;
 
 import net.ymate.apidocs.annotation.ApiProperty;
 import net.ymate.apidocs.annotation.ApiResponses;
+import net.ymate.platform.commons.lang.BlurObject;
 import net.ymate.platform.commons.util.ClassUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -59,7 +60,7 @@ public class ResponseTypeInfo implements Serializable {
                     } else if (!Void.class.equals(apiProperty.valueClass())) {
                         wrapper.setValue(field, create(apiProperty.valueClass()));
                     } else if (StringUtils.isNotBlank(apiProperty.demoValue())) {
-                        wrapper.setValue(field, apiProperty.demoValue());
+                        wrapper.setValue(field, BlurObject.bind(apiProperty.demoValue()).toObjectValue(field.getType()));
                     }
                 } catch (Exception ignored) {
                 }
