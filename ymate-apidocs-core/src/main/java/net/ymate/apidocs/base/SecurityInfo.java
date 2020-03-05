@@ -16,8 +16,9 @@
 package net.ymate.apidocs.base;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import net.ymate.apidocs.AbstractMarkdown;
+import net.ymate.apidocs.IDocs;
 import net.ymate.apidocs.annotation.ApiSecurity;
-import net.ymate.platform.commons.markdown.IMarkdown;
 import net.ymate.platform.commons.markdown.MarkdownBuilder;
 import net.ymate.platform.commons.markdown.Text;
 import org.apache.commons.lang3.StringUtils;
@@ -31,15 +32,15 @@ import java.util.List;
  *
  * @author 刘镇 (suninformation@163.com) on 2018/05/09 22:21
  */
-public class SecurityInfo implements IMarkdown {
+public class SecurityInfo extends AbstractMarkdown {
 
-    public static SecurityInfo create() {
-        return new SecurityInfo();
+    public static SecurityInfo create(IDocs owner) {
+        return new SecurityInfo(owner);
     }
 
-    public static SecurityInfo create(ApiSecurity security, SecurityInfo parent) {
+    public static SecurityInfo create(IDocs owner, ApiSecurity security, SecurityInfo parent) {
         if (security != null) {
-            SecurityInfo securityInfo = new SecurityInfo(parent)
+            SecurityInfo securityInfo = new SecurityInfo(owner, parent)
                     .setDescription(security.description())
                     .setLogicalType(security.logicalType());
             Arrays.stream(security.roles()).map(apiRole -> RoleInfo.create(apiRole.value()).setDescription(apiRole.description())).forEachOrdered(securityInfo::addRole);
@@ -71,10 +72,12 @@ public class SecurityInfo implements IMarkdown {
      */
     private String description;
 
-    public SecurityInfo() {
+    public SecurityInfo(IDocs owner) {
+        super(owner);
     }
 
-    public SecurityInfo(SecurityInfo parent) {
+    public SecurityInfo(IDocs owner, SecurityInfo parent) {
+        this(owner);
         this.parent = parent;
     }
 
@@ -171,13 +174,13 @@ public class SecurityInfo implements IMarkdown {
                 markdownBuilder.p().append(description);
             }
             if (ApiSecurity.LogicalType.AND.equals(logicalType)) {
-                markdownBuilder.p().append("Logical type: AND");
+                markdownBuilder.p().append(i18nText("security.logical_type", "Logical type: ")).append("AND");
             }
             if (!roles.isEmpty()) {
-                markdownBuilder.p().text("Roles:", Text.Style.BOLD).p().append(RoleInfo.toMarkdown(roles));
+                markdownBuilder.p().text(i18nText("security.roles", "Roles: "), Text.Style.BOLD).p().append(RoleInfo.toMarkdown(getOwner(), roles));
             }
             if (!permissions.isEmpty()) {
-                markdownBuilder.p().text("Permissions:", Text.Style.BOLD).p().append(PermissionInfo.toMarkdown(permissions));
+                markdownBuilder.p().text(i18nText("security.permissions", "Permissions: "), Text.Style.BOLD).p().append(PermissionInfo.toMarkdown(getOwner(), permissions));
             }
         }
         return markdownBuilder.toMarkdown();

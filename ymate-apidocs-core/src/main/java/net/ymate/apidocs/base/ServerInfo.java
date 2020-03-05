@@ -15,6 +15,8 @@
  */
 package net.ymate.apidocs.base;
 
+import net.ymate.apidocs.AbstractMarkdown;
+import net.ymate.apidocs.IDocs;
 import net.ymate.apidocs.annotation.ApiServer;
 import net.ymate.apidocs.annotation.ApiServers;
 import net.ymate.platform.commons.markdown.IMarkdown;
@@ -51,13 +53,13 @@ public class ServerInfo implements IMarkdown {
         return null;
     }
 
-    public static String toMarkdown(List<ServerInfo> servers) {
+    public static String toMarkdown(IDocs owner, List<ServerInfo> servers) {
         MarkdownBuilder markdownBuilder = MarkdownBuilder.create();
         if (!servers.isEmpty()) {
             markdownBuilder.append(Table.create()
-                    .addHeader("Host", Table.Align.LEFT)
-                    .addHeader("Schemes", Table.Align.LEFT)
-                    .addHeader("Description", Table.Align.LEFT));
+                    .addHeader(AbstractMarkdown.i18nText(owner, "server.host", "Host"), Table.Align.LEFT)
+                    .addHeader(AbstractMarkdown.i18nText(owner, "server.schemes", "Schemes"), Table.Align.LEFT)
+                    .addHeader(AbstractMarkdown.i18nText(owner, "server.description", "Description"), Table.Align.LEFT));
             servers.forEach(markdownBuilder::append);
         }
         return markdownBuilder.toMarkdown();

@@ -15,11 +15,12 @@
  */
 package net.ymate.apidocs.base;
 
+import net.ymate.apidocs.AbstractMarkdown;
+import net.ymate.apidocs.IDocs;
 import net.ymate.apidocs.annotation.ApiExample;
 import net.ymate.apidocs.annotation.ApiExamples;
 import net.ymate.apidocs.annotation.ApiParam;
 import net.ymate.apidocs.annotation.ApiParams;
-import net.ymate.platform.commons.markdown.IMarkdown;
 import net.ymate.platform.commons.markdown.MarkdownBuilder;
 import net.ymate.platform.commons.markdown.Table;
 import net.ymate.platform.commons.markdown.Text;
@@ -42,37 +43,37 @@ import java.util.stream.Collectors;
  *
  * @author 刘镇 (suninformation@163.com) on 2018/04/15 17:03
  */
-public class ParamInfo implements IMarkdown {
+public class ParamInfo extends AbstractMarkdown {
 
-    public static ParamInfo create(String name, String type) {
-        return new ParamInfo(name, type);
+    public static ParamInfo create(IDocs owner, String name, String type) {
+        return new ParamInfo(owner, name, type);
     }
 
-    public static ParamInfo create(Field field) {
-        return create(field, field.getName(), field.getType());
+    public static ParamInfo create(IDocs owner, Field field) {
+        return create(owner, field, field.getName(), field.getType());
     }
 
-    public static ParamInfo create(Parameter parameter, String defaultParamName) {
-        return create(parameter, StringUtils.defaultIfBlank(defaultParamName, parameter.getName()), parameter.getType());
+    public static ParamInfo create(IDocs owner, Parameter parameter, String defaultParamName) {
+        return create(owner, parameter, StringUtils.defaultIfBlank(defaultParamName, parameter.getName()), parameter.getType());
     }
 
-    public static List<ParamInfo> create(ApiParams apiParams) {
+    public static List<ParamInfo> create(IDocs owner, ApiParams apiParams) {
         if (apiParams != null) {
-            return create(apiParams.value());
+            return create(owner, apiParams.value());
         }
         return Collections.emptyList();
     }
 
-    public static List<ParamInfo> create(ApiParam[] apiParams) {
+    public static List<ParamInfo> create(IDocs owner, ApiParam[] apiParams) {
         if (apiParams != null) {
-            return Arrays.stream(apiParams).map(ParamInfo::create).filter(Objects::nonNull).collect(Collectors.toList());
+            return Arrays.stream(apiParams).map((apiParam) -> ParamInfo.create(owner, apiParam)).filter(Objects::nonNull).collect(Collectors.toList());
         }
         return Collections.emptyList();
     }
 
-    private static ParamInfo create(AnnotatedElement annotatedElement, String defaultParamName, Class<?> paramType) {
+    private static ParamInfo create(IDocs owner, AnnotatedElement annotatedElement, String defaultParamName, Class<?> paramType) {
         if (annotatedElement != null) {
-            ParamInfo paramInfo = doCreate(annotatedElement, defaultParamName, paramType);
+            ParamInfo paramInfo = doCreate(owner, annotatedElement, defaultParamName, paramType);
             if (paramInfo != null) {
                 ApiExample apiExample = annotatedElement.getAnnotation(ApiExample.class);
                 if (apiExample != null) {
@@ -88,7 +89,7 @@ public class ParamInfo implements IMarkdown {
         return null;
     }
 
-    private static ParamInfo doCreate(AnnotatedElement annotatedElement, String defaultParamName, Class<?> paramType) {
+    private static ParamInfo doCreate(IDocs owner, AnnotatedElement annotatedElement, String defaultParamName, Class<?> paramType) {
         ApiParam apiParam = annotatedElement.getAnnotation(ApiParam.class);
         if (apiParam != null) {
             paramType = paramType != null ? paramType : apiParam.type();
@@ -97,7 +98,7 @@ public class ParamInfo implements IMarkdown {
             String paramName = StringUtils.defaultIfBlank(apiParam.value(), requestParam != null ? StringUtils.defaultIfBlank(requestParam.value(), defaultParamName) : defaultParamName);
             if (!apiParam.hidden() && StringUtils.isNotBlank(paramName)) {
                 boolean required = apiParam.required() || annotatedElement.isAnnotationPresent(VRequired.class);
-                return new ParamInfo(paramName, paramType.getSimpleName())
+                return new ParamInfo(owner, paramName, paramType.getSimpleName())
                         .setDefaultValue(StringUtils.defaultIfBlank(apiParam.defaultValue(), requestParam != null ? StringUtils.defaultIfBlank(requestParam.defaultValue(), apiParam.defaultValue()) : apiParam.defaultValue()))
                         .setDemoValue(apiParam.demoValue())
                         .addAllowValues(Arrays.asList(apiParam.allowValues()))
@@ -113,10 +114,10 @@ public class ParamInfo implements IMarkdown {
         return null;
     }
 
-    public static ParamInfo create(ApiParam apiParam) {
+    public static ParamInfo create(IDocs owner, ApiParam apiParam) {
         if (apiParam != null) {
             if (!apiParam.hidden() && StringUtils.isNotBlank(apiParam.value())) {
-                return new ParamInfo(apiParam.value(), apiParam.type().getSimpleName())
+                return new ParamInfo(owner, apiParam.value(), apiParam.type().getSimpleName())
                         .setDefaultValue(apiParam.defaultValue())
                         .setDemoValue(apiParam.demoValue())
                         .addAllowValues(Arrays.asList(apiParam.allowValues()))
@@ -132,15 +133,15 @@ public class ParamInfo implements IMarkdown {
         return null;
     }
 
-    public static String toMarkdown(List<ParamInfo> params) {
+    public static String toMarkdown(IDocs owner, List<ParamInfo> params) {
         MarkdownBuilder markdownBuilder = MarkdownBuilder.create();
         if (!params.isEmpty()) {
             Table table = Table.create()
-                    .addHeader("Name", Table.Align.LEFT)
-                    .addHeader("Type", Table.Align.LEFT)
-                    .addHeader("Required", Table.Align.CENTER)
-                    .addHeader("Default", Table.Align.LEFT)
-                    .addHeader("Description", Table.Align.LEFT);
+                    .addHeader(AbstractMarkdown.i18nText(owner, "param.name", "Name"), Table.Align.LEFT)
+                    .addHeader(AbstractMarkdown.i18nText(owner, "param.type", "Type"), Table.Align.LEFT)
+                    .addHeader(AbstractMarkdown.i18nText(owner, "param.required", "Required"), Table.Align.CENTER)
+                    .addHeader(AbstractMarkdown.i18nText(owner, "param.default", "Default"), Table.Align.LEFT)
+                    .addHeader(AbstractMarkdown.i18nText(owner, "param.description", "Description"), Table.Align.LEFT);
 
             markdownBuilder.append(table);
             Iterator<ParamInfo> paramIt = params.iterator();
@@ -148,7 +149,7 @@ public class ParamInfo implements IMarkdown {
                 ParamInfo param = paramIt.next();
                 markdownBuilder.append(param.toMarkdown());
                 if (!param.getExamples().isEmpty()) {
-                    markdownBuilder.p().text("Parameter examples", Text.Style.BOLD).p().append(ExampleInfo.toMarkdown(param.getExamples()));
+                    markdownBuilder.p().text(AbstractMarkdown.i18nText(owner, "param.examples", "Parameter examples"), Text.Style.BOLD).p().append(ExampleInfo.toMarkdown(param.getExamples()));
                     if (paramIt.hasNext()) {
                         markdownBuilder.p().append(table);
                     }
@@ -212,7 +213,8 @@ public class ParamInfo implements IMarkdown {
      */
     private final List<ExampleInfo> examples = new ArrayList<>();
 
-    public ParamInfo(String name, String type) {
+    public ParamInfo(IDocs owner, String name, String type) {
+        super(owner);
         if (StringUtils.isBlank(name)) {
             throw new NullArgumentException("name");
         }
@@ -355,7 +357,7 @@ public class ParamInfo implements IMarkdown {
             if (markdownBuilder.length() > 0) {
                 markdownBuilder.br();
             }
-            markdownBuilder.append("Allow values: ");
+            markdownBuilder.append(i18nText("param.allow_values", "Allow values: "));
             allowValues.forEach(allowValue -> markdownBuilder.code(allowValue).space());
         }
         return Table.create().addRow()

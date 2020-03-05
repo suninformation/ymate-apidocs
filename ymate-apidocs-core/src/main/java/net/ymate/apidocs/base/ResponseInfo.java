@@ -15,6 +15,8 @@
  */
 package net.ymate.apidocs.base;
 
+import net.ymate.apidocs.AbstractMarkdown;
+import net.ymate.apidocs.IDocs;
 import net.ymate.apidocs.annotation.ApiResponse;
 import net.ymate.platform.commons.markdown.IMarkdown;
 import net.ymate.platform.commons.markdown.MarkdownBuilder;
@@ -45,13 +47,13 @@ public class ResponseInfo implements IMarkdown {
         return null;
     }
 
-    public static String toMarkdown(List<ResponseInfo> responses) {
+    public static String toMarkdown(IDocs owner, List<ResponseInfo> responses) {
         MarkdownBuilder markdownBuilder = MarkdownBuilder.create();
         if (!responses.isEmpty()) {
             markdownBuilder.append(Table.create()
-                    .addHeader("Code", Table.Align.LEFT)
-                    .addHeader("Http status", Table.Align.LEFT)
-                    .addHeader("Message", Table.Align.LEFT));
+                    .addHeader(AbstractMarkdown.i18nText(owner, "response.code", "Code"), Table.Align.LEFT)
+                    .addHeader(AbstractMarkdown.i18nText(owner, "response.http_status", "Http status"), Table.Align.LEFT)
+                    .addHeader(AbstractMarkdown.i18nText(owner, "response.message", "Message"), Table.Align.LEFT));
             responses.forEach(markdownBuilder::append);
         }
         return markdownBuilder.toMarkdown();

@@ -27,6 +27,8 @@ public class DefaultDocsConfig implements IDocsConfig {
 
     private boolean enabled = true;
 
+    private String i18nResourceName;
+
     private boolean initialized;
 
     public static DefaultDocsConfig defaultConfig() {
@@ -48,6 +50,7 @@ public class DefaultDocsConfig implements IDocsConfig {
         IConfigReader configReader = moduleConfigurer.getConfigReader();
         //
         enabled = configReader.getBoolean(ENABLED, true);
+        i18nResourceName = configReader.getString(I18N_RESOURCE_NAME, IDocs.MODULE_NAME.replace('.', '_'));
     }
 
     @Override
@@ -73,6 +76,15 @@ public class DefaultDocsConfig implements IDocsConfig {
         }
     }
 
+    @Override
+    public String getI18nResourceName() {
+        return i18nResourceName;
+    }
+
+    public void setI18nResourceName(String i18nResourceName) {
+        this.i18nResourceName = i18nResourceName;
+    }
+
     public static final class Builder {
 
         private final DefaultDocsConfig config = new DefaultDocsConfig();
@@ -82,6 +94,11 @@ public class DefaultDocsConfig implements IDocsConfig {
 
         public Builder enabled(boolean enabled) {
             config.setEnabled(enabled);
+            return this;
+        }
+
+        public Builder i18nResourceName(String i18nResourceName) {
+            config.setI18nResourceName(i18nResourceName);
             return this;
         }
 

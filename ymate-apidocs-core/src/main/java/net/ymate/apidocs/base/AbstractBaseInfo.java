@@ -15,6 +15,8 @@
  */
 package net.ymate.apidocs.base;
 
+import net.ymate.apidocs.AbstractMarkdown;
+import net.ymate.apidocs.IDocs;
 import net.ymate.platform.commons.markdown.IMarkdown;
 import net.ymate.platform.commons.markdown.MarkdownBuilder;
 import net.ymate.platform.commons.markdown.Table;
@@ -29,12 +31,12 @@ import java.util.Objects;
  */
 public abstract class AbstractBaseInfo<T extends AbstractBaseInfo<?>> implements IMarkdown {
 
-    public static String toMarkdown(List<? extends AbstractBaseInfo<?>> roles) {
+    public static String toMarkdown(IDocs owner, List<? extends AbstractBaseInfo<?>> roles) {
         MarkdownBuilder markdownBuilder = MarkdownBuilder.create();
         if (!roles.isEmpty()) {
             markdownBuilder.append(Table.create()
-                    .addHeader("Name", Table.Align.LEFT)
-                    .addHeader("Description", Table.Align.LEFT));
+                    .addHeader(AbstractMarkdown.i18nText(owner, "base.name", "Name"), Table.Align.LEFT)
+                    .addHeader(AbstractMarkdown.i18nText(owner, "base.description", "Description"), Table.Align.LEFT));
             roles.forEach(markdownBuilder::append);
         }
         return markdownBuilder.toMarkdown();

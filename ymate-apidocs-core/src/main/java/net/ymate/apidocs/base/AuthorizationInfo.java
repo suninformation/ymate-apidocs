@@ -16,10 +16,10 @@
 package net.ymate.apidocs.base;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import net.ymate.apidocs.AbstractMarkdown;
+import net.ymate.apidocs.IDocs;
 import net.ymate.apidocs.annotation.ApiAuthorization;
-import net.ymate.platform.commons.markdown.IMarkdown;
 import net.ymate.platform.commons.markdown.MarkdownBuilder;
-import net.ymate.platform.commons.markdown.Table;
 import net.ymate.platform.commons.markdown.Text;
 import org.apache.commons.lang.NullArgumentException;
 import org.apache.commons.lang3.StringUtils;
@@ -31,20 +31,20 @@ import java.util.*;
  *
  * @author 刘镇 (suninformation@163.com) on 2020/02/10 18:49
  */
-public class AuthorizationInfo implements IMarkdown {
+public class AuthorizationInfo extends AbstractMarkdown {
 
-    public static AuthorizationInfo create(String name, String url) {
-        return new AuthorizationInfo(name, url);
+    public static AuthorizationInfo create(IDocs owner, String name, String url) {
+        return new AuthorizationInfo(owner, name, url);
     }
 
-    public static AuthorizationInfo create(ApiAuthorization authorization) {
+    public static AuthorizationInfo create(IDocs owner, ApiAuthorization authorization) {
         if (authorization != null && StringUtils.isNotBlank(authorization.value()) && StringUtils.isNotBlank(authorization.url())) {
-            AuthorizationInfo authorizationInfo = new AuthorizationInfo(authorization.value(), authorization.url())
+            AuthorizationInfo authorizationInfo = new AuthorizationInfo(owner, authorization.value(), authorization.url())
                     .setType(authorization.type())
                     .setTokenName(authorization.tokenName())
                     .setTokenStore(authorization.tokenStore().name())
                     .setRequestType(authorization.requestType())
-                    .addRequestParams(ParamInfo.create(authorization.requestParams()))
+                    .addRequestParams(ParamInfo.create(owner, authorization.requestParams()))
                     .setDescription(authorization.description());
             Arrays.stream(authorization.scopes()).map(scope -> ScopeInfo.create(scope.value(), scope.description())).forEachOrdered(authorizationInfo::addScope);
             return authorizationInfo;
@@ -97,7 +97,8 @@ public class AuthorizationInfo implements IMarkdown {
      */
     private List<ScopeInfo> scopes = new ArrayList<>();
 
-    public AuthorizationInfo(String name, String url) {
+    public AuthorizationInfo(IDocs owner, String name, String url) {
+        super(owner);
         if (StringUtils.isBlank(name)) {
             throw new NullArgumentException("name");
         }
@@ -220,21 +221,20 @@ public class AuthorizationInfo implements IMarkdown {
         if (StringUtils.isNotBlank(description)) {
             markdownBuilder.append(description).p();
         }
-        markdownBuilder.append("Name: ").text(name, Text.Style.BOLD).p().append("URL: ").link(url, url);
+        markdownBuilder.append(i18nText("authorization.name", "Name: ")).text(name, Text.Style.BOLD).p().append(i18nText("authorization.url", "URL: ")).link(url, url);
         if (StringUtils.isNotBlank(type)) {
-            markdownBuilder.p().append("Type: ").text(type);
+            markdownBuilder.p().append(i18nText("authorization.type", "Type: ")).text(type);
         }
         if (StringUtils.isNotBlank(tokenName)) {
-            markdownBuilder.p().text("Properties:", Text.Style.BOLD).p().append(Table.create().addHeader("Name", Table.Align.LEFT).addHeader("Value", Table.Align.LEFT)
-                    .addRow().addColumn("Token name").addColumn(tokenName).build()
-                    .addRow().addColumn("Token store").addColumn(tokenStore).build()
-                    .addRow().addColumn("Request type").addColumn(StringUtils.upperCase(requestType)).build());
+            markdownBuilder.p().append(i18nText("authorization.token_name", "Token name: ")).text(tokenName);
+            markdownBuilder.p().append(i18nText("authorization.token_store", "Token store: ")).text(tokenStore);
+            markdownBuilder.p().append(i18nText("authorization.request_type", "Request type: ")).text(StringUtils.upperCase(requestType));
             if (!requestParams.isEmpty()) {
-                markdownBuilder.p().text("Request parameters:", Text.Style.BOLD).p().append(ParamInfo.toMarkdown(requestParams));
+                markdownBuilder.p().text(i18nText("authorization.request_parameters", "Request parameters: "), Text.Style.BOLD).p().append(ParamInfo.toMarkdown(getOwner(), requestParams));
             }
         }
         if (!scopes.isEmpty()) {
-            markdownBuilder.p().text("Scopes:", Text.Style.BOLD).p().append(ScopeInfo.toMarkdown(scopes));
+            markdownBuilder.p().text(i18nText("authorization.scopes", "Scopes: "), Text.Style.BOLD).p().append(ScopeInfo.toMarkdown(getOwner(), scopes));
         }
         return markdownBuilder.toMarkdown();
     }

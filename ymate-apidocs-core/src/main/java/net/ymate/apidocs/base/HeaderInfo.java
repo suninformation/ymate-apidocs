@@ -15,6 +15,8 @@
  */
 package net.ymate.apidocs.base;
 
+import net.ymate.apidocs.AbstractMarkdown;
+import net.ymate.apidocs.IDocs;
 import net.ymate.apidocs.annotation.ApiHeader;
 import net.ymate.apidocs.annotation.ApiRequestHeaders;
 import net.ymate.apidocs.annotation.ApiResponseHeaders;
@@ -72,14 +74,14 @@ public class HeaderInfo implements IMarkdown {
         return null;
     }
 
-    public static String toMarkdown(List<HeaderInfo> headers) {
+    public static String toMarkdown(IDocs owner, List<HeaderInfo> headers) {
         MarkdownBuilder markdownBuilder = MarkdownBuilder.create();
         if (!headers.isEmpty()) {
             markdownBuilder.append(Table.create()
-                    .addHeader("Name", Table.Align.LEFT)
-                    .addHeader("Value", Table.Align.LEFT)
-                    .addHeader("Type", Table.Align.LEFT)
-                    .addHeader("Description", Table.Align.LEFT));
+                    .addHeader(AbstractMarkdown.i18nText(owner, "header.name", "Name"), Table.Align.LEFT)
+                    .addHeader(AbstractMarkdown.i18nText(owner, "header.value", "Value"), Table.Align.LEFT)
+                    .addHeader(AbstractMarkdown.i18nText(owner, "header.type", "Type"), Table.Align.LEFT)
+                    .addHeader(AbstractMarkdown.i18nText(owner, "header.description", "Description"), Table.Align.LEFT));
             headers.forEach(markdownBuilder::append);
         }
         return markdownBuilder.toMarkdown();

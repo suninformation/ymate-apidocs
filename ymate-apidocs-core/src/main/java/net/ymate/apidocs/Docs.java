@@ -88,7 +88,7 @@ public class Docs implements IModule, IDocs {
                 config.initialize(this);
             }
             if (config.isEnabled()) {
-                IBeanLoadFactory beanLoaderFactory = YMP.getBeanLoadFactory();
+                IBeanLoadFactory beanLoaderFactory = owner.getConfigurer().getBeanLoadFactory();
                 if (beanLoaderFactory != null) {
                     IBeanLoader beanLoader = beanLoaderFactory.getBeanLoader();
                     if (beanLoader != null) {
@@ -143,11 +143,11 @@ public class Docs implements IModule, IDocs {
             Apis apisAnn = apisPackage.getAnnotation(Apis.class);
             String docsId = String.format("%s_%s", apisPackage.getName(), apisAnn.version());
             DocInfo doc = ReentrantLockHelper.putIfAbsentAsync(docInfoMap, docsId, () -> {
-                DocInfo docInfo = DocInfo.create(docsId, apisAnn.title(), apisAnn.version())
+                DocInfo docInfo = DocInfo.create(this, docsId, apisAnn.title(), apisAnn.version())
                         .setDescription(apisAnn.description())
                         .setLicense(LicenseInfo.create(apisPackage.getAnnotation(ApiLicense.class)))
-                        .setAuthorization(AuthorizationInfo.create(apisPackage.getAnnotation(ApiAuthorization.class)))
-                        .setSecurity(SecurityInfo.create(apisPackage.getAnnotation(ApiSecurity.class), null))
+                        .setAuthorization(AuthorizationInfo.create(this, apisPackage.getAnnotation(ApiAuthorization.class)))
+                        .setSecurity(SecurityInfo.create(this, apisPackage.getAnnotation(ApiSecurity.class), null))
                         .addAuthors(AuthorInfo.create(apisPackage.getAnnotation(ApiAuthors.class)))
                         .addAuthor(AuthorInfo.create(apisPackage.getAnnotation(ApiAuthor.class)))
                         .addChangeLogs(ChangeLogInfo.create(apisPackage.getAnnotation(ApiChangeLogs.class)))
@@ -156,8 +156,8 @@ public class Docs implements IModule, IDocs {
                         .addExtension(ExtensionInfo.create(apisPackage.getAnnotation(ApiExtension.class)))
                         .addGroups(GroupInfo.create(apisPackage.getAnnotation(ApiGroups.class)))
                         .addGroup(GroupInfo.create(apisPackage.getAnnotation(ApiGroup.class)))
-                        .addParams(ParamInfo.create(apisPackage.getAnnotation(ApiParams.class)))
-                        .addParam(ParamInfo.create(apisPackage.getAnnotation(ApiParam.class)))
+                        .addParams(ParamInfo.create(this, apisPackage.getAnnotation(ApiParams.class)))
+                        .addParam(ParamInfo.create(this, apisPackage.getAnnotation(ApiParam.class)))
                         .addServers(ServerInfo.create(apisPackage.getAnnotation(ApiServers.class)))
                         .addServer(ServerInfo.create(apisPackage.getAnnotation(ApiServer.class)))
                         .addResponse(ResponseInfo.create(apisPackage.getAnnotation(ApiResponse.class)))
@@ -171,12 +171,12 @@ public class Docs implements IModule, IDocs {
                     } else {
                         docInfo.addResponseExample(ExampleInfo.create("{\n" +
                                 "    \"ret\": -1,\n" +
-                                "    \"msg\": \"参数验证无效\",\n" +
+                                "    \"msg\": \"Request parameter validation is invalid.\",\n" +
                                 "    \"data\": {\n" +
-                                "        \"username\": \"用户名称不能为空\",\n" +
-                                "        \"password\": \"密码不能为空\"\n" +
+                                "        \"username\": \"username is required.\",\n" +
+                                "        \"password\": \"password is required.\"\n" +
                                 "    }\n" +
-                                "}").setType("json").setName("Standard"));
+                                "}").setType("json").setName(AbstractMarkdown.i18nText(this, "response.example_standard", "Standard")));
                         docInfo.addResponseExample(ExampleInfo.create("{\n" +
                                 "    \"ret\": 0,\n" +
                                 "    \"data\": {\n" +
@@ -188,44 +188,44 @@ public class Docs implements IModule, IDocs {
                                 "        \"resultData\": [],\n" +
                                 "        \"resultsAvailable\": false\n" +
                                 "    }\n" +
-                                "}").setType("json").setName("Pagination"));
+                                "}").setType("json").setName(AbstractMarkdown.i18nText(this, "response.example_pagination", "Pagination")));
                     }
                     //
                     if (Serializable.class.equals(defaultResponses.standardType())) {
-                        docInfo.addResponseProperty(PropertyInfo.create().setName(Type.Const.PARAM_RET).setValue(Integer.class.getSimpleName()).setDescription("响应码"));
-                        docInfo.addResponseProperty(PropertyInfo.create().setName(Type.Const.PARAM_MSG).setValue(String.class.getSimpleName()).setDescription("响应码描述，若响应码不等于0则此为必须项"));
-                        docInfo.addResponseProperty(PropertyInfo.create().setName(Type.Const.PARAM_DATA).setValue(Object.class.getSimpleName()).setDescription("业务数据内容，根据业务逻辑决定其具体数据类型及是否为必须项"));
+                        docInfo.addResponseProperty(PropertyInfo.create().setName(Type.Const.PARAM_RET).setValue(Integer.class.getSimpleName()).setDescription(AbstractMarkdown.i18nText(this, "response.code", "Response code.")));
+                        docInfo.addResponseProperty(PropertyInfo.create().setName(Type.Const.PARAM_MSG).setValue(String.class.getSimpleName()).setDescription(AbstractMarkdown.i18nText(this, "response.message", "Message.")));
+                        docInfo.addResponseProperty(PropertyInfo.create().setName(Type.Const.PARAM_DATA).setValue(Object.class.getSimpleName()).setDescription(AbstractMarkdown.i18nText(this, "response.data", "Business data content.")));
                     } else {
                         docInfo.addResponseProperties(PropertyInfo.create(null, defaultResponses.standardType()));
                     }
                     if (Serializable.class.equals(defaultResponses.pagingType())) {
-                        docInfo.addResponseProperty(PropertyInfo.create().setName("pageCount").setValue(Integer.class.getSimpleName()).setDescription("分页参数：总页数"));
-                        docInfo.addResponseProperty(PropertyInfo.create().setName("pageNumber").setValue(Integer.class.getSimpleName()).setDescription("分页参数：当前查询页号"));
-                        docInfo.addResponseProperty(PropertyInfo.create().setName("pageSize").setValue(Integer.class.getSimpleName()).setDescription("分页参数：每页记录数"));
-                        docInfo.addResponseProperty(PropertyInfo.create().setName("paginated").setValue(Boolean.class.getSimpleName()).setDescription("分页参数：是否分页查询"));
-                        docInfo.addResponseProperty(PropertyInfo.create().setName("recordCount").setValue(Integer.class.getSimpleName()).setDescription("分页参数：记录总数"));
-                        docInfo.addResponseProperty(PropertyInfo.create().setName("resultData").setValue(Object[].class.getSimpleName()).setDescription("分页参数：结果集数据对象，根据业务逻辑决定其具体数据类型"));
-                        docInfo.addResponseProperty(PropertyInfo.create().setName("resultsAvailable").setValue(Boolean.class.getSimpleName()).setDescription("分页参数：结果集是否为过空"));
+                        docInfo.addResponseProperty(PropertyInfo.create().setName("pageCount").setValue(Integer.class.getSimpleName()).setDescription(AbstractMarkdown.i18nText(this, "response.page_count", "Paging param: total pages.")));
+                        docInfo.addResponseProperty(PropertyInfo.create().setName("pageNumber").setValue(Integer.class.getSimpleName()).setDescription(AbstractMarkdown.i18nText(this, "response.page_number", "Paging param: Current query page number.")));
+                        docInfo.addResponseProperty(PropertyInfo.create().setName("pageSize").setValue(Integer.class.getSimpleName()).setDescription(AbstractMarkdown.i18nText(this, "response.page_size", "Paging param: records per page.")));
+                        docInfo.addResponseProperty(PropertyInfo.create().setName("paginated").setValue(Boolean.class.getSimpleName()).setDescription(AbstractMarkdown.i18nText(this, "response.paginated", "Paging param: Pagination query or not.")));
+                        docInfo.addResponseProperty(PropertyInfo.create().setName("recordCount").setValue(Integer.class.getSimpleName()).setDescription(AbstractMarkdown.i18nText(this, "response.record_count", "Paging param: total records.")));
+                        docInfo.addResponseProperty(PropertyInfo.create().setName("resultData").setValue(Object[].class.getSimpleName()).setDescription(AbstractMarkdown.i18nText(this, "response.result_data", "Paging param: the result set data object.")));
+                        docInfo.addResponseProperty(PropertyInfo.create().setName("resultsAvailable").setValue(Boolean.class.getSimpleName()).setDescription(AbstractMarkdown.i18nText(this, "response.results_available", "Paging param: whether result set is empty.")));
                     } else {
                         docInfo.addResponseProperties(PropertyInfo.create(Type.Const.PARAM_DATA, defaultResponses.pagingType()));
                     }
                     //
-                    docInfo.addResponse(ResponseInfo.create("0", "请求成功"));
-                    docInfo.addResponse(ResponseInfo.create("-1", "参数验证无效"));
-                    docInfo.addResponse(ResponseInfo.create("-2", "访问的资源未找到或不存在"));
-                    docInfo.addResponse(ResponseInfo.create("-3", "请求的方法不支持或不正确"));
-                    docInfo.addResponse(ResponseInfo.create("-4", "请求的资源未授权或无权限"));
-                    docInfo.addResponse(ResponseInfo.create("-5", "用户会话无效或超时"));
-                    docInfo.addResponse(ResponseInfo.create("-6", "请求的操作被禁止"));
-                    docInfo.addResponse(ResponseInfo.create("-7", "用户会话已授权(登录)"));
-                    docInfo.addResponse(ResponseInfo.create("-8", "参数签名无效"));
-                    docInfo.addResponse(ResponseInfo.create("-9", "上传文件大小超出限制"));
-                    docInfo.addResponse(ResponseInfo.create("-10", "上传文件总大小超出限制"));
-                    docInfo.addResponse(ResponseInfo.create("-11", "上传文件类型无效"));
-                    docInfo.addResponse(ResponseInfo.create("-12", "用户会话确认状态无效"));
-                    docInfo.addResponse(ResponseInfo.create("-13", "用户会话已强制下线"));
-                    docInfo.addResponse(ResponseInfo.create("-20", "数据版本不匹配"));
-                    docInfo.addResponse(ResponseInfo.create("-50", "系统内部错误"));
+                    docInfo.addResponse(ResponseInfo.create("0", AbstractMarkdown.i18nText(this, "error_code_0", "Request success.")));
+                    docInfo.addResponse(ResponseInfo.create("-1", AbstractMarkdown.i18nText(this, "error_code_-1", "Request parameter validation is invalid.")));
+                    docInfo.addResponse(ResponseInfo.create("-2", AbstractMarkdown.i18nText(this, "error_code_-2", "The resources was not found or not existed.")));
+                    docInfo.addResponse(ResponseInfo.create("-3", AbstractMarkdown.i18nText(this, "error_code_-3", "The request method is unsupported or incorrect.")));
+                    docInfo.addResponse(ResponseInfo.create("-4", AbstractMarkdown.i18nText(this, "error_code_-4", "The requested resource is not authorized or privileged.")));
+                    docInfo.addResponse(ResponseInfo.create("-5", AbstractMarkdown.i18nText(this, "error_code_-5", "User session invalid or timeout.")));
+                    docInfo.addResponse(ResponseInfo.create("-6", AbstractMarkdown.i18nText(this, "error_code_-6", "The requested operation is forbidden.")));
+                    docInfo.addResponse(ResponseInfo.create("-7", AbstractMarkdown.i18nText(this, "error_code_-7", "User session is authorized (logged in).")));
+                    docInfo.addResponse(ResponseInfo.create("-8", AbstractMarkdown.i18nText(this, "error_code_-8", "The parameter signature is invalid.")));
+                    docInfo.addResponse(ResponseInfo.create("-9", AbstractMarkdown.i18nText(this, "error_code_-9", "The size of the uploaded file exceeds the limit.")));
+                    docInfo.addResponse(ResponseInfo.create("-10", AbstractMarkdown.i18nText(this, "error_code_-10", "The total size of uploaded files exceeds the limit.")));
+                    docInfo.addResponse(ResponseInfo.create("-11", AbstractMarkdown.i18nText(this, "error_code_-11", "The upload file content type is invalid.")));
+                    docInfo.addResponse(ResponseInfo.create("-12", AbstractMarkdown.i18nText(this, "error_code_-12", "User session confirmation state invalid.")));
+                    docInfo.addResponse(ResponseInfo.create("-13", AbstractMarkdown.i18nText(this, "error_code_-13", "User session has been forced offline.")));
+                    docInfo.addResponse(ResponseInfo.create("-20", AbstractMarkdown.i18nText(this, "error_code_-20", "The data version does not match.")));
+                    docInfo.addResponse(ResponseInfo.create("-50", AbstractMarkdown.i18nText(this, "error_code_-50", "The system is busy, try again later!")));
                 }
                 //
                 ApiResponses apiResponses = apisPackage.getAnnotation(ApiResponses.class);
@@ -237,7 +237,7 @@ public class Docs implements IModule, IDocs {
                 }
                 return docInfo;
             });
-            doc.addApi(ApiInfo.create(doc, targetClass));
+            doc.addApi(ApiInfo.create(this, doc, targetClass));
         }
     }
 

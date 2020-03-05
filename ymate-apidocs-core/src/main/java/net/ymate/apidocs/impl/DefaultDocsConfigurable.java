@@ -45,6 +45,11 @@ public class DefaultDocsConfigurable extends DefaultModuleConfigurable {
             return this;
         }
 
+        public Builder i18nResourceName(String i18nResourceName) {
+            configurable.addConfig(IDocsConfig.I18N_RESOURCE_NAME, i18nResourceName);
+            return this;
+        }
+
         public IModuleConfigurer build() {
             return configurable.toModuleConfigurer();
         }

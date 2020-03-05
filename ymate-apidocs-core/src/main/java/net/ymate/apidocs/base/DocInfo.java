@@ -16,9 +16,10 @@
 package net.ymate.apidocs.base;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import net.ymate.apidocs.AbstractMarkdown;
+import net.ymate.apidocs.IDocs;
 import net.ymate.platform.commons.DateTimeHelper;
 import net.ymate.platform.commons.ReentrantLockHelper;
-import net.ymate.platform.commons.markdown.IMarkdown;
 import net.ymate.platform.commons.markdown.MarkdownBuilder;
 import net.ymate.platform.commons.markdown.Table;
 import net.ymate.platform.commons.markdown.Text;
@@ -34,10 +35,10 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author 刘镇 (suninformation@163.com) on 2018/04/15 17:00
  */
-public class DocInfo implements IMarkdown {
+public class DocInfo extends AbstractMarkdown {
 
-    public static DocInfo create(String id, String title, String version) {
-        return new DocInfo(id, title, version);
+    public static DocInfo create(IDocs owner, String id, String title, String version) {
+        return new DocInfo(owner, id, title, version);
     }
 
     private String id;
@@ -142,7 +143,8 @@ public class DocInfo implements IMarkdown {
      */
     private final List<ServerInfo> servers = new ArrayList<>();
 
-    public DocInfo(String id, String title, String version) {
+    public DocInfo(IDocs owner, String id, String title, String version) {
+        super(owner);
         if (StringUtils.isBlank(id)) {
             throw new NullArgumentException("id");
         }
@@ -501,44 +503,44 @@ public class DocInfo implements IMarkdown {
             markdownBuilder.text(description).p();
         }
         markdownBuilder.append("[TOC]").p();
-        Table table = Table.create().addHeader("Version").addHeader(version);
+        Table table = Table.create().addHeader(i18nText("doc.version", "Version")).addHeader(version);
         if (license != null) {
-            table.addRow().addColumn("License").addColumn(license);
+            table.addRow().addColumn(i18nText("doc.license", "License")).addColumn(license);
         }
         if (authors.isEmpty()) {
             authors.add(AuthorInfo.create("YMP-ApiDocs").setUrl("https://www.ymate.net/"));
         }
-        table.addRow().addColumn("Authors").addColumn(AuthorInfo.toMarkdown(authors));
-        markdownBuilder.p(2).title("Overview", 2).p().append(table);
+        table.addRow().addColumn(i18nText("doc.authors", "Authors")).addColumn(AuthorInfo.toMarkdown(authors));
+        markdownBuilder.p(2).title(i18nText("doc.overview", "Overview"), 2).p().append(table);
         if (!servers.isEmpty()) {
-            markdownBuilder.p().title("Servers", 3).p().append(ServerInfo.toMarkdown(servers));
+            markdownBuilder.p().title(i18nText("doc.servers", "Servers"), 3).p().append(ServerInfo.toMarkdown(getOwner(), servers));
         }
         if (authorization != null) {
-            markdownBuilder.p().title("Authorization", 3).p().append(authorization);
+            markdownBuilder.p().title(i18nText("doc.authorization", "Authorization"), 3).p().append(authorization);
         }
         if (security != null) {
             String securityMarkdown = security.toMarkdown();
             if (StringUtils.isNotBlank(securityMarkdown)) {
-                markdownBuilder.p().title("Security", 3).append(securityMarkdown);
+                markdownBuilder.p().title(i18nText("doc.security", "Security"), 3).append(securityMarkdown);
             }
         }
         if (!params.isEmpty()) {
-            markdownBuilder.p().title("Request parameters", 3).p().append(ParamInfo.toMarkdown(params));
+            markdownBuilder.p().title(i18nText("doc.request_parameters", "Global request parameters"), 3).p().append(ParamInfo.toMarkdown(getOwner(), params));
         }
         if (!requestHeaders.isEmpty()) {
-            markdownBuilder.p().title("Request headers", 3).p().append(HeaderInfo.toMarkdown(requestHeaders));
+            markdownBuilder.p().title(i18nText("doc.request_headers", "Global request headers"), 3).p().append(HeaderInfo.toMarkdown(getOwner(), requestHeaders));
         }
         if (!responseHeaders.isEmpty()) {
-            markdownBuilder.p().title("Response headers", 3).p().append(HeaderInfo.toMarkdown(responseHeaders));
+            markdownBuilder.p().title(i18nText("doc.response_headers", "Global response headers"), 3).p().append(HeaderInfo.toMarkdown(getOwner(), responseHeaders));
         }
         if (!changeLogs.isEmpty()) {
-            markdownBuilder.p().title("Changelog", 3).p().append(ChangeLogInfo.toMarkdown(changeLogs));
+            markdownBuilder.p().title(i18nText("doc.changelog", "Changelog"), 3).p().append(ChangeLogInfo.toMarkdown(getOwner(), changeLogs));
         }
         if (!extensions.isEmpty()) {
-            markdownBuilder.p().title("Extensions", 3).p().append(ExtensionInfo.toMarkdown(extensions));
+            markdownBuilder.p().title(i18nText("doc.extensions", "Extensions"), 3).p().append(ExtensionInfo.toMarkdown(extensions));
         }
         if (!apis.isEmpty()) {
-            markdownBuilder.p(2).title("Apis", 2).p();
+            markdownBuilder.p(2).title(i18nText("doc.apis", "Apis"), 2).p();
             if (!groupApis.isEmpty()) {
                 groups.stream().map(group -> getApis(group.getName()))
                         .filter(apiInfos -> !apiInfos.isEmpty())
@@ -548,22 +550,23 @@ public class DocInfo implements IMarkdown {
             }
         }
         if (!responses.isEmpty() || !responseTypes.isEmpty() || !responseExamples.isEmpty() || !responseProperties.isEmpty()) {
-            markdownBuilder.p(2).title("Appendix", 2).p();
+            markdownBuilder.p(2).title(i18nText("doc.appendix", "Appendix"), 2).p();
             if (!responseProperties.isEmpty()) {
-                markdownBuilder.title("Response structure", 3).p();
+                markdownBuilder.title(i18nText("doc.response_structure", "Response structure"), 3).p();
                 if (!responseExamples.isEmpty()) {
-                    markdownBuilder.text("Examples").p().append(ExampleInfo.toMarkdown(responseExamples)).p().text("Properties").p();
+                    markdownBuilder.text(i18nText("doc.response_structure_examples", "Response examples")).p()
+                            .append(ExampleInfo.toMarkdown(responseExamples)).p().text(i18nText("doc.response_structure_properties", "Response properties")).p();
                 }
-                markdownBuilder.append(PropertyInfo.toMarkdownTable(responseProperties)).p();
+                markdownBuilder.append(PropertyInfo.toMarkdownTable(getOwner(), responseProperties)).p();
             }
             if (!responses.isEmpty()) {
-                markdownBuilder.title("Response codes", 3).p();
+                markdownBuilder.title(i18nText("doc.response_codes", "Response codes"), 3).p();
                 List<ResponseInfo> sorted = new ArrayList<>(responses.values());
                 sorted.sort((o1, o2) -> Integer.valueOf(o2.getCode()).compareTo(Integer.valueOf(o1.getCode())));
-                markdownBuilder.append(ResponseInfo.toMarkdown(sorted));
+                markdownBuilder.append(ResponseInfo.toMarkdown(getOwner(), sorted));
             }
             if (!responseTypes.isEmpty()) {
-                markdownBuilder.title("Response types", 3).p();
+                markdownBuilder.title(i18nText("doc.response_types", "Response types"), 3).p();
                 String[] keys = responseTypes.keySet().toArray(new String[0]);
                 Arrays.sort(keys);
                 Arrays.stream(keys).forEachOrdered(key -> {
@@ -572,14 +575,13 @@ public class DocInfo implements IMarkdown {
                     if (StringUtils.isNotBlank(responseType.getDescription())) {
                         markdownBuilder.append(responseType.getDescription()).p();
                     }
-                    markdownBuilder.append(PropertyInfo.toMarkdownTable(responseType.getProperties())).p();
+                    markdownBuilder.append(PropertyInfo.toMarkdownTable(getOwner(), responseType.getProperties())).p();
                 });
             }
         }
         markdownBuilder.p(5).hr()
-                .quote("This document is generated based on the `YMP-ApiDocs` module. Please visit [https://ymate.net/](https://ymate.net/) for more information.").br()
-                .quote("本文档基于 `YMP ApiDocs` 模块生成，请访问 [https://ymate.net/](https://ymate.net/) 了解更多信息。").br()
-                .quote(MarkdownBuilder.create().text("Create time:", Text.Style.BOLD).space().text(DateTimeHelper.now().toString(DateTimeUtils.YYYY_MM_DD_HH_MM), Text.Style.ITALIC));
+                .quote(i18nText("doc.footer", "This document is generated based on the `YMP-ApiDocs` module. Please visit [https://ymate.net/](https://ymate.net/) for more information.")).br()
+                .quote(MarkdownBuilder.create().text(i18nText("doc.create_time", "Create time: "), Text.Style.BOLD).space().text(DateTimeHelper.now().toString(DateTimeUtils.YYYY_MM_DD_HH_MM), Text.Style.ITALIC));
         return markdownBuilder.toMarkdown();
     }
 

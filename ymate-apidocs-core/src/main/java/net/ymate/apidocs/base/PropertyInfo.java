@@ -15,6 +15,8 @@
  */
 package net.ymate.apidocs.base;
 
+import net.ymate.apidocs.AbstractMarkdown;
+import net.ymate.apidocs.IDocs;
 import net.ymate.apidocs.annotation.ApiProperty;
 import net.ymate.platform.commons.markdown.IMarkdown;
 import net.ymate.platform.commons.markdown.MarkdownBuilder;
@@ -97,13 +99,13 @@ public class PropertyInfo implements IMarkdown {
         return markdownBuilder.toMarkdown();
     }
 
-    public static String toMarkdownTable(List<PropertyInfo> properties) {
+    public static String toMarkdownTable(IDocs owner, List<PropertyInfo> properties) {
         MarkdownBuilder markdownBuilder = MarkdownBuilder.create();
         if (!properties.isEmpty()) {
             Table table = Table.create()
-                    .addHeader("Name", Table.Align.LEFT)
-                    .addHeader("Type", Table.Align.LEFT)
-                    .addHeader("Description", Table.Align.LEFT);
+                    .addHeader(AbstractMarkdown.i18nText(owner, "header.name", "Name"), Table.Align.LEFT)
+                    .addHeader(AbstractMarkdown.i18nText(owner, "header.type", "Type"), Table.Align.LEFT)
+                    .addHeader(AbstractMarkdown.i18nText(owner, "header.description", "Description"), Table.Align.LEFT);
             for (PropertyInfo property : properties) {
                 table.addRow().addColumn(property.getName()).addColumn(property.getValue()).addColumn(property.getDescription());
             }

@@ -16,8 +16,9 @@
 package net.ymate.apidocs.base;
 
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import net.ymate.apidocs.AbstractMarkdown;
+import net.ymate.apidocs.IDocs;
 import net.ymate.apidocs.annotation.*;
-import net.ymate.platform.commons.markdown.IMarkdown;
 import net.ymate.platform.commons.markdown.MarkdownBuilder;
 import net.ymate.platform.commons.markdown.Text;
 import net.ymate.platform.commons.util.ClassUtils;
@@ -38,7 +39,7 @@ import java.util.*;
  *
  * @author 刘镇 (suninformation@163.com) on 2018/05/08 16:49
  */
-public class ActionInfo implements IMarkdown {
+public class ActionInfo extends AbstractMarkdown {
 
     public static String processRequestMapping(String root, String mapping) {
         StringBuilder mappingBuilder = new StringBuilder(doCheckMappingSeparator(root));
@@ -48,8 +49,8 @@ public class ActionInfo implements IMarkdown {
         return mappingBuilder.toString();
     }
 
-    public static ActionInfo create(ApiInfo owner, String name, String mapping, String displayName) {
-        return new ActionInfo(owner, name, mapping, displayName);
+    public static ActionInfo create(IDocs owner, ApiInfo apiInfo, String name, String mapping, String displayName) {
+        return new ActionInfo(owner, apiInfo, name, mapping, displayName);
     }
 
     private static String doCheckMappingSeparator(String requestMapping) {
@@ -65,7 +66,7 @@ public class ActionInfo implements IMarkdown {
         return requestMapping;
     }
 
-    public static ActionInfo create(ApiInfo owner, Method method) {
+    public static ActionInfo create(IDocs owner, ApiInfo apiInfo, Method method) {
         if (method != null) {
             ApiAction apiAction = method.getAnnotation(ApiAction.class);
             if (apiAction != null && !apiAction.hidden()) {
@@ -98,14 +99,14 @@ public class ActionInfo implements IMarkdown {
                 } else {
                     httpMethods.addAll(Arrays.asList(apiAction.httpMethod()));
                 }
-                ActionInfo actionInfo = new ActionInfo(owner, method.getName(), mapping, apiAction.value())
+                ActionInfo actionInfo = new ActionInfo(owner, apiInfo, method.getName(), mapping, apiAction.value())
                         .setDescription(apiAction.description())
                         .setGroup(apiAction.group())
                         .setHttpStatus(apiAction.httpStatus())
                         .setOrder(apiAction.order())
-                        .setDeprecated(owner.isDeprecated() || method.isAnnotationPresent(Deprecated.class))
+                        .setDeprecated(apiInfo.isDeprecated() || method.isAnnotationPresent(Deprecated.class))
                         .setRequestType(apiAction.requestType())
-                        .setSecurity(SecurityInfo.create(method.getAnnotation(ApiSecurity.class), owner.getSecurity()))
+                        .setSecurity(SecurityInfo.create(owner, method.getAnnotation(ApiSecurity.class), apiInfo.getSecurity()))
                         .addNotes(Arrays.asList(apiAction.notes()))
                         .addMethods(httpMethods)
                         .addScopes(Arrays.asList(apiAction.scopes()))
@@ -115,8 +116,8 @@ public class ActionInfo implements IMarkdown {
                         .addExtension(ExtensionInfo.create(method.getAnnotation(ApiExtension.class)))
                         .addExamples(ExampleInfo.create(method.getAnnotation(ApiExamples.class)))
                         .addExample(ExampleInfo.create(method.getAnnotation(ApiExample.class)))
-                        .addParams(ParamInfo.create(method.getAnnotation(ApiParams.class)))
-                        .addParam(ParamInfo.create(method.getAnnotation(ApiParam.class)))
+                        .addParams(ParamInfo.create(owner, method.getAnnotation(ApiParams.class)))
+                        .addParam(ParamInfo.create(owner, method.getAnnotation(ApiParam.class)))
                         .addResponse(ResponseInfo.create(method.getAnnotation(ApiResponse.class)))
                         .addRequestHeaders(HeaderInfo.create(method.getAnnotation(ApiRequestHeaders.class)))
                         .addResponseHeaders(HeaderInfo.create(method.getAnnotation(ApiResponseHeaders.class)));
@@ -128,10 +129,10 @@ public class ActionInfo implements IMarkdown {
                     if (paramNames.length > idx) {
                         paramName = paramNames[idx];
                     }
-                    ParamInfo paramInfo = ParamInfo.create(parameters[idx], paramName);
+                    ParamInfo paramInfo = ParamInfo.create(owner, parameters[idx], paramName);
                     if (paramInfo != null) {
                         if (paramInfo.isModel()) {
-                            ClassUtils.wrapper(parameters[idx].getType()).getFields().forEach(field -> actionInfo.addParam(ParamInfo.create(field)));
+                            ClassUtils.wrapper(parameters[idx].getType()).getFields().forEach(field -> actionInfo.addParam(ParamInfo.create(owner, field)));
                         } else {
                             actionInfo.addParam(paramInfo);
                         }
@@ -180,7 +181,7 @@ public class ActionInfo implements IMarkdown {
         return markdownBuilder.toMarkdown();
     }
 
-    private ApiInfo owner;
+    private ApiInfo apiInfo;
 
     /**
      * 接口名称
@@ -293,9 +294,10 @@ public class ActionInfo implements IMarkdown {
      */
     private final List<ExtensionInfo> extensions = new ArrayList<>();
 
-    public ActionInfo(ApiInfo owner, String name, String mapping, String displayName) {
-        if (owner == null) {
-            throw new NullArgumentException("owner");
+    public ActionInfo(IDocs owner, ApiInfo apiInfo, String name, String mapping, String displayName) {
+        super(owner);
+        if (apiInfo == null) {
+            throw new NullArgumentException("apiInfo");
         }
         if (StringUtils.isBlank(name)) {
             throw new NullArgumentException("name");
@@ -306,7 +308,7 @@ public class ActionInfo implements IMarkdown {
         if (StringUtils.isBlank(displayName)) {
             throw new NullArgumentException("displayName");
         }
-        this.owner = owner;
+        this.apiInfo = apiInfo;
         this.name = name;
         this.mapping = mapping;
         this.displayName = displayName;
@@ -381,10 +383,10 @@ public class ActionInfo implements IMarkdown {
     }
 
     public ActionInfo addScope(String scope) {
-        if (StringUtils.isNotBlank(scope) && owner.getOwner().getAuthorization() != null) {
-            if (!scopes.contains(scope) && !owner.getScopes().contains(scope)) {
-                if (!owner.getScopes().contains(scope)) {
-                    if (owner.getOwner().getAuthorization().getScopeNames().contains(scope)) {
+        if (StringUtils.isNotBlank(scope) && apiInfo.getDocInfo().getAuthorization() != null) {
+            if (!scopes.contains(scope) && !apiInfo.getScopes().contains(scope)) {
+                if (!apiInfo.getScopes().contains(scope)) {
+                    if (apiInfo.getDocInfo().getAuthorization().getScopeNames().contains(scope)) {
                         scopes.add(scope);
                     } else {
                         throw new IllegalArgumentException(String.format("Scope %s does not exist.", scope));
@@ -441,7 +443,7 @@ public class ActionInfo implements IMarkdown {
     }
 
     public boolean hasRequestHeader(HeaderInfo header) {
-        return requestHeaders.contains(header) || owner.hasRequestHeader(header);
+        return requestHeaders.contains(header) || apiInfo.hasRequestHeader(header);
     }
 
     public List<HeaderInfo> getRequestHeaders() {
@@ -463,7 +465,7 @@ public class ActionInfo implements IMarkdown {
     }
 
     public boolean hasResponseHeader(HeaderInfo header) {
-        return responseHeaders.contains(header) || owner.hasResponseHeader(header);
+        return responseHeaders.contains(header) || apiInfo.hasResponseHeader(header);
     }
 
     public List<HeaderInfo> getResponseHeaders() {
@@ -485,7 +487,7 @@ public class ActionInfo implements IMarkdown {
     }
 
     public boolean hasParam(ParamInfo param) {
-        return params.contains(param) || owner.hasParam(param);
+        return params.contains(param) || apiInfo.hasParam(param);
     }
 
     public List<ParamInfo> getParams() {
@@ -525,7 +527,7 @@ public class ActionInfo implements IMarkdown {
     }
 
     public boolean hasResponse(ResponseInfo response) {
-        return responses.contains(response) || owner.hasResponse(response);
+        return responses.contains(response) || apiInfo.hasResponse(response);
     }
 
     public List<ResponseInfo> getResponses() {
@@ -559,7 +561,7 @@ public class ActionInfo implements IMarkdown {
 
     public ActionInfo addChangeLog(ChangeLogInfo changeLog) {
         if (changeLog != null) {
-            this.owner.getOwner().addAuthor(changeLog.getAuthor());
+            this.apiInfo.getDocInfo().addAuthor(changeLog.getAuthor());
             this.changeLogs.add(changeLog);
         }
         return this;
@@ -609,10 +611,10 @@ public class ActionInfo implements IMarkdown {
             markdownBuilder.p().text(description, deprecated ? Text.Style.STRIKEOUT : null);
         }
         if (StringUtils.isNotBlank(group)) {
-            markdownBuilder.p().title("Group", 6).p().code(group);
+            markdownBuilder.p().title(i18nText("action.group", "Group"), 6).p().code(group);
         }
         if (!notes.isEmpty()) {
-            markdownBuilder.p().title("Notes", 6).p();
+            markdownBuilder.p().title(i18nText("action.notes", "Notes"), 6).p();
             Iterator<String> notesIt = notes.iterator();
             while (notesIt.hasNext()) {
                 markdownBuilder.quote(notesIt.next());
@@ -622,55 +624,55 @@ public class ActionInfo implements IMarkdown {
             }
         }
         if (!changeLogs.isEmpty()) {
-            markdownBuilder.p().title("Changelog", 6).p().append(ChangeLogInfo.toMarkdown(changeLogs));
+            markdownBuilder.p().title(i18nText("action.changelog", "Changelog"), 6).p().append(ChangeLogInfo.toMarkdown(getOwner(), changeLogs));
         }
         if (!scopes.isEmpty()) {
-            markdownBuilder.p().title("Authorization", 6).p().text("Scopes:", Text.Style.BOLD).space();
+            markdownBuilder.p().title(i18nText("action.authorization", "Authorization"), 6).p().text(i18nText("action.scopes", "Scopes: "), Text.Style.BOLD).space();
             scopes.forEach((scope) -> markdownBuilder.code(scope).space());
         }
         if (security != null) {
             String securityMarkdown = security.toMarkdown();
             if (StringUtils.isNotBlank(securityMarkdown)) {
-                markdownBuilder.p().title("Security", 6).append(securityMarkdown);
+                markdownBuilder.p().title(i18nText("action.security", "Security"), 6).append(securityMarkdown);
             }
         }
         if (StringUtils.isNotBlank(requestType)) {
-            markdownBuilder.p().title("Request type", 6).p().code(requestType);
+            markdownBuilder.p().title(i18nText("action.request_type", "Request type"), 6).p().code(requestType);
         }
         if (!methods.isEmpty()) {
-            markdownBuilder.p().title("Request methods", 6).p();
+            markdownBuilder.p().title(i18nText("action.request_methods", "Request methods"), 6).p();
             methods.forEach((method) -> markdownBuilder.code(method.toUpperCase()).space());
         }
         if (!params.isEmpty()) {
-            markdownBuilder.p().title("Request parameters", 6).p().append(ParamInfo.toMarkdown(params));
+            markdownBuilder.p().title(i18nText("action.request_parameters", "Request parameters"), 6).p().append(ParamInfo.toMarkdown(getOwner(), params));
         }
         if (!requestHeaders.isEmpty()) {
-            markdownBuilder.p().title("Request headers", 6).p().append(HeaderInfo.toMarkdown(requestHeaders));
+            markdownBuilder.p().title(i18nText("action.request_headers", "Request headers"), 6).p().append(HeaderInfo.toMarkdown(getOwner(), requestHeaders));
         }
         if (!responseHeaders.isEmpty()) {
-            markdownBuilder.p().title("Response headers", 6).p().append(HeaderInfo.toMarkdown(responseHeaders));
+            markdownBuilder.p().title(i18nText("action.response_headers", "Response headers"), 6).p().append(HeaderInfo.toMarkdown(getOwner(), responseHeaders));
         }
         if (responseType != null) {
             if (StringUtils.isNotBlank(responseType.getName()) || !responseType.getProperties().isEmpty()) {
-                markdownBuilder.p().title("Response type", 6);
+                markdownBuilder.p().title(i18nText("action.response_type", "Response type"), 6);
                 if (StringUtils.isNotBlank(responseType.getName())) {
                     markdownBuilder.p().text(responseType.getName());
                 }
                 if (StringUtils.isNotBlank(responseType.getDescription())) {
                     markdownBuilder.p().append(responseType.getDescription());
                 }
-                markdownBuilder.p().append(PropertyInfo.toMarkdownTable(responseType.getProperties()));
+                markdownBuilder.p().append(PropertyInfo.toMarkdownTable(getOwner(), responseType.getProperties()));
             }
         }
         if (!responses.isEmpty()) {
             responses.sort((o1, o2) -> Integer.valueOf(o2.getCode()).compareTo(Integer.valueOf(o1.getCode())));
-            markdownBuilder.p().title("Response codes", 6).p().append(ResponseInfo.toMarkdown(responses));
+            markdownBuilder.p().title(i18nText("action.response_codes", "Response codes"), 6).p().append(ResponseInfo.toMarkdown(getOwner(), responses));
         }
         if (!extensions.isEmpty()) {
-            markdownBuilder.p().title("Extensions", 6).p().append(ExtensionInfo.toMarkdown(extensions));
+            markdownBuilder.p().title(i18nText("action.extensions", "Extensions"), 6).p().append(ExtensionInfo.toMarkdown(extensions));
         }
         if (!examples.isEmpty()) {
-            markdownBuilder.p().title("Examples", 6).p().append(ExampleInfo.toMarkdown(examples));
+            markdownBuilder.p().title(i18nText("action.examples", "Examples"), 6).p().append(ExampleInfo.toMarkdown(examples));
         }
         return markdownBuilder.p().toMarkdown();
     }

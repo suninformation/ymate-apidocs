@@ -26,6 +26,7 @@ import net.ymate.platform.core.IApplication;
 import net.ymate.platform.core.YMP;
 import net.ymate.platform.core.beans.IBeanLoader;
 import net.ymate.platform.core.beans.impl.DefaultBeanLoader;
+import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
@@ -69,6 +70,12 @@ public class BuildMojo extends AbstractMojo {
     private String outputDir;
 
     /**
+     * 自定义语言
+     */
+    @Parameter(property = "language")
+    private String language;
+
+    /**
      * 是否覆盖已存在的文件
      */
     @Parameter(property = "overwrite")
@@ -78,6 +85,9 @@ public class BuildMojo extends AbstractMojo {
     @SuppressWarnings("unchecked")
     public void execute() throws MojoExecutionException, MojoFailureException {
         try (IApplication application = YMP.run()) {
+            if (StringUtils.isNotBlank(language)) {
+                application.getI18n().current(LocaleUtils.toLocale(language));
+            }
             List<URL> urls = new ArrayList<>();
             urls.add(new File(mavenProject.getBuild().getOutputDirectory()).toURI().toURL());
             for (Artifact dependency : mavenProject.getArtifacts()) {

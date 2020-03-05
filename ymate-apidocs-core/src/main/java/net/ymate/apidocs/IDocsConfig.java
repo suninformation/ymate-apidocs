@@ -26,10 +26,19 @@ public interface IDocsConfig extends IInitialization<IDocs> {
 
     String ENABLED = "enabled";
 
+    String I18N_RESOURCE_NAME = "i18n_resource_name";
+
     /**
      * 模块是否已启用, 默认值: true
      *
      * @return 返回false表示禁用
      */
     boolean isEnabled();
+
+    /**
+     * 国际化资源文件名称, 默认值: module_docs
+     *
+     * @return 返回资源文件名称
+     */
+    String getI18nResourceName();
 }

@@ -15,6 +15,8 @@
  */
 package net.ymate.apidocs.base;
 
+import net.ymate.apidocs.AbstractMarkdown;
+import net.ymate.apidocs.IDocs;
 import net.ymate.apidocs.annotation.ApiChangeLog;
 import net.ymate.apidocs.annotation.ApiChangeLogs;
 import net.ymate.platform.commons.markdown.IMarkdown;
@@ -55,14 +57,14 @@ public class ChangeLogInfo implements IMarkdown {
         return null;
     }
 
-    public static String toMarkdown(List<ChangeLogInfo> changeLogs) {
+    public static String toMarkdown(IDocs owner, List<ChangeLogInfo> changeLogs) {
         MarkdownBuilder markdownBuilder = MarkdownBuilder.create();
         if (!changeLogs.isEmpty()) {
             markdownBuilder.append(Table.create()
-                    .addHeader("Date", Table.Align.LEFT)
-                    .addHeader("Action", Table.Align.LEFT)
-                    .addHeader("Description", Table.Align.LEFT)
-                    .addHeader("Author", Table.Align.LEFT));
+                    .addHeader(AbstractMarkdown.i18nText(owner, "changelog.date", "Date"), Table.Align.LEFT)
+                    .addHeader(AbstractMarkdown.i18nText(owner, "changelog.action", "Action"), Table.Align.LEFT)
+                    .addHeader(AbstractMarkdown.i18nText(owner, "changelog.description", "Description"), Table.Align.LEFT)
+                    .addHeader(AbstractMarkdown.i18nText(owner, "changelog.author", "Author"), Table.Align.LEFT));
             changeLogs.forEach(markdownBuilder::append);
         }
         return markdownBuilder.toMarkdown();
