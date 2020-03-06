@@ -25,11 +25,15 @@ import net.ymate.platform.commons.markdown.MarkdownBuilder;
 import net.ymate.platform.commons.markdown.Table;
 import net.ymate.platform.commons.markdown.Text;
 import net.ymate.platform.commons.util.ClassUtils;
+import net.ymate.platform.validation.validate.IDataRangeValuesProvider;
+import net.ymate.platform.validation.validate.VDataRange;
 import net.ymate.platform.validation.validate.VRequired;
 import net.ymate.platform.webmvc.IUploadFileWrapper;
 import net.ymate.platform.webmvc.annotation.ModelBind;
+import net.ymate.platform.webmvc.annotation.PathVariable;
 import net.ymate.platform.webmvc.annotation.RequestParam;
 import org.apache.commons.lang.NullArgumentException;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.AnnotatedElement;
@@ -95,10 +99,19 @@ public class ParamInfo extends AbstractMarkdown {
             paramType = paramType != null ? paramType : apiParam.type();
             //
             RequestParam requestParam = annotatedElement.getAnnotation(RequestParam.class);
-            String paramName = StringUtils.defaultIfBlank(apiParam.value(), requestParam != null ? StringUtils.defaultIfBlank(requestParam.value(), defaultParamName) : defaultParamName);
+            PathVariable pathVariable = annotatedElement.getAnnotation(PathVariable.class);
+            String paramName = null;
+            if (requestParam != null) {
+                paramName = StringUtils.defaultIfBlank(requestParam.value(), apiParam.value());
+            } else if (pathVariable != null) {
+                paramName = StringUtils.defaultIfBlank(pathVariable.value(), apiParam.value());
+            }
+            if (StringUtils.isBlank(paramName)) {
+                paramName = defaultParamName;
+            }
+            boolean required = apiParam.required() || annotatedElement.isAnnotationPresent(VRequired.class) || pathVariable != null;
             if (!apiParam.hidden() && StringUtils.isNotBlank(paramName)) {
-                boolean required = apiParam.required() || annotatedElement.isAnnotationPresent(VRequired.class);
-                return new ParamInfo(owner, paramName, paramType.getSimpleName())
+                ParamInfo paramInfo = new ParamInfo(owner, paramName, paramType.getSimpleName())
                         .setDefaultValue(StringUtils.defaultIfBlank(apiParam.defaultValue(), requestParam != null ? StringUtils.defaultIfBlank(requestParam.defaultValue(), apiParam.defaultValue()) : apiParam.defaultValue()))
                         .setDemoValue(apiParam.demoValue())
                         .addAllowValues(Arrays.asList(apiParam.allowValues()))
@@ -109,6 +122,17 @@ public class ParamInfo extends AbstractMarkdown {
                         .setDescription(apiParam.description())
                         .addExample(StringUtils.isNotBlank(apiParam.example()) ? ExampleInfo.create(apiParam.example()) : null)
                         .addExamples(ExampleInfo.create(apiParam.examples()));
+                if (ArrayUtils.isEmpty(apiParam.allowValues())) {
+                    VDataRange dataRange = annotatedElement.getAnnotation(VDataRange.class);
+                    if (dataRange != null) {
+                        if (!IDataRangeValuesProvider.class.equals(dataRange.providerClass())) {
+                            paramInfo.addAllowValues(ClassUtils.impl(dataRange.providerClass(), IDataRangeValuesProvider.class).values());
+                        } else {
+                            paramInfo.addAllowValues(Arrays.asList(dataRange.value()));
+                        }
+                    }
+                }
+                return paramInfo;
             }
         }
         return null;
@@ -260,7 +284,7 @@ public class ParamInfo extends AbstractMarkdown {
         return allowValues;
     }
 
-    public ParamInfo addAllowValues(List<String> allowValues) {
+    public ParamInfo addAllowValues(Collection<String> allowValues) {
         if (allowValues != null) {
             allowValues.forEach(this::addAllowValue);
         }
@@ -352,7 +376,7 @@ public class ParamInfo extends AbstractMarkdown {
 
     @Override
     public String toMarkdown() {
-        MarkdownBuilder markdownBuilder = MarkdownBuilder.create().append(description);
+        MarkdownBuilder markdownBuilder = MarkdownBuilder.create().append(PropertyInfo.parseText(description));
         if (!allowValues.isEmpty()) {
             if (markdownBuilder.length() > 0) {
                 markdownBuilder.br();
