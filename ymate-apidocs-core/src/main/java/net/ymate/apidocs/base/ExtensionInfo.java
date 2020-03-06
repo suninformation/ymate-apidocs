@@ -129,7 +129,7 @@ public class ExtensionInfo implements IMarkdown {
             markdownBuilder.text(name, Text.Style.BOLD).p();
         }
         if (StringUtils.isNotBlank(description)) {
-            markdownBuilder.text(description, Text.Style.ITALIC).p();
+            markdownBuilder.append(description).p();
         }
         if (!properties.isEmpty()) {
             markdownBuilder.append(PropertyInfo.toMarkdown(properties));

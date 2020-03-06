@@ -164,11 +164,11 @@ public class PropertyInfo implements IMarkdown {
         if (StringUtils.isNotBlank(name)) {
             markdownBuilder.text(name, Text.Style.BOLD).space();
         }
-        if (StringUtils.isNotBlank(description)) {
-            markdownBuilder.text(description, Text.Style.ITALIC).br();
-        }
         if (StringUtils.isNotBlank(value)) {
-            markdownBuilder.append(value).br();
+            markdownBuilder.text(value, Text.Style.ITALIC).br();
+        }
+        if (StringUtils.isNotBlank(description)) {
+            markdownBuilder.append(description).br();
         }
         if (markdownBuilder.length() > 0) {
             return MarkdownBuilder.create().quote(markdownBuilder).br().toMarkdown();

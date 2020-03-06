@@ -580,7 +580,7 @@ public class DocInfo extends AbstractMarkdown {
             }
         }
         markdownBuilder.p(5).hr()
-                .quote(i18nText("doc.footer", "This document is generated based on the `YMP-ApiDocs` module. Please visit [https://ymate.net/](https://ymate.net/) for more information.")).br()
+                .quote(i18nText("doc.footer", "This document is built and generated based on the `YMP-ApiDocs`. Please visit [https://ymate.net/](https://ymate.net/) for more information.")).br()
                 .quote(MarkdownBuilder.create().text(i18nText("doc.create_time", "Create time: "), Text.Style.BOLD).space().text(DateTimeHelper.now().toString(DateTimeUtils.YYYY_MM_DD_HH_MM), Text.Style.ITALIC));
         return markdownBuilder.toMarkdown();
     }
