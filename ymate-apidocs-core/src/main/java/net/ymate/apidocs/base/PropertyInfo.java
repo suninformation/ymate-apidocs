@@ -23,10 +23,12 @@ import net.ymate.platform.commons.markdown.MarkdownBuilder;
 import net.ymate.platform.commons.markdown.Table;
 import net.ymate.platform.commons.markdown.Text;
 import net.ymate.platform.commons.util.ClassUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -35,6 +37,36 @@ import java.util.List;
  * @author 刘镇 (suninformation@163.com) on 2018/05/08 14:54
  */
 public class PropertyInfo implements IMarkdown {
+
+    public static String parseText(String text) {
+        if (StringUtils.contains(text, '{')) {
+            MarkdownBuilder markdownBuilder = MarkdownBuilder.create();
+            markdownBuilder.append(StringUtils.substringBefore(text, "{"));
+            String content = StringUtils.substringBetween(text, "{", "}");
+            if (StringUtils.containsWhitespace(content)) {
+                markdownBuilder.br().append(StringUtils.join(parseText(StringUtils.split(content)), StringUtils.LF));
+            } else if (StringUtils.contains(content, '|')) {
+                Arrays.stream(StringUtils.split(content, '|')).forEach(part -> markdownBuilder.code(part).space());
+            }
+            return markdownBuilder.toMarkdown();
+        }
+        return text;
+    }
+
+    private static List<String> parseText(String[] textArr) {
+        List<String> returnValue = new ArrayList<>();
+        for (String text : textArr) {
+            if (StringUtils.countMatches(text, '-') == 1) {
+                String[] contentArr = StringUtils.split(text, '-');
+                if (ArrayUtils.isNotEmpty(contentArr) && contentArr.length == 2) {
+                    returnValue.add(String.format("`%s` %s", contentArr[0], contentArr[1]));
+                } else {
+                    returnValue.add(text);
+                }
+            }
+        }
+        return returnValue;
+    }
 
     public static PropertyInfo create() {
         return new PropertyInfo();
@@ -107,7 +139,7 @@ public class PropertyInfo implements IMarkdown {
                     .addHeader(AbstractMarkdown.i18nText(owner, "header.type", "Type"), Table.Align.LEFT)
                     .addHeader(AbstractMarkdown.i18nText(owner, "header.description", "Description"), Table.Align.LEFT);
             for (PropertyInfo property : properties) {
-                table.addRow().addColumn(property.getName()).addColumn(property.getValue()).addColumn(property.getDescription());
+                table.addRow().addColumn(property.getName()).addColumn(property.getValue()).addColumn(parseText(property.getDescription()));
             }
             markdownBuilder.append(table);
         }

@@ -357,8 +357,7 @@ public class ParamInfo extends AbstractMarkdown {
             if (markdownBuilder.length() > 0) {
                 markdownBuilder.br();
             }
-            markdownBuilder.append(i18nText("param.allow_values", "Allow values: "));
-            allowValues.forEach(allowValue -> markdownBuilder.code(allowValue).space());
+            markdownBuilder.append(i18nText("param.allow_values", "Allow values: ")).append(PropertyInfo.parseText(String.format("{%s}", StringUtils.join(allowValues, '|'))));
         }
         return Table.create().addRow()
                 .addColumn(name)
