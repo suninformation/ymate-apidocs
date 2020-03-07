@@ -35,7 +35,7 @@ public class DefaultApplicationCreator implements IApplicationCreator {
 
     @Override
     public IApplication create(Class<?> mainClass, String[] args, IApplicationInitializer... applicationInitializers) throws Exception {
-        return new Application(ApplicationConfigureBuilder.builder(DefaultApplicationConfigureParser.defaultEmpty())
+        IApplicationConfigurer configurer = ApplicationConfigureBuilder.builder(DefaultApplicationConfigureParser.defaultEmpty())
                 .runEnv(IApplication.Environment.DEV)
                 .i18nEventHandler(new II18nEventHandler() {
 
@@ -54,6 +54,12 @@ public class DefaultApplicationCreator implements IApplicationCreator {
                     }
                 })
                 .excludedModules(IWebMvc.MODULE_NAME, ICaches.MODULE_NAME, IValidation.MODULE_NAME)
-                .addModuleConfigurers(DefaultDocsConfigurable.builder().build()).build());
+                .addModuleConfigurers(DefaultDocsConfigurable.builder().build()).build();
+        return new Application(new AbstractApplicationConfigureFactory() {
+            @Override
+            public IApplicationConfigurer getConfigurer() {
+                return configurer;
+            }
+        });
     }
 }

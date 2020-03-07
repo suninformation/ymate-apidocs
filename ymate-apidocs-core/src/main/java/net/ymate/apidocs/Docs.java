@@ -22,6 +22,7 @@ import net.ymate.apidocs.impl.DefaultDocsConfig;
 import net.ymate.platform.commons.ReentrantLockHelper;
 import net.ymate.platform.commons.util.ClassUtils;
 import net.ymate.platform.core.IApplication;
+import net.ymate.platform.core.IApplicationConfigurer;
 import net.ymate.platform.core.YMP;
 import net.ymate.platform.core.beans.IBeanLoadFactory;
 import net.ymate.platform.core.beans.IBeanLoader;
@@ -80,15 +81,16 @@ public class Docs implements IModule, IDocs {
             YMP.showModuleVersion("ymate-apidocs-core", this);
             //
             this.owner = owner;
+            IApplicationConfigurer configurer = owner.getConfigureFactory().getConfigurer();
             if (config == null) {
-                IModuleConfigurer moduleConfigurer = owner.getConfigurer().getModuleConfigurer(MODULE_NAME);
+                IModuleConfigurer moduleConfigurer = configurer.getModuleConfigurer(MODULE_NAME);
                 config = moduleConfigurer == null ? DefaultDocsConfig.defaultConfig() : DefaultDocsConfig.create(moduleConfigurer);
             }
             if (!config.isInitialized()) {
                 config.initialize(this);
             }
             if (config.isEnabled()) {
-                IBeanLoadFactory beanLoaderFactory = owner.getConfigurer().getBeanLoadFactory();
+                IBeanLoadFactory beanLoaderFactory = configurer.getBeanLoadFactory();
                 if (beanLoaderFactory != null) {
                     IBeanLoader beanLoader = beanLoaderFactory.getBeanLoader();
                     if (beanLoader != null) {
