@@ -163,6 +163,7 @@ public class Docs implements IModule, IDocs {
                         .addServers(ServerInfo.create(apisPackage.getAnnotation(ApiServers.class)))
                         .addServer(ServerInfo.create(apisPackage.getAnnotation(ApiServer.class)))
                         .addResponse(ResponseInfo.create(apisPackage.getAnnotation(ApiResponse.class)))
+                        .addResponseType(ResponseTypeInfo.create(apisPackage.getAnnotation(ApiResponseType.class)))
                         .addRequestHeaders(HeaderInfo.create(apisPackage.getAnnotation(ApiRequestHeaders.class)))
                         .addResponseHeaders(HeaderInfo.create(apisPackage.getAnnotation(ApiResponseHeaders.class)));
                 //
@@ -237,6 +238,12 @@ public class Docs implements IModule, IDocs {
                     }
                     Arrays.stream(apiResponses.value()).map(ResponseInfo::create).forEachOrdered(docInfo::addResponse);
                 }
+                //
+                ApiResponseTypes apiResponseTypes = apisPackage.getAnnotation(ApiResponseTypes.class);
+                if (apiResponseTypes != null) {
+                    Arrays.stream(apiResponseTypes.value()).map(ResponseTypeInfo::create).forEachOrdered(docInfo::addResponseType);
+                }
+                //
                 return docInfo;
             });
             doc.addApi(ApiInfo.create(this, doc, targetClass));

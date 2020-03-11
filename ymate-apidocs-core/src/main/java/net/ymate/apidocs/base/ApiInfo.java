@@ -70,6 +70,15 @@ public class ApiInfo extends AbstractMarkdown {
                     }
                     Arrays.stream(apiResponses.value()).map(ResponseInfo::create).forEachOrdered(apiInfo::addResponse);
                 }
+                ApiResponseTypes apiResponseTypes = targetClass.getAnnotation(ApiResponseTypes.class);
+                if (apiResponseTypes != null) {
+                    Arrays.stream(apiResponseTypes.value()).map(ResponseTypeInfo::create).forEachOrdered(docInfo::addResponseType);
+                } else {
+                    ApiResponseType apiResponseType = targetClass.getAnnotation(ApiResponseType.class);
+                    if (apiResponseType != null) {
+                        docInfo.addResponseType(ResponseTypeInfo.create(apiResponseType));
+                    }
+                }
                 Arrays.stream(targetClass.getDeclaredMethods())
                         .filter(method -> method.isAnnotationPresent(ApiAction.class) && !Modifier.isStatic(method.getModifiers()) && Modifier.isPublic(method.getModifiers()))
                         .map((method) -> ActionInfo.create(owner, apiInfo, method))

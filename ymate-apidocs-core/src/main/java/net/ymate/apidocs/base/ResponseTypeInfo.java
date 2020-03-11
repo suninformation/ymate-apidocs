@@ -16,6 +16,7 @@
 package net.ymate.apidocs.base;
 
 import net.ymate.apidocs.annotation.ApiProperty;
+import net.ymate.apidocs.annotation.ApiResponseType;
 import net.ymate.apidocs.annotation.ApiResponses;
 import net.ymate.platform.commons.lang.BlurObject;
 import net.ymate.platform.commons.util.ClassUtils;
@@ -31,18 +32,35 @@ import java.util.*;
 public class ResponseTypeInfo implements Serializable {
 
     public static ResponseTypeInfo create(ApiResponses responses) {
-        ResponseTypeInfo responseTypeInfo = new ResponseTypeInfo()
-                .setName(responses.name())
-                .setMultiple(responses.multiple())
-                .setDescription(responses.description());
-        Arrays.stream(responses.properties()).map(PropertyInfo::create).forEachOrdered(responseTypeInfo::addProperty);
-        if (!Void.class.equals(responses.type())) {
-            Class<?> responseType = responses.type().isArray() ? ClassUtils.getArrayClassType(responses.type()) : responses.type();
-            responseTypeInfo.setName(StringUtils.defaultIfBlank(responseTypeInfo.getName(), responseType.getSimpleName()));
-            responseTypeInfo.setMultiple(responses.multiple() || responses.type().isArray());
-            responseTypeInfo.addProperties(PropertyInfo.create(null, responseType));
+        if (responses != null) {
+            ResponseTypeInfo responseTypeInfo = new ResponseTypeInfo()
+                    .setName(responses.name())
+                    .setMultiple(responses.multiple())
+                    .setDescription(responses.description());
+            Arrays.stream(responses.properties()).map(PropertyInfo::create).forEachOrdered(responseTypeInfo::addProperty);
+            if (!Void.class.equals(responses.type())) {
+                Class<?> responseType = responses.type().isArray() ? ClassUtils.getArrayClassType(responses.type()) : responses.type();
+                responseTypeInfo.setName(StringUtils.defaultIfBlank(responseTypeInfo.getName(), responseType.getSimpleName()));
+                responseTypeInfo.setMultiple(responses.multiple() || responses.type().isArray());
+                responseTypeInfo.addProperties(PropertyInfo.create(null, responseType));
+            }
+            return responseTypeInfo;
         }
-        return responseTypeInfo;
+        return null;
+    }
+
+    public static ResponseTypeInfo create(ApiResponseType apiResponseType) {
+        if (apiResponseType != null) {
+            ResponseTypeInfo responseTypeInfo = new ResponseTypeInfo()
+                    .setName(apiResponseType.name())
+                    .setDescription(apiResponseType.description());
+            Class<?> responseType = apiResponseType.type().isArray() ? ClassUtils.getArrayClassType(apiResponseType.type()) : apiResponseType.type();
+            responseTypeInfo.setName(StringUtils.defaultIfBlank(responseTypeInfo.getName(), responseType.getSimpleName()));
+            responseTypeInfo.setMultiple(apiResponseType.type().isArray());
+            responseTypeInfo.addProperties(PropertyInfo.create(null, responseType));
+            return responseTypeInfo;
+        }
+        return null;
     }
 
     public static Object create(Class<?> targetClass) throws Exception {
