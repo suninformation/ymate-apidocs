@@ -15,6 +15,8 @@
  */
 package net.ymate.apidocs.annotation;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.lang.annotation.*;
 
 /**
@@ -29,10 +31,10 @@ public @interface DocsConf {
     /**
      * @return 模块是否已启用, 默认值: true
      */
-    boolean enabled();
+    boolean enabled() default true;
 
     /**
      * @return 国际化资源文件名称, 默认值: module_docs
      */
-    String i18nResourceName();
+    String i18nResourceName() default StringUtils.EMPTY;
 }
