@@ -21,13 +21,12 @@ import net.ymate.apidocs.handle.DocsHandler;
 import net.ymate.apidocs.impl.DefaultDocsConfig;
 import net.ymate.platform.commons.ReentrantLockHelper;
 import net.ymate.platform.commons.util.ClassUtils;
-import net.ymate.platform.core.IApplication;
-import net.ymate.platform.core.IApplicationConfigurer;
-import net.ymate.platform.core.YMP;
+import net.ymate.platform.core.*;
 import net.ymate.platform.core.beans.IBeanLoadFactory;
 import net.ymate.platform.core.beans.IBeanLoader;
 import net.ymate.platform.core.module.IModule;
 import net.ymate.platform.core.module.IModuleConfigurer;
+import net.ymate.platform.core.module.impl.DefaultModuleConfigurer;
 import net.ymate.platform.webmvc.base.Type;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.logging.Log;
@@ -42,7 +41,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * @author 刘镇 (suninformation@163.com) on 2020/02/01 00:34
  */
-public class Docs implements IModule, IDocs {
+public final class Docs implements IModule, IDocs {
 
     private static final Log LOG = LogFactory.getLog(Docs.class);
 
@@ -69,6 +68,13 @@ public class Docs implements IModule, IDocs {
         return inst;
     }
 
+    public Docs() {
+    }
+
+    public Docs(IDocsConfig config) {
+        this.config = config;
+    }
+
     @Override
     public String getName() {
         return MODULE_NAME;
@@ -78,18 +84,27 @@ public class Docs implements IModule, IDocs {
     public void initialize(IApplication owner) throws Exception {
         if (!initialized) {
             //
-            YMP.showModuleVersion("ymate-apidocs-core", this);
+            YMP.showVersion("Initializing ymate-apidocs-core-${version}", new Version(2, 0, 0, Docs.class, Version.VersionType.Alpha));
             //
             this.owner = owner;
-            IApplicationConfigurer configurer = owner.getConfigureFactory().getConfigurer();
+            IApplicationConfigureFactory configureFactory = owner.getConfigureFactory();
+            IApplicationConfigurer configurer = null;
+            if (configureFactory != null) {
+                configurer = configureFactory.getConfigurer();
+                IModuleConfigurer moduleConfigurer = configurer == null ? null : configurer.getModuleConfigurer(MODULE_NAME);
+                if (moduleConfigurer != null) {
+                    config = DefaultDocsConfig.create(configureFactory.getMainClass(), moduleConfigurer);
+                } else {
+                    config = DefaultDocsConfig.create(configureFactory.getMainClass(), DefaultModuleConfigurer.createEmpty(MODULE_NAME));
+                }
+            }
             if (config == null) {
-                IModuleConfigurer moduleConfigurer = configurer.getModuleConfigurer(MODULE_NAME);
-                config = moduleConfigurer == null ? DefaultDocsConfig.defaultConfig() : DefaultDocsConfig.create(moduleConfigurer);
+                config = DefaultDocsConfig.defaultConfig();
             }
             if (!config.isInitialized()) {
                 config.initialize(this);
             }
-            if (config.isEnabled()) {
+            if (config.isEnabled() && configurer != null) {
                 IBeanLoadFactory beanLoaderFactory = configurer.getBeanLoadFactory();
                 if (beanLoaderFactory != null) {
                     IBeanLoader beanLoader = beanLoaderFactory.getBeanLoader();

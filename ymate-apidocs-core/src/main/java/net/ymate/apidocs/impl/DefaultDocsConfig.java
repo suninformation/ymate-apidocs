@@ -17,13 +17,15 @@ package net.ymate.apidocs.impl;
 
 import net.ymate.apidocs.IDocs;
 import net.ymate.apidocs.IDocsConfig;
+import net.ymate.apidocs.annotation.DocsConf;
 import net.ymate.platform.core.configuration.IConfigReader;
 import net.ymate.platform.core.module.IModuleConfigurer;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author 刘镇 (suninformation@163.com) on 2020/02/01 00:34
  */
-public class DefaultDocsConfig implements IDocsConfig {
+public final class DefaultDocsConfig implements IDocsConfig {
 
     private boolean enabled = true;
 
@@ -36,7 +38,11 @@ public class DefaultDocsConfig implements IDocsConfig {
     }
 
     public static DefaultDocsConfig create(IModuleConfigurer moduleConfigurer) {
-        return new DefaultDocsConfig(moduleConfigurer);
+        return new DefaultDocsConfig(null, moduleConfigurer);
+    }
+
+    public static DefaultDocsConfig create(Class<?> mainClass, IModuleConfigurer moduleConfigurer) {
+        return new DefaultDocsConfig(mainClass, moduleConfigurer);
     }
 
     public static Builder builder() {
@@ -46,11 +52,13 @@ public class DefaultDocsConfig implements IDocsConfig {
     private DefaultDocsConfig() {
     }
 
-    private DefaultDocsConfig(IModuleConfigurer moduleConfigurer) {
+    private DefaultDocsConfig(Class<?> mainClass, IModuleConfigurer moduleConfigurer) {
         IConfigReader configReader = moduleConfigurer.getConfigReader();
         //
-        enabled = configReader.getBoolean(ENABLED, true);
-        i18nResourceName = configReader.getString(I18N_RESOURCE_NAME, IDocs.MODULE_NAME.replace('.', '_'));
+        DocsConf confAnn = mainClass == null ? null : mainClass.getAnnotation(DocsConf.class);
+        //
+        enabled = configReader.getBoolean(ENABLED, confAnn == null || confAnn.enabled());
+        i18nResourceName = configReader.getString(I18N_RESOURCE_NAME, StringUtils.defaultIfBlank(confAnn != null ? confAnn.i18nResourceName() : null, IDocs.MODULE_NAME.replace('.', '_')));
     }
 
     @Override

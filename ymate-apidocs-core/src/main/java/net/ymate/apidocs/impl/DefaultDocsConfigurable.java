@@ -23,7 +23,7 @@ import net.ymate.platform.core.module.impl.DefaultModuleConfigurable;
 /**
  * @author 刘镇 (suninformation@163.com) on 2020/02/07 15:21
  */
-public class DefaultDocsConfigurable extends DefaultModuleConfigurable {
+public final class DefaultDocsConfigurable extends DefaultModuleConfigurable {
 
     public static Builder builder() {
         return new Builder();

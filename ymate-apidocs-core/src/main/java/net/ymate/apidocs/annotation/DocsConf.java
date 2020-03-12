@@ -13,32 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.ymate.apidocs;
+package net.ymate.apidocs.annotation;
 
-import net.ymate.platform.core.beans.annotation.Ignored;
-
-import java.io.IOException;
-import java.io.OutputStream;
+import java.lang.annotation.*;
 
 /**
- * @author 刘镇 (suninformation@163.com) on 2020/02/09 11:36
+ * @author 刘镇 (suninformation@163.com) on 2020/03/12 15:48
+ * @since 2.0.0
  */
-@Ignored
-public interface IDocRender {
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+public @interface DocsConf {
 
     /**
-     * 文档渲染
-     *
-     * @return 返回渲染后文档字符串
-     * @throws IOException 可能产生的IO异常
+     * @return 模块是否已启用, 默认值: true
      */
-    String render() throws IOException;
+    boolean enabled();
 
     /**
-     * 文档渲染
-     *
-     * @param output 视图渲染指定输出流
-     * @throws IOException 可能产生的IO异常
+     * @return 国际化资源文件名称, 默认值: module_docs
      */
-    void render(OutputStream output) throws IOException;
+    String i18nResourceName();
 }
