@@ -88,7 +88,7 @@ public class ExampleInfo implements IMarkdown {
     /**
      * 示例内容
      */
-    private String content;
+    private final String content;
 
     public ExampleInfo(String content) {
         if (StringUtils.isBlank(content)) {

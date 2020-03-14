@@ -97,14 +97,14 @@ public class ApiInfo extends AbstractMarkdown {
         return markdownBuilder.toMarkdown();
     }
 
-    private DocInfo docInfo;
+    private final DocInfo docInfo;
 
-    private String id;
+    private final String id;
 
     /**
      * 接口名称
      */
-    private String name;
+    private final String name;
 
     /**
      * 接口所属分组名称
@@ -158,7 +158,7 @@ public class ApiInfo extends AbstractMarkdown {
     /**
      * 接口全局响应信息集合
      */
-    private List<ResponseInfo> responses = new ArrayList<>();
+    private final List<ResponseInfo> responses = new ArrayList<>();
 
     /**
      * 接口全局访问权限

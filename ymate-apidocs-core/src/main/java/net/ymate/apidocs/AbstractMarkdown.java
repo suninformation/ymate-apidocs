@@ -28,7 +28,7 @@ public abstract class AbstractMarkdown implements IMarkdown {
         return owner.getOwner().getI18n().load(owner.getConfig().getI18nResourceName(), i18nKey, defaultText);
     }
 
-    private IDocs owner;
+    private final IDocs owner;
 
     public AbstractMarkdown(IDocs owner) {
         if (owner == null) {

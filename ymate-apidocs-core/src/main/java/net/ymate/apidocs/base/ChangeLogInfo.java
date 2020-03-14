@@ -73,17 +73,17 @@ public class ChangeLogInfo implements IMarkdown {
     /**
      * 日期，格式如：2018-04-15 01:37
      */
-    private String date;
+    private final String date;
 
     /**
      * 变更动作
      */
-    private String action;
+    private final String action;
 
     /**
      * 变更作者信息
      */
-    private AuthorInfo author;
+    private final AuthorInfo author;
 
     /**
      * 变更内容描述

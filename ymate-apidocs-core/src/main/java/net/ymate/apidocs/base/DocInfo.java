@@ -41,17 +41,17 @@ public class DocInfo extends AbstractMarkdown {
         return new DocInfo(owner, id, title, version);
     }
 
-    private String id;
+    private final String id;
 
     /**
      * 文档标题
      */
-    private String title;
+    private final String title;
 
     /**
      * 版本信息
      */
-    private String version;
+    private final String version;
 
     /**
      * 文档描述

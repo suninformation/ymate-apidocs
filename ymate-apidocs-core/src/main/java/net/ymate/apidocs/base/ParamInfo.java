@@ -186,7 +186,7 @@ public class ParamInfo extends AbstractMarkdown {
     /**
      * 参数名称
      */
-    private String name;
+    private final String name;
 
     /**
      * 参数说明
@@ -208,7 +208,7 @@ public class ParamInfo extends AbstractMarkdown {
     /**
      * 参数类型
      */
-    private String type;
+    private final String type;
 
     /**
      * 参数是否必须

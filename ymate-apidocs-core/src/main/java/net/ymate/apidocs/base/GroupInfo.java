@@ -56,7 +56,7 @@ public class GroupInfo implements Serializable {
     /**
      * 分组名称
      */
-    private String name;
+    private final String name;
 
     /**
      * 分组描述

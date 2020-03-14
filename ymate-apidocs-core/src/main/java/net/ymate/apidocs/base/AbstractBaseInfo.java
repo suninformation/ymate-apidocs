@@ -45,7 +45,7 @@ public abstract class AbstractBaseInfo<T extends AbstractBaseInfo<?>> implements
     /**
      * 名称
      */
-    private String name;
+    private final String name;
 
     /**
      * 描述

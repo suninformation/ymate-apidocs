@@ -67,12 +67,12 @@ public class ResponseInfo implements IMarkdown {
     /**
      * 业务响应码
      */
-    private String code;
+    private final String code;
 
     /**
      * 响应信息
      */
-    private String message;
+    private final String message;
 
     /**
      * 响应头信息集合

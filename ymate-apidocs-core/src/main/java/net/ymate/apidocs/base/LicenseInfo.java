@@ -44,7 +44,7 @@ public class LicenseInfo implements IMarkdown {
     /**
      * 协议名称
      */
-    private String name;
+    private final String name;
 
     /**
      * 协议URL地址

@@ -71,7 +71,7 @@ public class AuthorInfo implements IMarkdown {
     /**
      * 开发者名称
      */
-    private String name;
+    private final String name;
 
     /**
      * 开发者主页地址

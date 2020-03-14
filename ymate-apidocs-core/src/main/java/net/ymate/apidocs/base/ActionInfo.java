@@ -181,22 +181,22 @@ public class ActionInfo extends AbstractMarkdown {
         return markdownBuilder.toMarkdown();
     }
 
-    private ApiInfo apiInfo;
+    private final ApiInfo apiInfo;
 
     /**
      * 接口名称
      */
-    private String name;
+    private final String name;
 
     /**
      * 显示名称
      */
-    private String displayName;
+    private final String displayName;
 
     /**
      * 请求URL地址映射
      */
-    private String mapping;
+    private final String mapping;
 
     /**
      * 接口方法描述

@@ -55,12 +55,12 @@ public class AuthorizationInfo extends AbstractMarkdown {
     /**
      * 授权类型名称
      */
-    private String name;
+    private final String name;
 
     /**
      * 授权服务URl地址
      */
-    private String url;
+    private final String url;
 
     /**
      * 授权方式
@@ -95,7 +95,7 @@ public class AuthorizationInfo extends AbstractMarkdown {
     /**
      * 授权范围
      */
-    private List<ScopeInfo> scopes = new ArrayList<>();
+    private final List<ScopeInfo> scopes = new ArrayList<>();
 
     public AuthorizationInfo(IDocs owner, String name, String url) {
         super(owner);

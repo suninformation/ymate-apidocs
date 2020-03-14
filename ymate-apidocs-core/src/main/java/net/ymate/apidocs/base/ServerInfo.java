@@ -68,7 +68,7 @@ public class ServerInfo implements IMarkdown {
     /**
      * 主机访问域名或IP地址
      */
-    private String host;
+    private final String host;
 
     /**
      * 模式

@@ -90,7 +90,7 @@ public class HeaderInfo implements IMarkdown {
     /**
      * 名称
      */
-    private String name;
+    private final String name;
 
     /**
      * 值
