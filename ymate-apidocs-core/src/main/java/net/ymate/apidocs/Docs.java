@@ -19,11 +19,14 @@ import net.ymate.apidocs.annotation.*;
 import net.ymate.apidocs.base.*;
 import net.ymate.apidocs.handle.DocsHandler;
 import net.ymate.apidocs.impl.DefaultDocsConfig;
+import net.ymate.apidocs.intercept.ApiMockEnabled;
+import net.ymate.apidocs.intercept.ApiMockEnabledInterceptor;
 import net.ymate.platform.commons.ReentrantLockHelper;
 import net.ymate.platform.commons.util.ClassUtils;
 import net.ymate.platform.core.*;
 import net.ymate.platform.core.beans.IBeanLoadFactory;
 import net.ymate.platform.core.beans.IBeanLoader;
+import net.ymate.platform.core.beans.intercept.InterceptSettings;
 import net.ymate.platform.core.module.IModule;
 import net.ymate.platform.core.module.IModuleConfigurer;
 import net.ymate.platform.core.module.impl.DefaultModuleConfigurer;
@@ -100,12 +103,17 @@ public final class Docs implements IModule, IDocs {
             if (!config.isInitialized()) {
                 config.initialize(this);
             }
-            if (config.isEnabled() && configurer != null) {
-                IBeanLoadFactory beanLoaderFactory = configurer.getBeanLoadFactory();
-                if (beanLoaderFactory != null) {
-                    IBeanLoader beanLoader = beanLoaderFactory.getBeanLoader();
-                    if (beanLoader != null) {
-                        beanLoader.registerHandler(Api.class, new DocsHandler(this));
+            if (config.isEnabled()) {
+                InterceptSettings interceptSettings = owner.getInterceptSettings();
+                interceptSettings.registerInterceptAnnotation(ApiMockEnabled.class, ApiMockEnabledInterceptor.class);
+                //
+                if (configurer != null) {
+                    IBeanLoadFactory beanLoaderFactory = configurer.getBeanLoadFactory();
+                    if (beanLoaderFactory != null) {
+                        IBeanLoader beanLoader = beanLoaderFactory.getBeanLoader();
+                        if (beanLoader != null) {
+                            beanLoader.registerHandler(Api.class, new DocsHandler(this));
+                        }
                     }
                 }
             }
