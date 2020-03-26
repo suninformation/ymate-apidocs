@@ -80,6 +80,12 @@ public @interface ApiParam {
     boolean multipart() default false;
 
     /**
+     * @return 是否为路径变量
+     * @since 2.0.0
+     */
+    boolean pathVariable() default false;
+
+    /**
      * @return 简单参数示例
      */
     String example() default "";

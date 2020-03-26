@@ -15,6 +15,7 @@
  */
 package net.ymate.apidocs.base;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import net.ymate.apidocs.AbstractMarkdown;
 import net.ymate.apidocs.IDocs;
@@ -312,6 +313,11 @@ public class ActionInfo extends AbstractMarkdown {
         this.name = name;
         this.mapping = mapping;
         this.displayName = displayName;
+    }
+
+    @JSONField(serialize = false)
+    public ApiInfo getApiInfo() {
+        return apiInfo;
     }
 
     public String getName() {

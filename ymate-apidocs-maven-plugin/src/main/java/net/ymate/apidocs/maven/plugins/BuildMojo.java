@@ -21,6 +21,7 @@ import net.ymate.apidocs.annotation.Api;
 import net.ymate.apidocs.base.DocInfo;
 import net.ymate.apidocs.render.JsonDocRender;
 import net.ymate.apidocs.render.MarkdownDocRender;
+import net.ymate.apidocs.render.PostmanDocRender;
 import net.ymate.platform.commons.util.RuntimeUtils;
 import net.ymate.platform.core.IApplication;
 import net.ymate.platform.core.YMP;
@@ -114,6 +115,9 @@ public class BuildMojo extends AbstractMojo {
                     case "html":
                         writeToHtml(docs);
                         break;
+                    case "postman":
+                        writeToPostman(docs);
+                        break;
                     case "json":
                         writeToJson(docs);
                         break;
@@ -145,6 +149,18 @@ public class BuildMojo extends AbstractMojo {
 
     private void writeToHtml(IDocs docs) throws IOException {
         // TODO Write to HTML.
+    }
+
+    private void writeToPostman(IDocs docs) throws IOException {
+        for (DocInfo docInfo : docs.getDocs().values()) {
+            File targetFile = getCheckedTargetFile(String.format("docs/postman_collection_%s.json", docInfo.getId()));
+            if (targetFile != null) {
+                try (OutputStream outputStream = new FileOutputStream(targetFile)) {
+                    new PostmanDocRender(docInfo).render(outputStream);
+                    this.getLog().info("Output file: " + targetFile);
+                }
+            }
+        }
     }
 
     private void writeToMarkdown(IDocs docs) throws IOException {

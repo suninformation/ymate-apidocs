@@ -109,7 +109,7 @@ public class ParamInfo extends AbstractMarkdown {
             if (StringUtils.isBlank(paramName)) {
                 paramName = defaultParamName;
             }
-            boolean required = apiParam.required() || annotatedElement.isAnnotationPresent(VRequired.class) || pathVariable != null;
+            boolean required = apiParam.required() || annotatedElement.isAnnotationPresent(VRequired.class) || apiParam.pathVariable() || pathVariable != null;
             if (!apiParam.hidden() && StringUtils.isNotBlank(paramName)) {
                 ParamInfo paramInfo = new ParamInfo(owner, paramName, paramType.getSimpleName())
                         .setDefaultValue(StringUtils.defaultIfBlank(apiParam.defaultValue(), requestParam != null ? StringUtils.defaultIfBlank(requestParam.defaultValue(), apiParam.defaultValue()) : apiParam.defaultValue()))
@@ -118,6 +118,7 @@ public class ParamInfo extends AbstractMarkdown {
                         .setModel(apiParam.model() || annotatedElement.isAnnotationPresent(ModelBind.class))
                         .setMultiple(apiParam.multiple() || paramType.isArray())
                         .setMultipart(apiParam.multipart() || paramType.isArray() ? ClassUtils.getArrayClassType(paramType).equals(IUploadFileWrapper.class) : paramType.equals(IUploadFileWrapper.class))
+                        .setPathVariable(apiParam.pathVariable() || pathVariable != null)
                         .setRequired(required)
                         .setDescription(apiParam.description())
                         .addExample(StringUtils.isNotBlank(apiParam.example()) ? ExampleInfo.create(apiParam.example()) : null)
@@ -148,6 +149,7 @@ public class ParamInfo extends AbstractMarkdown {
                         .setModel(apiParam.model())
                         .setMultiple(apiParam.multiple() || apiParam.type().isArray())
                         .setMultipart(apiParam.multipart() || apiParam.type().isArray() ? ClassUtils.getArrayClassType(apiParam.type()).equals(IUploadFileWrapper.class) : apiParam.type().equals(IUploadFileWrapper.class))
+                        .setPathVariable(apiParam.pathVariable())
                         .setRequired(apiParam.required())
                         .setDescription(apiParam.description())
                         .addExample(StringUtils.isNotBlank(apiParam.example()) ? ExampleInfo.create(apiParam.example()) : null)
@@ -198,6 +200,11 @@ public class ParamInfo extends AbstractMarkdown {
      */
     private String defaultValue;
 
+    /**
+     * 示例值
+     *
+     * @since 2.0.0
+     */
     private String demoValue;
 
     /**
@@ -231,6 +238,13 @@ public class ParamInfo extends AbstractMarkdown {
      * @since 2.0.0
      */
     private boolean multipart;
+
+    /**
+     * 是否为路径变量
+     *
+     * @since 2.0.0
+     */
+    private boolean pathVariable;
 
     /**
      * 参数示例
@@ -337,6 +351,15 @@ public class ParamInfo extends AbstractMarkdown {
 
     public ParamInfo setMultipart(boolean multipart) {
         this.multipart = multipart;
+        return this;
+    }
+
+    public boolean isPathVariable() {
+        return pathVariable;
+    }
+
+    public ParamInfo setPathVariable(boolean pathVariable) {
+        this.pathVariable = pathVariable;
         return this;
     }
 
