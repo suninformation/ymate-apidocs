@@ -121,7 +121,7 @@ public class PostmanDocRender extends AbstractDocRender {
                 requestPart.setDescription(actionInfo.getDescription());
                 //
                 ItemPart itemPart = new ItemPart();
-                itemPart.setName(StringUtils.defaultIfBlank(actionInfo.getDisplayName(), actionInfo.getName()));
+                itemPart.setName(String.format("%s %s", StringUtils.defaultIfBlank(actionInfo.getDisplayName(), actionInfo.getName()), actionInfo.getMapping()));
                 itemPart.setRequest(requestPart);
                 items.add(itemPart);
             }
