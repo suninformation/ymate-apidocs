@@ -24,6 +24,7 @@ import net.ymate.platform.commons.markdown.MarkdownBuilder;
 import net.ymate.platform.commons.markdown.Text;
 import net.ymate.platform.commons.util.ClassUtils;
 import net.ymate.platform.core.persistence.impl.DefaultResultSet;
+import net.ymate.platform.webmvc.RequestMeta;
 import net.ymate.platform.webmvc.annotation.RequestMapping;
 import net.ymate.platform.webmvc.base.Type;
 import net.ymate.platform.webmvc.util.WebResult;
@@ -67,16 +68,28 @@ public class ActionInfo extends AbstractMarkdown {
         return requestMapping;
     }
 
+    private static RequestMeta doBuildRequestMeta(Method method) {
+        RequestMeta requestMeta = null;
+        try {
+            requestMeta = new RequestMeta(null, method.getDeclaringClass(), method);
+        } catch (Exception ignored) {
+        }
+        return requestMeta;
+    }
+
     public static ActionInfo create(IDocs owner, ApiInfo apiInfo, Method method) {
         if (method != null) {
             ApiAction apiAction = method.getAnnotation(ApiAction.class);
             if (apiAction != null && !apiAction.hidden()) {
+                RequestMeta requestMeta = null;
                 String mapping = apiAction.mapping();
                 if (StringUtils.isBlank(mapping)) {
                     RequestMapping requestMapping = method.getAnnotation(RequestMapping.class);
                     if (requestMapping != null) {
-                        RequestMapping rootRequestMapping = method.getDeclaringClass().getAnnotation(RequestMapping.class);
-                        mapping = processRequestMapping(rootRequestMapping != null ? rootRequestMapping.value() : null, requestMapping.value());
+                        requestMeta = doBuildRequestMeta(method);
+                        if (requestMeta != null) {
+                            mapping = requestMeta.getMapping();
+                        }
                     } else {
                         mapping = doCheckMappingSeparator(method.getName());
                     }
@@ -86,19 +99,17 @@ public class ActionInfo extends AbstractMarkdown {
                 }
                 List<String> httpMethods = new ArrayList<>();
                 if (ArrayUtils.isEmpty(apiAction.httpMethod())) {
-                    RequestMapping requestMapping = method.getAnnotation(RequestMapping.class);
-                    if (requestMapping != null) {
-                        Arrays.stream(requestMapping.method()).filter(httpMethod -> !httpMethods.contains(httpMethod.name())).forEachOrdered(httpMethod -> httpMethods.add(httpMethod.name()));
+                    if (requestMeta == null) {
+                        requestMeta = doBuildRequestMeta(method);
                     }
-                    requestMapping = method.getDeclaringClass().getAnnotation(RequestMapping.class);
-                    if (requestMapping != null) {
-                        Arrays.stream(requestMapping.method()).filter(httpMethod -> !httpMethods.contains(httpMethod.name())).forEachOrdered(httpMethod -> httpMethods.add(httpMethod.name()));
-                    }
-                    if (httpMethods.isEmpty()) {
-                        httpMethods.add(Type.HttpMethod.GET.name());
+                    if (requestMeta != null) {
+                        requestMeta.getAllowMethods().stream().filter(httpMethod -> !httpMethods.contains(httpMethod.name())).forEachOrdered(httpMethod -> httpMethods.add(httpMethod.name()));
                     }
                 } else {
                     httpMethods.addAll(Arrays.asList(apiAction.httpMethod()));
+                }
+                if (httpMethods.isEmpty()) {
+                    httpMethods.add(Type.HttpMethod.GET.name());
                 }
                 ActionInfo actionInfo = new ActionInfo(owner, apiInfo, method.getName(), mapping, apiAction.value())
                         .setDescription(apiAction.description())
