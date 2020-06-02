@@ -623,7 +623,7 @@ public class ActionInfo extends AbstractMarkdown {
     @Override
     public String toMarkdown() {
         MarkdownBuilder markdownBuilder = MarkdownBuilder.create()
-                .title(Text.create(String.format("%s %s", displayName, Text.create(mapping, Text.Style.ITALIC)), deprecated ? Text.Style.STRIKEOUT : null), 5);
+                .title(Text.create(displayName, deprecated ? Text.Style.STRIKEOUT : null), 5);
         if (StringUtils.isNotBlank(description)) {
             markdownBuilder.p().text(description, deprecated ? Text.Style.STRIKEOUT : null);
         }
@@ -653,6 +653,7 @@ public class ActionInfo extends AbstractMarkdown {
                 markdownBuilder.p().title(i18nText("action.security", "Security"), 6).append(securityMarkdown);
             }
         }
+        markdownBuilder.p().title(i18nText("action.request_mapping", "Request mapping"), 6).p().text(mapping);
         if (StringUtils.isNotBlank(requestType)) {
             markdownBuilder.p().title(i18nText("action.request_type", "Request type"), 6).p().code(requestType);
         }
