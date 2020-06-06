@@ -103,10 +103,18 @@ public class ActionInfo extends AbstractMarkdown {
                         requestMeta = doBuildRequestMeta(method);
                     }
                     if (requestMeta != null) {
-                        requestMeta.getAllowMethods().stream().filter(httpMethod -> !httpMethods.contains(httpMethod.name())).forEachOrdered(httpMethod -> httpMethods.add(httpMethod.name()));
+                        for (Type.HttpMethod httpMethod : requestMeta.getAllowMethods()) {
+                            if (!owner.getConfig().getIgnoredRequestMethods().contains(httpMethod.name()) && !httpMethods.contains(httpMethod.name())) {
+                                httpMethods.add(httpMethod.name());
+                            }
+                        }
                     }
                 } else {
-                    httpMethods.addAll(Arrays.asList(apiAction.httpMethod()));
+                    for (String httpMethodName : apiAction.httpMethod()) {
+                        if (StringUtils.isNotBlank(httpMethodName) && !owner.getConfig().getIgnoredRequestMethods().contains(httpMethodName.toUpperCase())) {
+                            httpMethods.add(httpMethodName);
+                        }
+                    }
                 }
                 if (httpMethods.isEmpty()) {
                     httpMethods.add(Type.HttpMethod.GET.name());

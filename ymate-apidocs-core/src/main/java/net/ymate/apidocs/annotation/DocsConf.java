@@ -37,4 +37,9 @@ public @interface DocsConf {
      * @return 国际化资源文件名称, 默认值: module_docs
      */
     String i18nResourceName() default StringUtils.EMPTY;
+
+    /**
+     * @return 忽略的请求方法名称集合，默认值：空
+     */
+    String[] ignoredRequestMethods() default {};
 }

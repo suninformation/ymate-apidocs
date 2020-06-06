@@ -538,7 +538,7 @@ public class ApiInfo extends AbstractMarkdown {
                 markdownBuilder.append(ActionInfo.toMarkdown(actions));
             }
         }
-        return markdownBuilder.toMarkdown();
+        return markdownBuilder.p().toMarkdown();
     }
 
     @Override

@@ -19,6 +19,7 @@ import net.ymate.apidocs.IDocs;
 import net.ymate.apidocs.IDocsConfig;
 import net.ymate.platform.core.module.IModuleConfigurer;
 import net.ymate.platform.core.module.impl.DefaultModuleConfigurable;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author 刘镇 (suninformation@163.com) on 2020/02/07 15:21
@@ -47,6 +48,11 @@ public final class DefaultDocsConfigurable extends DefaultModuleConfigurable {
 
         public Builder i18nResourceName(String i18nResourceName) {
             configurable.addConfig(IDocsConfig.I18N_RESOURCE_NAME, i18nResourceName);
+            return this;
+        }
+
+        public Builder ignoredRequestMethods(String ignoredRequestMethods) {
+            configurable.addConfig(IDocsConfig.IGNORED_REQUEST_METHODS, StringUtils.trimToEmpty(ignoredRequestMethods));
             return this;
         }
 

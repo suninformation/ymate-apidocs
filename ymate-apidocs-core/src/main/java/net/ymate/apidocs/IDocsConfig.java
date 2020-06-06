@@ -18,6 +18,8 @@ package net.ymate.apidocs;
 import net.ymate.platform.core.beans.annotation.Ignored;
 import net.ymate.platform.core.support.IInitialization;
 
+import java.util.Set;
+
 /**
  * @author 刘镇 (suninformation@163.com) on 2020/02/01 00:34
  */
@@ -27,6 +29,8 @@ public interface IDocsConfig extends IInitialization<IDocs> {
     String ENABLED = "enabled";
 
     String I18N_RESOURCE_NAME = "i18n_resource_name";
+
+    String IGNORED_REQUEST_METHODS = "ignored_request_methods";
 
     /**
      * 模块是否已启用, 默认值: true
@@ -41,4 +45,11 @@ public interface IDocsConfig extends IInitialization<IDocs> {
      * @return 返回资源文件名称
      */
     String getI18nResourceName();
+
+    /**
+     * 忽略的请求方法名称集合，默认值：空
+     *
+     * @return 返回需要忽略的请求方法名称集合
+     */
+    Set<String> getIgnoredRequestMethods();
 }

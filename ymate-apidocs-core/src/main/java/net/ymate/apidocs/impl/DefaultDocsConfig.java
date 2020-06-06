@@ -22,6 +22,10 @@ import net.ymate.platform.core.configuration.IConfigReader;
 import net.ymate.platform.core.module.IModuleConfigurer;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * @author 刘镇 (suninformation@163.com) on 2020/02/01 00:34
  */
@@ -30,6 +34,8 @@ public final class DefaultDocsConfig implements IDocsConfig {
     private boolean enabled = true;
 
     private String i18nResourceName;
+
+    private final Set<String> ignoredRequestMethods = new HashSet<>();
 
     private boolean initialized;
 
@@ -59,6 +65,8 @@ public final class DefaultDocsConfig implements IDocsConfig {
         //
         enabled = configReader.getBoolean(ENABLED, confAnn == null || confAnn.enabled());
         i18nResourceName = configReader.getString(I18N_RESOURCE_NAME, StringUtils.defaultIfBlank(confAnn != null ? confAnn.i18nResourceName() : null, IDocs.MODULE_NAME.replace('.', '_')));
+        String[] ignoredMethodNames = configReader.getArray(IGNORED_REQUEST_METHODS, confAnn != null ? confAnn.ignoredRequestMethods() : new String[0]);
+        Arrays.stream(ignoredMethodNames).filter(StringUtils::isNotBlank).map(String::toUpperCase).forEach(ignoredRequestMethods::add);
     }
 
     @Override
@@ -89,6 +97,19 @@ public final class DefaultDocsConfig implements IDocsConfig {
         return i18nResourceName;
     }
 
+    @Override
+    public Set<String> getIgnoredRequestMethods() {
+        return ignoredRequestMethods;
+    }
+
+    public void addIgnoredRequestMethod(String ignoredRequestMethod) {
+        if (!initialized) {
+            if (StringUtils.isNotBlank(ignoredRequestMethod)) {
+                this.ignoredRequestMethods.add(ignoredRequestMethod.toUpperCase());
+            }
+        }
+    }
+
     public void setI18nResourceName(String i18nResourceName) {
         this.i18nResourceName = i18nResourceName;
     }
@@ -107,6 +128,13 @@ public final class DefaultDocsConfig implements IDocsConfig {
 
         public Builder i18nResourceName(String i18nResourceName) {
             config.setI18nResourceName(i18nResourceName);
+            return this;
+        }
+
+        public Builder addIgnoredRequestMethods(String... ignoredRequestMethods) {
+            if (ignoredRequestMethods != null && ignoredRequestMethods.length > 0) {
+                Arrays.stream(ignoredRequestMethods).forEach(config::addIgnoredRequestMethod);
+            }
             return this;
         }
 

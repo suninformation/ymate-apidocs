@@ -41,6 +41,7 @@ import net.ymate.platform.core.beans.IBeanLoader;
 import net.ymate.platform.core.beans.impl.DefaultBeanLoader;
 import net.ymate.platform.core.persistence.base.EntityMeta;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -96,6 +97,12 @@ public class BuildMojo extends AbstractMojo {
     @Parameter(property = "overwrite")
     private boolean overwrite;
 
+    /**
+     * 忽略的请求方法名称集合
+     */
+    @Parameter(property = "ignoredRequestMethods")
+    private String[] ignoredRequestMethods;
+
     @Override
     @SuppressWarnings("unchecked")
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -116,6 +123,10 @@ public class BuildMojo extends AbstractMojo {
             getLog().info(String.format("outputDir: %s", outputDir));
             //
             IDocs docs = application.getModuleManager().getModule(Docs.class);
+            if (!ArrayUtils.isEmpty(ignoredRequestMethods)) {
+                Set<String> ignoredRequestMethodSet = docs.getConfig().getIgnoredRequestMethods();
+                Arrays.stream(ignoredRequestMethods).filter(StringUtils::isNotBlank).forEach(methodName -> ignoredRequestMethodSet.add(methodName.toUpperCase()));
+            }
             for (Class<?> clazz : beanLoader.load()) {
                 if (clazz.isAnnotationPresent(Api.class)) {
                     getLog().info(String.format("Scanned to: %s", clazz.getName()));
