@@ -25,6 +25,7 @@ import net.ymate.platform.commons.markdown.MarkdownBuilder;
 import net.ymate.platform.commons.markdown.Table;
 import net.ymate.platform.commons.markdown.Text;
 import net.ymate.platform.commons.util.ClassUtils;
+import net.ymate.platform.validation.annotation.VField;
 import net.ymate.platform.validation.validate.IDataRangeValuesProvider;
 import net.ymate.platform.validation.validate.VDataRange;
 import net.ymate.platform.validation.validate.VRequired;
@@ -111,6 +112,10 @@ public class ParamInfo extends AbstractMarkdown {
             }
             boolean required = apiParam.required() || annotatedElement.isAnnotationPresent(VRequired.class) || apiParam.pathVariable() || pathVariable != null;
             if (!apiParam.hidden() && StringUtils.isNotBlank(paramName)) {
+                String description = apiParam.description();
+                if (StringUtils.isBlank(description) && annotatedElement.isAnnotationPresent(VField.class)) {
+                    description = annotatedElement.getAnnotation(VField.class).name();
+                }
                 ParamInfo paramInfo = new ParamInfo(owner, paramName, paramType.getSimpleName())
                         .setDefaultValue(StringUtils.defaultIfBlank(apiParam.defaultValue(), requestParam != null ? StringUtils.defaultIfBlank(requestParam.defaultValue(), apiParam.defaultValue()) : apiParam.defaultValue()))
                         .setDemoValue(apiParam.demoValue())
@@ -120,7 +125,7 @@ public class ParamInfo extends AbstractMarkdown {
                         .setMultipart(apiParam.multipart() || paramType.isArray() ? ClassUtils.getArrayClassType(paramType).equals(IUploadFileWrapper.class) : paramType.equals(IUploadFileWrapper.class))
                         .setPathVariable(apiParam.pathVariable() || pathVariable != null)
                         .setRequired(required)
-                        .setDescription(apiParam.description())
+                        .setDescription(description)
                         .addExample(StringUtils.isNotBlank(apiParam.example()) ? ExampleInfo.create(apiParam.example()) : null)
                         .addExamples(ExampleInfo.create(apiParam.examples()));
                 if (ArrayUtils.isEmpty(apiParam.allowValues())) {
