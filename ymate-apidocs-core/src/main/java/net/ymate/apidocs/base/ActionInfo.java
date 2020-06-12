@@ -174,13 +174,7 @@ public class ActionInfo extends AbstractMarkdown {
                             } else if (responseTypeInfo.isMultiple()) {
                                 instance = Collections.singletonList(instance);
                             }
-                            String content = WebResult.succeed().data(instance).toJSONObject().toString(SerializerFeature.PrettyFormat,
-                                    SerializerFeature.WriteMapNullValue,
-                                    SerializerFeature.WriteNullBooleanAsFalse,
-                                    SerializerFeature.WriteNullListAsEmpty,
-                                    SerializerFeature.WriteNullNumberAsZero,
-                                    SerializerFeature.WriteNullStringAsEmpty,
-                                    SerializerFeature.WriteNullNumberAsZero);
+                            String content = WebResult.succeed().data(instance).toJsonObject().toString(true, true);
                             actionInfo.addExample(ExampleInfo.create(content).setName(apiGenerateResponseExample.name()).setType("json").setDescription(apiGenerateResponseExample.description()));
                         } catch (Exception ignored) {
                         }
