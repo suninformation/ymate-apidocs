@@ -16,7 +16,6 @@
 package net.ymate.apidocs.base;
 
 import com.alibaba.fastjson.annotation.JSONField;
-import com.alibaba.fastjson.serializer.SerializerFeature;
 import net.ymate.apidocs.AbstractMarkdown;
 import net.ymate.apidocs.IDocs;
 import net.ymate.apidocs.annotation.*;
@@ -25,6 +24,7 @@ import net.ymate.platform.commons.markdown.Text;
 import net.ymate.platform.commons.util.ClassUtils;
 import net.ymate.platform.core.persistence.impl.DefaultResultSet;
 import net.ymate.platform.webmvc.RequestMeta;
+import net.ymate.platform.webmvc.annotation.ModelBind;
 import net.ymate.platform.webmvc.annotation.RequestMapping;
 import net.ymate.platform.webmvc.base.Type;
 import net.ymate.platform.webmvc.util.WebResult;
@@ -32,6 +32,7 @@ import org.apache.commons.lang.NullArgumentException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.*;
@@ -149,14 +150,9 @@ public class ActionInfo extends AbstractMarkdown {
                     if (paramNames.length > idx) {
                         paramName = paramNames[idx];
                     }
-                    ParamInfo paramInfo = ParamInfo.create(owner, parameters[idx], paramName);
-                    if (paramInfo != null) {
-                        if (paramInfo.isModel()) {
-                            ClassUtils.wrapper(parameters[idx].getType()).getFields().forEach(field -> actionInfo.addParam(ParamInfo.create(owner, field)));
-                        } else {
-                            actionInfo.addParam(paramInfo);
-                        }
-                    }
+                    Parameter parameter = parameters[idx];
+                    ParamInfo paramInfo = ParamInfo.create(owner, null, null, parameter, paramName);
+                    processParamInfo(owner, actionInfo, paramInfo, parameter, parameter.getType());
                 }
                 //
                 ApiResponses apiResponses = method.getAnnotation(ApiResponses.class);
@@ -185,6 +181,17 @@ public class ActionInfo extends AbstractMarkdown {
             }
         }
         return null;
+    }
+
+    private static void processParamInfo(IDocs owner, ActionInfo actionInfo, ParamInfo paramInfo, AnnotatedElement annotatedElement, Class<?> paramType) {
+        if (paramInfo != null) {
+            if (paramInfo.isModel()) {
+                ModelBind modelBind = annotatedElement.getAnnotation(ModelBind.class);
+                ClassUtils.wrapper(paramType).getFields().forEach(field -> processParamInfo(owner, actionInfo, ParamInfo.create(owner, modelBind != null ? modelBind.prefix() : null, paramInfo.getDescription(), field), field, field.getType()));
+            } else {
+                actionInfo.addParam(paramInfo);
+            }
+        }
     }
 
     public static String toMarkdown(List<ActionInfo> actions) {

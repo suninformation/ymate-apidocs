@@ -54,12 +54,12 @@ public class ParamInfo extends AbstractMarkdown {
         return new ParamInfo(owner, name, type);
     }
 
-    public static ParamInfo create(IDocs owner, Field field) {
-        return create(owner, field, field.getName(), field.getType());
+    public static ParamInfo create(IDocs owner, String prefix, String parentDesc, Field field) {
+        return create(owner, prefix, parentDesc, field, field.getName(), field.getType());
     }
 
-    public static ParamInfo create(IDocs owner, Parameter parameter, String defaultParamName) {
-        return create(owner, parameter, StringUtils.defaultIfBlank(defaultParamName, parameter.getName()), parameter.getType());
+    public static ParamInfo create(IDocs owner, String prefix, String parentDesc, Parameter parameter, String defaultParamName) {
+        return create(owner, prefix, parentDesc, parameter, StringUtils.defaultIfBlank(defaultParamName, parameter.getName()), parameter.getType());
     }
 
     public static List<ParamInfo> create(IDocs owner, ApiParams apiParams) {
@@ -76,9 +76,9 @@ public class ParamInfo extends AbstractMarkdown {
         return Collections.emptyList();
     }
 
-    private static ParamInfo create(IDocs owner, AnnotatedElement annotatedElement, String defaultParamName, Class<?> paramType) {
+    private static ParamInfo create(IDocs owner, String prefix, String parentDesc, AnnotatedElement annotatedElement, String defaultParamName, Class<?> paramType) {
         if (annotatedElement != null) {
-            ParamInfo paramInfo = doCreate(owner, annotatedElement, defaultParamName, paramType);
+            ParamInfo paramInfo = doCreate(owner, prefix, parentDesc, annotatedElement, defaultParamName, paramType);
             if (paramInfo != null) {
                 ApiExample apiExample = annotatedElement.getAnnotation(ApiExample.class);
                 if (apiExample != null) {
@@ -94,7 +94,7 @@ public class ParamInfo extends AbstractMarkdown {
         return null;
     }
 
-    private static ParamInfo doCreate(IDocs owner, AnnotatedElement annotatedElement, String defaultParamName, Class<?> paramType) {
+    private static ParamInfo doCreate(IDocs owner, String prefix, String parentDesc, AnnotatedElement annotatedElement, String defaultParamName, Class<?> paramType) {
         ApiParam apiParam = annotatedElement.getAnnotation(ApiParam.class);
         if (apiParam != null) {
             paramType = paramType != null ? paramType : apiParam.type();
@@ -116,11 +116,24 @@ public class ParamInfo extends AbstractMarkdown {
                 if (StringUtils.isBlank(description) && annotatedElement.isAnnotationPresent(VField.class)) {
                     description = annotatedElement.getAnnotation(VField.class).name();
                 }
+                ModelBind modelBind = annotatedElement.getAnnotation(ModelBind.class);
+                boolean isModel = apiParam.model() || modelBind != null;
+                if (isModel) {
+                    if (modelBind != null && StringUtils.isNotBlank(modelBind.prefix())) {
+                        paramName = String.format("%s.%s", modelBind.prefix(), paramName);
+                    }
+                }
+                if (StringUtils.isNotBlank(prefix)) {
+                    paramName = String.format("%s.%s", prefix, paramName);
+                }
+                if (StringUtils.isNotBlank(parentDesc)) {
+                    description = String.format("%s.%s", parentDesc, description);
+                }
                 ParamInfo paramInfo = new ParamInfo(owner, paramName, paramType.getSimpleName())
                         .setDefaultValue(StringUtils.defaultIfBlank(apiParam.defaultValue(), requestParam != null ? StringUtils.defaultIfBlank(requestParam.defaultValue(), apiParam.defaultValue()) : apiParam.defaultValue()))
                         .setDemoValue(apiParam.demoValue())
                         .addAllowValues(Arrays.asList(apiParam.allowValues()))
-                        .setModel(apiParam.model() || annotatedElement.isAnnotationPresent(ModelBind.class))
+                        .setModel(isModel)
                         .setMultiple(apiParam.multiple() || paramType.isArray())
                         .setMultipart(apiParam.multipart() || paramType.isArray() ? ClassUtils.getArrayClassType(paramType).equals(IUploadFileWrapper.class) : paramType.equals(IUploadFileWrapper.class))
                         .setPathVariable(apiParam.pathVariable() || pathVariable != null)
