@@ -64,7 +64,16 @@ public class ResponseTypeInfo implements Serializable {
     }
 
     public static Object create(Class<?> targetClass) throws Exception {
-        ClassUtils.BeanWrapper<?> wrapper = ClassUtils.wrapper(targetClass.isArray() ? ClassUtils.getArrayClassType(targetClass).newInstance() : targetClass.newInstance());
+        Class<?> tClass = targetClass.isArray() ? ClassUtils.getArrayClassType(targetClass) : targetClass;
+        if (tClass.equals(Collection.class) || tClass.equals(Map.class)) {
+            return null;
+        } else {
+            Object value = BlurObject.bind("").toObjectValue(tClass, true);
+            if (value != null) {
+                return value;
+            }
+        }
+        ClassUtils.BeanWrapper<?> wrapper = ClassUtils.wrapper(tClass.newInstance());
         wrapper.getFields().forEach(field -> {
             ApiProperty apiProperty = field.getAnnotation(ApiProperty.class);
             if (apiProperty != null && !field.getType().equals(Map.class)) {
