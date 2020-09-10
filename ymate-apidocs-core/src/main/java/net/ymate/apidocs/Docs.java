@@ -30,7 +30,11 @@ import net.ymate.platform.core.beans.intercept.InterceptSettings;
 import net.ymate.platform.core.module.IModule;
 import net.ymate.platform.core.module.IModuleConfigurer;
 import net.ymate.platform.core.module.impl.DefaultModuleConfigurer;
+import net.ymate.platform.core.persistence.impl.DefaultResultSet;
+import net.ymate.platform.core.support.ErrorCode;
 import net.ymate.platform.webmvc.base.Type;
+import net.ymate.platform.webmvc.util.WebErrorCode;
+import net.ymate.platform.webmvc.util.WebResult;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.Serializable;
@@ -191,26 +195,24 @@ public final class Docs implements IModule, IDocs {
                     if (ArrayUtils.isNotEmpty(defaultResponses.examples())) {
                         docInfo.addResponseExamples(ExampleInfo.create(defaultResponses.examples()));
                     } else {
-                        docInfo.addResponseExample(ExampleInfo.create("{\n" +
-                                "    \"ret\": -1,\n" +
-                                "    \"msg\": \"Request parameter validation is invalid.\",\n" +
-                                "    \"data\": {\n" +
-                                "        \"username\": \"username is required.\",\n" +
-                                "        \"password\": \"password is required.\"\n" +
-                                "    }\n" +
-                                "}").setType("json").setName(AbstractMarkdown.i18nText(this, "response.example_standard", "Standard")));
-                        docInfo.addResponseExample(ExampleInfo.create("{\n" +
-                                "    \"ret\": 0,\n" +
-                                "    \"data\": {\n" +
-                                "        \"pageCount\": 1,\n" +
-                                "        \"pageNumber\": 1,\n" +
-                                "        \"pageSize\": 20,\n" +
-                                "        \"paginated\": true,\n" +
-                                "        \"recordCount\": 1,\n" +
-                                "        \"resultData\": [],\n" +
-                                "        \"resultsAvailable\": false\n" +
-                                "    }\n" +
-                                "}").setType("json").setName(AbstractMarkdown.i18nText(this, "response.example_pagination", "Pagination")));
+                        ErrorCode errorCode = WebErrorCode.invalidParamsValidation();
+                        docInfo.addResponseExample(ExampleInfo.create(WebResult.builder()
+                                .code(errorCode.code())
+                                .msg(errorCode.message())
+                                .data(Collections.singletonMap("username", "username is required."))
+                                .build()
+                                .toJsonObject()
+                                .toString(true, true))
+                                .setType("json")
+                                .setName(AbstractMarkdown.i18nText(this, "response.example_standard", "Standard")));
+                        docInfo.addResponseExample(ExampleInfo.create(WebResult.builder()
+                                .succeed()
+                                .data(new DefaultResultSet<>(Collections.emptyList(), 1, 20, 1))
+                                .build()
+                                .toJsonObject()
+                                .toString(true, true))
+                                .setType("json")
+                                .setName(AbstractMarkdown.i18nText(this, "response.example_pagination", "Pagination")));
                     }
                     //
                     if (Serializable.class.equals(defaultResponses.standardType())) {

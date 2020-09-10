@@ -57,7 +57,7 @@ public final class ApiMockEnabledInterceptor extends AbstractInterceptor {
                             }
                             ApiMockEnabled apiMockEnabledAnn = findInterceptAnnotation(context, ApiMockEnabled.class);
                             if (apiMockEnabledAnn.useWebResult()) {
-                                instance = WebResult.succeed().data(instance).keepNullValue();
+                                instance = WebResult.builder().succeed().data(instance).build().keepNullValue();
                             }
                             if (LOG.isDebugEnabled()) {
                                 LOG.debug("Results data mocked: YES");

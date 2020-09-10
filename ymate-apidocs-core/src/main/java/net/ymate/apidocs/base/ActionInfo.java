@@ -170,7 +170,7 @@ public class ActionInfo extends AbstractMarkdown {
                             } else if (responseTypeInfo.isMultiple()) {
                                 instance = Collections.singletonList(instance);
                             }
-                            String content = WebResult.succeed().data(instance).toJsonObject().toString(true, true);
+                            String content = WebResult.builder().succeed().data(instance).build().toJsonObject().toString(true, true);
                             actionInfo.addExample(ExampleInfo.create(content).setName(apiGenerateResponseExample.name()).setType("json").setDescription(apiGenerateResponseExample.description()));
                         } catch (Exception ignored) {
                         }
