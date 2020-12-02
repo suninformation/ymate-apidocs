@@ -44,9 +44,9 @@ public @interface ApiChangeLog {
     Action action() default Action.UPDATE;
 
     /**
-     * @return 变更作者信息
+     * @return 变更作者信息，默认为：空
      */
-    ApiAuthor author();
+    ApiAuthor author() default @ApiAuthor("");
 
     /**
      * 动作枚举

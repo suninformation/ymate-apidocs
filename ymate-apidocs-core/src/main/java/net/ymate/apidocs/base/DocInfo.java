@@ -186,13 +186,13 @@ public class DocInfo extends AbstractMarkdown {
 
     public DocInfo addAuthors(List<AuthorInfo> authors) {
         if (authors != null) {
-            authors.forEach(this::addAuthor);
+            authors.stream().filter(author -> author != null && StringUtils.isNotBlank(author.getName())).forEach(this::addAuthor);
         }
         return this;
     }
 
     public DocInfo addAuthor(AuthorInfo author) {
-        if (author != null && !this.authors.contains(author)) {
+        if (author != null && StringUtils.isNotBlank(author.getName()) && !this.authors.contains(author)) {
             this.authors.add(author);
         }
         return this;

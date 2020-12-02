@@ -19,7 +19,6 @@ import net.ymate.apidocs.annotation.ApiAuthor;
 import net.ymate.apidocs.annotation.ApiAuthors;
 import net.ymate.platform.commons.markdown.IMarkdown;
 import net.ymate.platform.commons.markdown.MarkdownBuilder;
-import org.apache.commons.lang.NullArgumentException;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
@@ -47,7 +46,7 @@ public class AuthorInfo implements IMarkdown {
     }
 
     public static AuthorInfo create(ApiAuthor author) {
-        if (author != null && StringUtils.isNotBlank(author.value())) {
+        if (author != null) {
             return new AuthorInfo(author.value())
                     .setEmail(author.email())
                     .setUrl(author.url());
@@ -84,9 +83,6 @@ public class AuthorInfo implements IMarkdown {
     private String email;
 
     public AuthorInfo(String name) {
-        if (StringUtils.isBlank(name)) {
-            throw new NullArgumentException("name");
-        }
         this.name = name;
     }
 
@@ -115,13 +111,15 @@ public class AuthorInfo implements IMarkdown {
     @Override
     public String toMarkdown() {
         MarkdownBuilder markdownBuilder = MarkdownBuilder.create();
-        if (StringUtils.isNotBlank(url)) {
-            markdownBuilder.link(name, url);
-        } else {
-            markdownBuilder.append(name);
-        }
-        if (StringUtils.isNotBlank(email)) {
-            markdownBuilder.space().append("(").link(email, String.format("mailto:%s", email)).append(")");
+        if (StringUtils.isNotBlank(name)) {
+            if (StringUtils.isNotBlank(url)) {
+                markdownBuilder.link(name, url);
+            } else {
+                markdownBuilder.append(name);
+            }
+            if (StringUtils.isNotBlank(email)) {
+                markdownBuilder.space().append("(").link(email, String.format("mailto:%s", email)).append(")");
+            }
         }
         return markdownBuilder.toMarkdown();
     }
@@ -134,7 +132,7 @@ public class AuthorInfo implements IMarkdown {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        return name.equals(((AuthorInfo) o).name);
+        return StringUtils.equals(name, ((AuthorInfo) o).name);
     }
 
     @Override
