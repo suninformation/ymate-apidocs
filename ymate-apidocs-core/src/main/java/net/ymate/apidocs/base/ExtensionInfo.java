@@ -20,9 +20,18 @@ import net.ymate.apidocs.annotation.ApiExtensions;
 import net.ymate.platform.commons.markdown.IMarkdown;
 import net.ymate.platform.commons.markdown.MarkdownBuilder;
 import net.ymate.platform.commons.markdown.Text;
+import net.ymate.platform.commons.util.RuntimeUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -32,6 +41,24 @@ import java.util.stream.Collectors;
  * @author 刘镇 (suninformation@163.com) on 2018/05/08 01:29
  */
 public class ExtensionInfo implements IMarkdown {
+
+    private static final Log LOG = LogFactory.getLog(ExtensionInfo.class);
+
+    public static String loadContentFromFile(String filePath) {
+        String fileContent = filePath;
+        if (StringUtils.startsWithIgnoreCase(filePath, "@path:")) {
+            filePath = StringUtils.substringAfter(filePath, "@path:");
+            if (StringUtils.isNotBlank(filePath)) {
+                try (InputStream inputStream = new FileInputStream(new File(RuntimeUtils.getRootPath(), filePath))) {
+                    fileContent = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
+                    LOG.info(String.format("Loaded content from file: %s", filePath));
+                } catch (IOException e) {
+                    LOG.warn(e.getMessage());
+                }
+            }
+        }
+        return fileContent;
+    }
 
     public static ExtensionInfo create(PropertyInfo... properties) {
         return new ExtensionInfo(properties);
@@ -100,7 +127,7 @@ public class ExtensionInfo implements IMarkdown {
     }
 
     public ExtensionInfo setDescription(String description) {
-        this.description = description;
+        this.description = loadContentFromFile(description);
         return this;
     }
 

@@ -77,7 +77,7 @@ public class BuildMojo extends AbstractMojo {
     private String[] packageNames;
 
     /**
-     * 输出格式: html|json|markdown, 默认值: markdown
+     * 输出格式: html|gitbook|postman|json|markdown, 默认值: markdown
      */
     @Parameter(property = "format", defaultValue = "markdown")
     private String format;

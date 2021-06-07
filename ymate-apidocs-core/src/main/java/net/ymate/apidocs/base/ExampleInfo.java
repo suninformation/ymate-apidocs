@@ -94,7 +94,7 @@ public class ExampleInfo implements IMarkdown {
         if (StringUtils.isBlank(content)) {
             throw new NullArgumentException("content");
         }
-        this.content = content;
+        this.content = ExtensionInfo.loadContentFromFile(content);
     }
 
     public String getName() {
@@ -137,7 +137,10 @@ public class ExampleInfo implements IMarkdown {
         if (StringUtils.isNotBlank(description)) {
             markdownBuilder.text(description, Text.Style.ITALIC).p();
         }
-        return markdownBuilder.code(content, type).toMarkdown();
+        if (StringUtils.isNotBlank(content)) {
+            return markdownBuilder.code(content, type).p().toMarkdown();
+        }
+        return markdownBuilder.toMarkdown();
     }
 
     @Override
