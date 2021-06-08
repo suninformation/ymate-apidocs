@@ -262,9 +262,9 @@ public class PostmanDocRender extends AbstractDocRender {
 
     static class UrlPart implements Serializable {
 
-        private String raw;
+        private final String raw;
 
-        private List<String> host;
+        private final List<String> host;
 
         private String port;
 
@@ -380,20 +380,20 @@ public class PostmanDocRender extends AbstractDocRender {
 
     static class Raw {
 
-        private String language;
+        private final String language;
 
         public Raw(String language) {
             this.language = language;
         }
 
-        public void setLanguage(String language) {
-            this.language = language;
+        public String getLanguage() {
+            return language;
         }
     }
 
     static class BodyOptions {
 
-        private Raw raw;
+        private final Raw raw;
 
         public BodyOptions(Raw raw) {
             this.raw = raw;
@@ -406,7 +406,7 @@ public class PostmanDocRender extends AbstractDocRender {
 
     static class BodyPart implements Serializable {
 
-        private String mode;
+        private final String mode;
 
         private String raw;
 
