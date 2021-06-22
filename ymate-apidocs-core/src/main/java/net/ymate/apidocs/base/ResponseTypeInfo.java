@@ -31,25 +31,25 @@ import java.util.*;
  */
 public class ResponseTypeInfo implements Serializable {
 
-    public static ResponseTypeInfo create(ApiResponses responses) {
+    public static ResponseTypeInfo create(ApiResponses responses, boolean snakeCase) {
         if (responses != null) {
             ResponseTypeInfo responseTypeInfo = new ResponseTypeInfo()
                     .setName(responses.name())
                     .setMultiple(responses.multiple())
                     .setDescription(responses.description());
-            Arrays.stream(responses.properties()).map(PropertyInfo::create).forEachOrdered(responseTypeInfo::addProperty);
+            Arrays.stream(responses.properties()).map(property -> PropertyInfo.create(property, snakeCase)).forEachOrdered(responseTypeInfo::addProperty);
             if (!Void.class.equals(responses.type())) {
                 Class<?> responseType = responses.type().isArray() ? ClassUtils.getArrayClassType(responses.type()) : responses.type();
                 responseTypeInfo.setName(StringUtils.defaultIfBlank(responseTypeInfo.getName(), responseType.getSimpleName()));
                 responseTypeInfo.setMultiple(responses.multiple() || responses.type().isArray());
-                responseTypeInfo.addProperties(PropertyInfo.create(null, responseType));
+                responseTypeInfo.addProperties(PropertyInfo.create(null, responseType, snakeCase));
             }
             return responseTypeInfo;
         }
         return null;
     }
 
-    public static ResponseTypeInfo create(ApiResponseType apiResponseType) {
+    public static ResponseTypeInfo create(ApiResponseType apiResponseType, boolean snakeCase) {
         if (apiResponseType != null) {
             ResponseTypeInfo responseTypeInfo = new ResponseTypeInfo()
                     .setName(apiResponseType.name())
@@ -57,7 +57,7 @@ public class ResponseTypeInfo implements Serializable {
             Class<?> responseType = apiResponseType.type().isArray() ? ClassUtils.getArrayClassType(apiResponseType.type()) : apiResponseType.type();
             responseTypeInfo.setName(StringUtils.defaultIfBlank(responseTypeInfo.getName(), responseType.getSimpleName()));
             responseTypeInfo.setMultiple(apiResponseType.type().isArray());
-            responseTypeInfo.addProperties(PropertyInfo.create(null, responseType));
+            responseTypeInfo.addProperties(PropertyInfo.create(null, responseType, snakeCase));
             return responseTypeInfo;
         }
         return null;

@@ -15,13 +15,17 @@
  */
 package net.ymate.apidocs.intercept;
 
+import net.ymate.apidocs.Docs;
+import net.ymate.apidocs.annotation.Api;
 import net.ymate.apidocs.annotation.ApiGenerateResponseExample;
 import net.ymate.apidocs.annotation.ApiResponses;
+import net.ymate.apidocs.annotation.Apis;
 import net.ymate.apidocs.base.ResponseTypeInfo;
 import net.ymate.platform.core.beans.intercept.AbstractInterceptor;
 import net.ymate.platform.core.beans.intercept.InterceptContext;
 import net.ymate.platform.core.beans.intercept.InterceptException;
 import net.ymate.platform.core.persistence.impl.DefaultResultSet;
+import net.ymate.platform.webmvc.IWebResult;
 import net.ymate.platform.webmvc.util.WebResult;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -57,7 +61,17 @@ public final class ApiMockEnabledInterceptor extends AbstractInterceptor {
                             }
                             ApiMockEnabled apiMockEnabledAnn = findInterceptAnnotation(context, ApiMockEnabled.class);
                             if (apiMockEnabledAnn.useWebResult()) {
-                                instance = WebResult.builder().succeed().data(instance).build().keepNullValue();
+                                IWebResult<?> result = WebResult.builder().succeed().data(instance).build().keepNullValue();
+                                Api apiAnn = context.getTargetClass().getAnnotation(Api.class);
+                                if (apiAnn != null) {
+                                    @SuppressWarnings("unchecked")
+                                    Package apisPackage = context.getOwner().getModuleManager().getModule(Docs.class).apisPackageLookup((Class<? extends Api>) context.getTargetClass());
+                                    Apis apisAnn = apisPackage.getAnnotation(Apis.class);
+                                    if (apisAnn.snakeCase()) {
+                                        result.snakeCase();
+                                    }
+                                }
+                                instance = result;
                             }
                             if (LOG.isDebugEnabled()) {
                                 LOG.debug("Results data mocked: YES");

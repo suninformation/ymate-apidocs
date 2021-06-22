@@ -86,6 +86,12 @@ public @interface ApiParam {
     boolean pathVariable() default false;
 
     /**
+     * @return 参数名称是否使用蛇形命名法（即用下划线将单词连接起来）
+     * @since 2.0.0
+     */
+    boolean snakeCase() default false;
+
+    /**
      * @return 简单参数示例
      */
     String example() default "";

@@ -59,6 +59,11 @@ public class DocInfo extends AbstractMarkdown {
     private String description;
 
     /**
+     * 是否使用蛇形命名法输出属性名称（即用下划线将单词连接起来）
+     */
+    private boolean snakeCase;
+
+    /**
      * 作者信息
      */
     private final List<AuthorInfo> authors = new ArrayList<>();
@@ -177,6 +182,15 @@ public class DocInfo extends AbstractMarkdown {
 
     public DocInfo setDescription(String description) {
         this.description = description;
+        return this;
+    }
+
+    public boolean isSnakeCase() {
+        return snakeCase;
+    }
+
+    public DocInfo setSnakeCase(boolean snakeCase) {
+        this.snakeCase = snakeCase;
         return this;
     }
 

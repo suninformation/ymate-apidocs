@@ -66,17 +66,17 @@ public class ApiInfo extends AbstractMarkdown {
                 ApiResponses apiResponses = targetClass.getAnnotation(ApiResponses.class);
                 if (apiResponses != null) {
                     if (!Void.class.equals(apiResponses.type())) {
-                        apiInfo.setResponseType(ResponseTypeInfo.create(apiResponses));
+                        apiInfo.setResponseType(ResponseTypeInfo.create(apiResponses, docInfo.isSnakeCase()));
                     }
                     Arrays.stream(apiResponses.value()).map(ResponseInfo::create).forEachOrdered(apiInfo::addResponse);
                 }
                 ApiResponseTypes apiResponseTypes = targetClass.getAnnotation(ApiResponseTypes.class);
                 if (apiResponseTypes != null) {
-                    Arrays.stream(apiResponseTypes.value()).map(ResponseTypeInfo::create).forEachOrdered(docInfo::addResponseType);
+                    Arrays.stream(apiResponseTypes.value()).map(responseType -> ResponseTypeInfo.create(responseType, docInfo.isSnakeCase())).forEachOrdered(docInfo::addResponseType);
                 } else {
                     ApiResponseType apiResponseType = targetClass.getAnnotation(ApiResponseType.class);
                     if (apiResponseType != null) {
-                        docInfo.addResponseType(ResponseTypeInfo.create(apiResponseType));
+                        docInfo.addResponseType(ResponseTypeInfo.create(apiResponseType, docInfo.isSnakeCase()));
                     }
                 }
                 Arrays.stream(targetClass.getDeclaredMethods())

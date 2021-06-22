@@ -39,6 +39,12 @@ public @interface Apis {
     String version();
 
     /**
+     * @return 是否使用蛇形命名法输出属性名称（即用下划线将单词连接起来）
+     * @since 2.0.0
+     */
+    boolean snakeCase() default false;
+
+    /**
      * @return 自定义排序
      * @since 2.0.0
      */

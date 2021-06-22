@@ -170,6 +170,7 @@ public final class Docs implements IModule, IDocs {
             DocInfo doc = ReentrantLockHelper.putIfAbsentAsync(docInfoMap, docsId, () -> {
                 DocInfo docInfo = DocInfo.create(this, docsId, apisAnn.title(), apisAnn.version())
                         .setDescription(apisAnn.description())
+                        .setSnakeCase(apisAnn.snakeCase())
                         .setLicense(LicenseInfo.create(apisPackage.getAnnotation(ApiLicense.class)))
                         .setAuthorization(AuthorizationInfo.create(this, apisPackage.getAnnotation(ApiAuthorization.class)))
                         .setSecurity(SecurityInfo.create(this, apisPackage.getAnnotation(ApiSecurity.class), null))
@@ -186,7 +187,7 @@ public final class Docs implements IModule, IDocs {
                         .addServers(ServerInfo.create(apisPackage.getAnnotation(ApiServers.class)))
                         .addServer(ServerInfo.create(apisPackage.getAnnotation(ApiServer.class)))
                         .addResponse(ResponseInfo.create(apisPackage.getAnnotation(ApiResponse.class)))
-                        .addResponseType(ResponseTypeInfo.create(apisPackage.getAnnotation(ApiResponseType.class)))
+                        .addResponseType(ResponseTypeInfo.create(apisPackage.getAnnotation(ApiResponseType.class), apisAnn.snakeCase()))
                         .addRequestHeaders(HeaderInfo.create(apisPackage.getAnnotation(ApiRequestHeaders.class)))
                         .addResponseHeaders(HeaderInfo.create(apisPackage.getAnnotation(ApiResponseHeaders.class)));
                 //
@@ -202,7 +203,7 @@ public final class Docs implements IModule, IDocs {
                                 .data(Collections.singletonMap("username", "username is required."))
                                 .build()
                                 .toJsonObject()
-                                .toString(true, true))
+                                .toString(true, true, apisAnn.snakeCase()))
                                 .setType("json")
                                 .setName(AbstractMarkdown.i18nText(this, "response.example_standard", "Standard")));
                         docInfo.addResponseExample(ExampleInfo.create(WebResult.builder()
@@ -210,7 +211,7 @@ public final class Docs implements IModule, IDocs {
                                 .data(new DefaultResultSet<>(Collections.emptyList(), 1, 20, 1))
                                 .build()
                                 .toJsonObject()
-                                .toString(true, true))
+                                .toString(true, true, apisAnn.snakeCase()))
                                 .setType("json")
                                 .setName(AbstractMarkdown.i18nText(this, "response.example_pagination", "Pagination")));
                     }
@@ -220,18 +221,18 @@ public final class Docs implements IModule, IDocs {
                         docInfo.addResponseProperty(PropertyInfo.create().setName(Type.Const.PARAM_MSG).setValue(String.class.getSimpleName()).setDescription(AbstractMarkdown.i18nText(this, "response.message", "Message.")));
                         docInfo.addResponseProperty(PropertyInfo.create().setName(Type.Const.PARAM_DATA).setValue(Object.class.getSimpleName()).setDescription(AbstractMarkdown.i18nText(this, "response.data", "Business data content.")));
                     } else {
-                        docInfo.addResponseProperties(PropertyInfo.create(null, defaultResponses.standardType()));
+                        docInfo.addResponseProperties(PropertyInfo.create(null, defaultResponses.standardType(), apisAnn.snakeCase()));
                     }
                     if (Serializable.class.equals(defaultResponses.pagingType())) {
-                        docInfo.addResponseProperty(PropertyInfo.create().setName("pageCount").setValue(Integer.class.getSimpleName()).setDescription(AbstractMarkdown.i18nText(this, "response.page_count", "Paging param: total pages.")));
-                        docInfo.addResponseProperty(PropertyInfo.create().setName("pageNumber").setValue(Integer.class.getSimpleName()).setDescription(AbstractMarkdown.i18nText(this, "response.page_number", "Paging param: Current query page number.")));
-                        docInfo.addResponseProperty(PropertyInfo.create().setName("pageSize").setValue(Integer.class.getSimpleName()).setDescription(AbstractMarkdown.i18nText(this, "response.page_size", "Paging param: records per page.")));
+                        docInfo.addResponseProperty(PropertyInfo.create().setName(apisAnn.snakeCase() ? "page_count" : "pageCount").setValue(Integer.class.getSimpleName()).setDescription(AbstractMarkdown.i18nText(this, "response.page_count", "Paging param: total pages.")));
+                        docInfo.addResponseProperty(PropertyInfo.create().setName(apisAnn.snakeCase() ? "page_number" : "pageNumber").setValue(Integer.class.getSimpleName()).setDescription(AbstractMarkdown.i18nText(this, "response.page_number", "Paging param: Current query page number.")));
+                        docInfo.addResponseProperty(PropertyInfo.create().setName(apisAnn.snakeCase() ? "page_size" : "pageSize").setValue(Integer.class.getSimpleName()).setDescription(AbstractMarkdown.i18nText(this, "response.page_size", "Paging param: records per page.")));
                         docInfo.addResponseProperty(PropertyInfo.create().setName("paginated").setValue(Boolean.class.getSimpleName()).setDescription(AbstractMarkdown.i18nText(this, "response.paginated", "Paging param: Pagination query or not.")));
-                        docInfo.addResponseProperty(PropertyInfo.create().setName("recordCount").setValue(Integer.class.getSimpleName()).setDescription(AbstractMarkdown.i18nText(this, "response.record_count", "Paging param: total records.")));
-                        docInfo.addResponseProperty(PropertyInfo.create().setName("resultData").setValue(Object[].class.getSimpleName()).setDescription(AbstractMarkdown.i18nText(this, "response.result_data", "Paging param: the result set data object.")));
-                        docInfo.addResponseProperty(PropertyInfo.create().setName("resultsAvailable").setValue(Boolean.class.getSimpleName()).setDescription(AbstractMarkdown.i18nText(this, "response.results_available", "Paging param: whether result set is empty.")));
+                        docInfo.addResponseProperty(PropertyInfo.create().setName(apisAnn.snakeCase() ? "record_count" : "recordCount").setValue(Integer.class.getSimpleName()).setDescription(AbstractMarkdown.i18nText(this, "response.record_count", "Paging param: total records.")));
+                        docInfo.addResponseProperty(PropertyInfo.create().setName(apisAnn.snakeCase() ? "result_data" : "resultData").setValue(Object[].class.getSimpleName()).setDescription(AbstractMarkdown.i18nText(this, "response.result_data", "Paging param: the result set data object.")));
+                        docInfo.addResponseProperty(PropertyInfo.create().setName(apisAnn.snakeCase() ? "results_available" : "resultsAvailable").setValue(Boolean.class.getSimpleName()).setDescription(AbstractMarkdown.i18nText(this, "response.results_available", "Paging param: whether result set is empty.")));
                     } else {
-                        docInfo.addResponseProperties(PropertyInfo.create(Type.Const.PARAM_DATA, defaultResponses.pagingType()));
+                        docInfo.addResponseProperties(PropertyInfo.create(Type.Const.PARAM_DATA, defaultResponses.pagingType(), apisAnn.snakeCase()));
                     }
                     //
                     docInfo.addResponse(ResponseInfo.create("0", AbstractMarkdown.i18nText(this, "error_code_0", "Request success.")));
@@ -255,14 +256,14 @@ public final class Docs implements IModule, IDocs {
                 ApiResponses apiResponses = apisPackage.getAnnotation(ApiResponses.class);
                 if (apiResponses != null) {
                     if (!Void.class.equals(apiResponses.type())) {
-                        docInfo.addResponseType(ResponseTypeInfo.create(apiResponses));
+                        docInfo.addResponseType(ResponseTypeInfo.create(apiResponses, apisAnn.snakeCase()));
                     }
                     Arrays.stream(apiResponses.value()).map(ResponseInfo::create).forEachOrdered(docInfo::addResponse);
                 }
                 //
                 ApiResponseTypes apiResponseTypes = apisPackage.getAnnotation(ApiResponseTypes.class);
                 if (apiResponseTypes != null) {
-                    Arrays.stream(apiResponseTypes.value()).map(ResponseTypeInfo::create).forEachOrdered(docInfo::addResponseType);
+                    Arrays.stream(apiResponseTypes.value()).map(responseType -> ResponseTypeInfo.create(responseType, apisAnn.snakeCase())).forEachOrdered(docInfo::addResponseType);
                 }
                 //
                 return docInfo;

@@ -25,6 +25,7 @@ import net.ymate.platform.commons.markdown.MarkdownBuilder;
 import net.ymate.platform.commons.markdown.Table;
 import net.ymate.platform.commons.markdown.Text;
 import net.ymate.platform.commons.util.ClassUtils;
+import net.ymate.platform.core.persistence.base.EntityMeta;
 import net.ymate.platform.validation.annotation.VField;
 import net.ymate.platform.validation.validate.IDataRangeValuesProvider;
 import net.ymate.platform.validation.validate.VDataRange;
@@ -54,12 +55,12 @@ public class ParamInfo extends AbstractMarkdown {
         return new ParamInfo(owner, name, type);
     }
 
-    public static ParamInfo create(IDocs owner, String prefix, String parentDesc, Field field) {
-        return create(owner, prefix, parentDesc, field, field.getName(), field.getType());
+    public static ParamInfo create(IDocs owner, String prefix, String parentDesc, Field field, boolean snakeCase) {
+        return create(owner, prefix, parentDesc, field, field.getName(), field.getType(), snakeCase);
     }
 
-    public static ParamInfo create(IDocs owner, String prefix, String parentDesc, Parameter parameter, String defaultParamName) {
-        return create(owner, prefix, parentDesc, parameter, StringUtils.defaultIfBlank(defaultParamName, parameter.getName()), parameter.getType());
+    public static ParamInfo create(IDocs owner, String prefix, String parentDesc, Parameter parameter, String defaultParamName, boolean snakeCase) {
+        return create(owner, prefix, parentDesc, parameter, StringUtils.defaultIfBlank(defaultParamName, parameter.getName()), parameter.getType(), snakeCase);
     }
 
     public static List<ParamInfo> create(IDocs owner, ApiParams apiParams) {
@@ -76,9 +77,9 @@ public class ParamInfo extends AbstractMarkdown {
         return Collections.emptyList();
     }
 
-    private static ParamInfo create(IDocs owner, String prefix, String parentDesc, AnnotatedElement annotatedElement, String defaultParamName, Class<?> paramType) {
+    private static ParamInfo create(IDocs owner, String prefix, String parentDesc, AnnotatedElement annotatedElement, String defaultParamName, Class<?> paramType, boolean snakeCase) {
         if (annotatedElement != null) {
-            ParamInfo paramInfo = doCreate(owner, prefix, parentDesc, annotatedElement, defaultParamName, paramType);
+            ParamInfo paramInfo = doCreate(owner, prefix, parentDesc, annotatedElement, defaultParamName, paramType, snakeCase);
             if (paramInfo != null) {
                 ApiExample apiExample = annotatedElement.getAnnotation(ApiExample.class);
                 if (apiExample != null) {
@@ -94,7 +95,7 @@ public class ParamInfo extends AbstractMarkdown {
         return null;
     }
 
-    private static ParamInfo doCreate(IDocs owner, String prefix, String parentDesc, AnnotatedElement annotatedElement, String defaultParamName, Class<?> paramType) {
+    private static ParamInfo doCreate(IDocs owner, String prefix, String parentDesc, AnnotatedElement annotatedElement, String defaultParamName, Class<?> paramType, boolean snakeCase) {
         ApiParam apiParam = annotatedElement.getAnnotation(ApiParam.class);
         if (apiParam != null) {
             paramType = paramType != null ? paramType : apiParam.type();
@@ -109,6 +110,9 @@ public class ParamInfo extends AbstractMarkdown {
             }
             if (StringUtils.isBlank(paramName)) {
                 paramName = defaultParamName;
+            }
+            if (requestParam != null && snakeCase) {
+                paramName = EntityMeta.fieldNameToPropertyName(paramName, 0);
             }
             boolean required = apiParam.required() || annotatedElement.isAnnotationPresent(VRequired.class) || apiParam.pathVariable() || pathVariable != null;
             if (!apiParam.hidden() && StringUtils.isNotBlank(paramName)) {
@@ -137,6 +141,7 @@ public class ParamInfo extends AbstractMarkdown {
                         .setMultiple(apiParam.multiple() || paramType.isArray())
                         .setMultipart(apiParam.multipart() || paramType.isArray() ? ClassUtils.getArrayClassType(paramType).equals(IUploadFileWrapper.class) : paramType.equals(IUploadFileWrapper.class))
                         .setPathVariable(apiParam.pathVariable() || pathVariable != null)
+                        .setSnakeCase(snakeCase)
                         .setRequired(required)
                         .setDescription(description)
                         .addExample(StringUtils.isNotBlank(apiParam.example()) ? ExampleInfo.create(apiParam.example()) : null)
@@ -168,6 +173,7 @@ public class ParamInfo extends AbstractMarkdown {
                         .setMultiple(apiParam.multiple() || apiParam.type().isArray())
                         .setMultipart(apiParam.multipart() || apiParam.type().isArray() ? ClassUtils.getArrayClassType(apiParam.type()).equals(IUploadFileWrapper.class) : apiParam.type().equals(IUploadFileWrapper.class))
                         .setPathVariable(apiParam.pathVariable())
+                        .setSnakeCase(!apiParam.pathVariable() && apiParam.snakeCase())
                         .setRequired(apiParam.required())
                         .setDescription(apiParam.description())
                         .addExample(StringUtils.isNotBlank(apiParam.example()) ? ExampleInfo.create(apiParam.example()) : null)
@@ -263,6 +269,13 @@ public class ParamInfo extends AbstractMarkdown {
      * @since 2.0.0
      */
     private boolean pathVariable;
+
+    /**
+     * 参数名称是否使用蛇形命名法（即用下划线将单词连接起来）
+     *
+     * @since 2.0.0
+     */
+    private boolean snakeCase;
 
     /**
      * 参数示例
@@ -378,6 +391,15 @@ public class ParamInfo extends AbstractMarkdown {
 
     public ParamInfo setPathVariable(boolean pathVariable) {
         this.pathVariable = pathVariable;
+        return this;
+    }
+
+    public boolean isSnakeCase() {
+        return snakeCase;
+    }
+
+    public ParamInfo setSnakeCase(boolean snakeCase) {
+        this.snakeCase = snakeCase;
         return this;
     }
 

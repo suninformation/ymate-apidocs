@@ -80,14 +80,13 @@ public class ActionInfo extends AbstractMarkdown {
 
     public static ActionInfo create(IDocs owner, ApiInfo apiInfo, Method method) {
         if (method != null) {
+            RequestMeta requestMeta = doBuildRequestMeta(method);
             ApiAction apiAction = method.getAnnotation(ApiAction.class);
             if (apiAction != null && !apiAction.hidden()) {
-                RequestMeta requestMeta = null;
                 String mapping = apiAction.mapping();
                 if (StringUtils.isBlank(mapping)) {
                     RequestMapping requestMapping = method.getAnnotation(RequestMapping.class);
                     if (requestMapping != null) {
-                        requestMeta = doBuildRequestMeta(method);
                         if (requestMeta != null) {
                             mapping = requestMeta.getMapping();
                         }
@@ -100,9 +99,6 @@ public class ActionInfo extends AbstractMarkdown {
                 }
                 List<String> httpMethods = new ArrayList<>();
                 if (ArrayUtils.isEmpty(apiAction.httpMethod())) {
-                    if (requestMeta == null) {
-                        requestMeta = doBuildRequestMeta(method);
-                    }
                     if (requestMeta != null) {
                         for (Type.HttpMethod httpMethod : requestMeta.getAllowMethods()) {
                             if (!owner.getConfig().getIgnoredRequestMethods().contains(httpMethod.name()) && !httpMethods.contains(httpMethod.name())) {
@@ -143,6 +139,7 @@ public class ActionInfo extends AbstractMarkdown {
                         .addRequestHeaders(HeaderInfo.create(method.getAnnotation(ApiRequestHeaders.class)))
                         .addResponseHeaders(HeaderInfo.create(method.getAnnotation(ApiResponseHeaders.class)));
                 //
+                boolean snakeCase = requestMeta != null && requestMeta.isSnakeCase();
                 String[] paramNames = ClassUtils.getMethodParamNames(method);
                 Parameter[] parameters = method.getParameters();
                 for (int idx = 0; idx < parameters.length; idx++) {
@@ -151,13 +148,13 @@ public class ActionInfo extends AbstractMarkdown {
                         paramName = paramNames[idx];
                     }
                     Parameter parameter = parameters[idx];
-                    ParamInfo paramInfo = ParamInfo.create(owner, null, null, parameter, paramName);
-                    processParamInfo(owner, actionInfo, paramInfo, parameter, parameter.getType());
+                    ParamInfo paramInfo = ParamInfo.create(owner, null, null, parameter, paramName, snakeCase);
+                    processParamInfo(owner, actionInfo, paramInfo, parameter, parameter.getType(), snakeCase);
                 }
                 //
                 ApiResponses apiResponses = method.getAnnotation(ApiResponses.class);
                 if (apiResponses != null) {
-                    ResponseTypeInfo responseTypeInfo = ResponseTypeInfo.create(apiResponses);
+                    ResponseTypeInfo responseTypeInfo = ResponseTypeInfo.create(apiResponses, apiInfo.getDocInfo().isSnakeCase());
                     actionInfo.setResponseType(responseTypeInfo);
                     Arrays.stream(apiResponses.value()).map(ResponseInfo::create).forEachOrdered(actionInfo::addResponse);
                     //
@@ -170,7 +167,7 @@ public class ActionInfo extends AbstractMarkdown {
                             } else if (responseTypeInfo.isMultiple()) {
                                 instance = Collections.singletonList(instance);
                             }
-                            String content = WebResult.builder().succeed().data(instance).build().toJsonObject().toString(true, true);
+                            String content = WebResult.builder().succeed().data(instance).build().toJsonObject().toString(true, true, apiInfo.getDocInfo().isSnakeCase());
                             actionInfo.addExample(ExampleInfo.create(content).setName(apiGenerateResponseExample.name()).setType("json").setDescription(apiGenerateResponseExample.description()));
                         } catch (Exception ignored) {
                         }
@@ -183,11 +180,11 @@ public class ActionInfo extends AbstractMarkdown {
         return null;
     }
 
-    private static void processParamInfo(IDocs owner, ActionInfo actionInfo, ParamInfo paramInfo, AnnotatedElement annotatedElement, Class<?> paramType) {
+    private static void processParamInfo(IDocs owner, ActionInfo actionInfo, ParamInfo paramInfo, AnnotatedElement annotatedElement, Class<?> paramType, boolean snakeCase) {
         if (paramInfo != null) {
             if (paramInfo.isModel()) {
                 ModelBind modelBind = annotatedElement.getAnnotation(ModelBind.class);
-                ClassUtils.wrapper(paramType).getFields().forEach(field -> processParamInfo(owner, actionInfo, ParamInfo.create(owner, modelBind != null ? modelBind.prefix() : null, paramInfo.getDescription(), field), field, field.getType()));
+                ClassUtils.wrapper(paramType).getFields().forEach(field -> processParamInfo(owner, actionInfo, ParamInfo.create(owner, modelBind != null ? modelBind.prefix() : null, paramInfo.getDescription(), field, snakeCase), field, field.getType(), snakeCase));
             } else {
                 actionInfo.addParam(paramInfo);
             }
@@ -562,7 +559,7 @@ public class ActionInfo extends AbstractMarkdown {
 
     public ActionInfo addResponses(List<ResponseInfo> responses) {
         if (responses != null) {
-            this.responses.addAll(responses);
+            responses.forEach(this::addResponse);
         }
         return this;
     }

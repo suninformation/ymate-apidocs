@@ -77,7 +77,7 @@ public class ExtensionInfo implements IMarkdown {
                 ExtensionInfo extensionInfo = new ExtensionInfo()
                         .setName(extension.name())
                         .setDescription(extension.description());
-                Arrays.stream(extension.value()).map(PropertyInfo::create).forEachOrdered(extensionInfo::addProperty);
+                Arrays.stream(extension.value()).map(property -> PropertyInfo.create(property, false)).forEachOrdered(extensionInfo::addProperty);
                 return extensionInfo;
             }
         }
