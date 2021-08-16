@@ -64,6 +64,16 @@ public @interface ApiParam {
     Class<?> type() default String.class;
 
     /**
+     * @return 最小长度
+     */
+    long minLength() default 0;
+
+    /**
+     * @return 最大长度
+     */
+    long maxLength() default 0;
+
+    /**
      * @return 是否为模型对象
      */
     boolean model() default false;

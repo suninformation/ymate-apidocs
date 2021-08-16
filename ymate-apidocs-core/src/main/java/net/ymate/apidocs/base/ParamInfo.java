@@ -29,6 +29,7 @@ import net.ymate.platform.core.persistence.base.EntityMeta;
 import net.ymate.platform.validation.annotation.VField;
 import net.ymate.platform.validation.validate.IDataRangeValuesProvider;
 import net.ymate.platform.validation.validate.VDataRange;
+import net.ymate.platform.validation.validate.VLength;
 import net.ymate.platform.validation.validate.VRequired;
 import net.ymate.platform.webmvc.IUploadFileWrapper;
 import net.ymate.platform.webmvc.annotation.ModelBind;
@@ -156,6 +157,18 @@ public class ParamInfo extends AbstractMarkdown {
                         }
                     }
                 }
+                if (apiParam.minLength() == 0 && apiParam.maxLength() == 0) {
+                    VLength vLength = annotatedElement.getAnnotation(VLength.class);
+                    if (vLength != null) {
+                        if (vLength.eq() > 0) {
+                            paramInfo.setMinLength(vLength.eq());
+                            paramInfo.setMaxLength(vLength.eq());
+                        } else {
+                            paramInfo.setMinLength(vLength.min());
+                            paramInfo.setMaxLength(vLength.max());
+                        }
+                    }
+                }
                 return paramInfo;
             }
         }
@@ -189,6 +202,7 @@ public class ParamInfo extends AbstractMarkdown {
             Table table = Table.create()
                     .addHeader(AbstractMarkdown.i18nText(owner, "param.name", "Name"), Table.Align.LEFT)
                     .addHeader(AbstractMarkdown.i18nText(owner, "param.type", "Type"), Table.Align.LEFT)
+                    .addHeader(AbstractMarkdown.i18nText(owner, "param.length", "Length"), Table.Align.CENTER)
                     .addHeader(AbstractMarkdown.i18nText(owner, "param.required", "Required"), Table.Align.CENTER)
                     .addHeader(AbstractMarkdown.i18nText(owner, "param.default", "Default"), Table.Align.LEFT)
                     .addHeader(AbstractMarkdown.i18nText(owner, "param.description", "Description"), Table.Align.LEFT);
@@ -240,6 +254,16 @@ public class ParamInfo extends AbstractMarkdown {
      * 参数类型
      */
     private final String type;
+
+    /**
+     * 最小长度
+     */
+    private long minLength;
+
+    /**
+     * 最大长度
+     */
+    private long maxLength;
 
     /**
      * 参数是否必须
@@ -349,6 +373,22 @@ public class ParamInfo extends AbstractMarkdown {
         return type;
     }
 
+    public long getMinLength() {
+        return minLength;
+    }
+
+    public void setMinLength(long minLength) {
+        this.minLength = minLength;
+    }
+
+    public long getMaxLength() {
+        return maxLength;
+    }
+
+    public void setMaxLength(long maxLength) {
+        this.maxLength = maxLength;
+    }
+
     public boolean isRequired() {
         return required;
     }
@@ -446,9 +486,22 @@ public class ParamInfo extends AbstractMarkdown {
             }
             markdownBuilder.append(i18nText("param.allow_values", "Allow values: ")).append(PropertyInfo.parseText(String.format("{%s}", StringUtils.join(allowValues, '|'))));
         }
+        String lenStr = StringUtils.EMPTY;
+        if (minLength > 0 && maxLength > 0) {
+            if (minLength == maxLength) {
+                lenStr = String.valueOf(maxLength);
+            } else {
+                lenStr = String.format("%d-%d", minLength, maxLength);
+            }
+        } else if (minLength > 0) {
+            lenStr = String.format("%d~", minLength);
+        } else if (maxLength > 0) {
+            lenStr = String.format("~%d", maxLength);
+        }
         return Table.create().addRow()
                 .addColumn(name)
                 .addColumn(type)
+                .addColumn(lenStr)
                 .addColumn(required ? "Y" : "N")
                 .addColumn(defaultValue)
                 .addColumn(markdownBuilder).build().toMarkdown();
