@@ -78,9 +78,12 @@
             <artifactId>jsp-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>javax.websocket</groupId>
+            <artifactId>javax.websocket-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.freemarker</groupId>
             <artifactId>freemarker</artifactId>
-            <version>2.3.29</version>
         </dependency>
         <dependency>
             <groupId>net.ymate.platform</groupId>
