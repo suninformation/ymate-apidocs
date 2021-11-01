@@ -64,6 +64,13 @@ public class DocInfo extends AbstractMarkdown {
     private boolean snakeCase;
 
     /**
+     * 自定义排序
+     *
+     * @since 2.0.0
+     */
+    private int order;
+
+    /**
      * 作者信息
      */
     private final List<AuthorInfo> authors = new ArrayList<>();
@@ -87,6 +94,11 @@ public class DocInfo extends AbstractMarkdown {
      * API接口集合
      */
     private final List<ApiInfo> apis = new ArrayList<>();
+
+    /**
+     * 未分组API接口集合
+     */
+    private final List<ApiInfo> ungroupedApis = new ArrayList<>();
 
     /**
      * 分组API接口集合
@@ -194,6 +206,15 @@ public class DocInfo extends AbstractMarkdown {
         return this;
     }
 
+    public int getOrder() {
+        return order;
+    }
+
+    public DocInfo setOrder(int order) {
+        this.order = order;
+        return this;
+    }
+
     public List<AuthorInfo> getAuthors() {
         return authors;
     }
@@ -244,6 +265,9 @@ public class DocInfo extends AbstractMarkdown {
     }
 
     public List<ApiInfo> getApis(String group) {
+        if (StringUtils.isBlank(group)) {
+            return ungroupedApis;
+        }
         if (groupApis.containsKey(group)) {
             return groupApis.get(group);
         }
@@ -271,6 +295,9 @@ public class DocInfo extends AbstractMarkdown {
                         throw new IllegalStateException(e.getMessage(), e);
                     }
                 }
+            } else {
+                this.ungroupedApis.add(api);
+                this.ungroupedApis.sort(Comparator.comparingInt(ApiInfo::getOrder));
             }
             this.addResponses(api.getResponses());
             this.addResponseType(api.getResponseType());
@@ -522,7 +549,7 @@ public class DocInfo extends AbstractMarkdown {
             table.addRow().addColumn(i18nText("doc.license", "License")).addColumn(license);
         }
         if (authors.isEmpty()) {
-            authors.add(AuthorInfo.create("YMP-ApiDocs").setUrl("https://www.ymate.net/"));
+            authors.add(AuthorInfo.create("YMATE-APIDocs").setUrl("https://www.ymate.net/"));
         }
         table.addRow().addColumn(i18nText("doc.authors", "Authors")).addColumn(AuthorInfo.toMarkdown(authors));
         markdownBuilder.p(2).title(i18nText("doc.overview", "Overview"), 2).p().append(table);
@@ -556,11 +583,20 @@ public class DocInfo extends AbstractMarkdown {
         if (!apis.isEmpty()) {
             markdownBuilder.p(2).title(i18nText("doc.apis", "Apis"), 2).p();
             if (!groupApis.isEmpty()) {
-                groups.stream().map(group -> getApis(group.getName()))
-                        .filter(apiInfos -> !apiInfos.isEmpty())
-                        .map(ApiInfo::toMarkdown).forEachOrdered(markdownBuilder::append);
+                for (GroupInfo group : groups) {
+                    List<ApiInfo> apiInfos = getApis(group.getName());
+                    if (!apiInfos.isEmpty()) {
+                        String s = ApiInfo.toMarkdown(apiInfos, 3);
+                        markdownBuilder.append(s);
+                    }
+                }
+                List<ApiInfo> apiInfos = getApis(null);
+                if (!apiInfos.isEmpty()) {
+                    String s = ApiInfo.toMarkdown(apiInfos, 3);
+                    markdownBuilder.append(s);
+                }
             } else {
-                markdownBuilder.append(ApiInfo.toMarkdown(apis));
+                markdownBuilder.append(ApiInfo.toMarkdown(apis, 3));
             }
         }
         if (!responses.isEmpty() || !responseTypes.isEmpty() || !responseExamples.isEmpty() || !responseProperties.isEmpty()) {
@@ -577,7 +613,7 @@ public class DocInfo extends AbstractMarkdown {
                 markdownBuilder.title(i18nText("doc.response_codes", "Response codes"), 3).p();
                 List<ResponseInfo> sorted = new ArrayList<>(responses.values());
                 sorted.sort((o1, o2) -> Integer.valueOf(o2.getCode()).compareTo(Integer.valueOf(o1.getCode())));
-                markdownBuilder.append(ResponseInfo.toMarkdown(getOwner(), sorted));
+                markdownBuilder.append(ResponseInfo.toMarkdown(getOwner(), sorted)).p();
             }
             if (!responseTypes.isEmpty()) {
                 markdownBuilder.title(i18nText("doc.response_types", "Response types"), 3).p();

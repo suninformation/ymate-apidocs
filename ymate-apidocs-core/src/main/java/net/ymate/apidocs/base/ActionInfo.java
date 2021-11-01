@@ -191,10 +191,13 @@ public class ActionInfo extends AbstractMarkdown {
         }
     }
 
-    public static String toMarkdown(List<ActionInfo> actions) {
+    public static String toMarkdown(List<ActionInfo> actions, int topTitleLevel) {
         MarkdownBuilder markdownBuilder = MarkdownBuilder.create();
         if (!actions.isEmpty()) {
-            actions.forEach(markdownBuilder::append);
+            for (ActionInfo action : actions) {
+                action.setMarkdownTitleLevel(topTitleLevel);
+                markdownBuilder.append(action);
+            }
         }
         return markdownBuilder.toMarkdown();
     }
@@ -628,16 +631,18 @@ public class ActionInfo extends AbstractMarkdown {
 
     @Override
     public String toMarkdown() {
+        int currentTopTitleLevel = getMarkdownTitleLevel(5);
+        int subTopTitleLevel = currentTopTitleLevel + 1;
         MarkdownBuilder markdownBuilder = MarkdownBuilder.create()
-                .title(Text.create(displayName, deprecated ? Text.Style.STRIKEOUT : null), 5);
+                .title(Text.create(displayName, deprecated ? Text.Style.STRIKEOUT : null), currentTopTitleLevel);
         if (StringUtils.isNotBlank(description)) {
             markdownBuilder.p().text(description, deprecated ? Text.Style.STRIKEOUT : null);
         }
         if (StringUtils.isNotBlank(group)) {
-            markdownBuilder.p().title(i18nText("action.group", "Group"), 6).p().code(group);
+            markdownBuilder.p().title(i18nText("action.group", "Group"), subTopTitleLevel).p().code(group);
         }
         if (!notes.isEmpty()) {
-            markdownBuilder.p().title(i18nText("action.notes", "Notes"), 6).p();
+            markdownBuilder.p().title(i18nText("action.notes", "Notes"), subTopTitleLevel).p();
             Iterator<String> notesIt = notes.iterator();
             while (notesIt.hasNext()) {
                 markdownBuilder.quote(notesIt.next());
@@ -647,38 +652,38 @@ public class ActionInfo extends AbstractMarkdown {
             }
         }
         if (!changeLogs.isEmpty()) {
-            markdownBuilder.p().title(i18nText("action.changelog", "Changelog"), 6).p().append(ChangeLogInfo.toMarkdown(getOwner(), changeLogs));
+            markdownBuilder.p().title(i18nText("action.changelog", "Changelog"), subTopTitleLevel).p().append(ChangeLogInfo.toMarkdown(getOwner(), changeLogs));
         }
         if (!scopes.isEmpty()) {
-            markdownBuilder.p().title(i18nText("action.authorization", "Authorization"), 6).p().text(i18nText("action.scopes", "Scopes: "), Text.Style.BOLD).space();
+            markdownBuilder.p().title(i18nText("action.authorization", "Authorization"), subTopTitleLevel).p().text(i18nText("action.scopes", "Scopes: "), Text.Style.BOLD).space();
             scopes.forEach((scope) -> markdownBuilder.code(scope).space());
         }
         if (security != null) {
             String securityMarkdown = security.toMarkdown();
             if (StringUtils.isNotBlank(securityMarkdown)) {
-                markdownBuilder.p().title(i18nText("action.security", "Security"), 6).append(securityMarkdown);
+                markdownBuilder.p().title(i18nText("action.security", "Security"), subTopTitleLevel).append(securityMarkdown);
             }
         }
-        markdownBuilder.p().title(i18nText("action.request_mapping", "Request mapping"), 6).p().text(mapping);
+        markdownBuilder.p().title(i18nText("action.request_mapping", "Request mapping"), subTopTitleLevel).p().code(mapping, "shell");
         if (StringUtils.isNotBlank(requestType)) {
-            markdownBuilder.p().title(i18nText("action.request_type", "Request type"), 6).p().code(requestType);
+            markdownBuilder.p().title(i18nText("action.request_type", "Request type"), subTopTitleLevel).p().code(requestType);
         }
         if (!methods.isEmpty()) {
-            markdownBuilder.p().title(i18nText("action.request_methods", "Request methods"), 6).p();
+            markdownBuilder.p().title(i18nText("action.request_methods", "Request methods"), subTopTitleLevel).p();
             methods.forEach((method) -> markdownBuilder.code(method.toUpperCase()).space());
         }
         if (!params.isEmpty()) {
-            markdownBuilder.p().title(i18nText("action.request_parameters", "Request parameters"), 6).p().append(ParamInfo.toMarkdown(getOwner(), params));
+            markdownBuilder.p().title(i18nText("action.request_parameters", "Request parameters"), subTopTitleLevel).p().append(ParamInfo.toMarkdown(getOwner(), params));
         }
         if (!requestHeaders.isEmpty()) {
-            markdownBuilder.p().title(i18nText("action.request_headers", "Request headers"), 6).p().append(HeaderInfo.toMarkdown(getOwner(), requestHeaders));
+            markdownBuilder.p().title(i18nText("action.request_headers", "Request headers"), subTopTitleLevel).p().append(HeaderInfo.toMarkdown(getOwner(), requestHeaders));
         }
         if (!responseHeaders.isEmpty()) {
-            markdownBuilder.p().title(i18nText("action.response_headers", "Response headers"), 6).p().append(HeaderInfo.toMarkdown(getOwner(), responseHeaders));
+            markdownBuilder.p().title(i18nText("action.response_headers", "Response headers"), subTopTitleLevel).p().append(HeaderInfo.toMarkdown(getOwner(), responseHeaders));
         }
         if (responseType != null) {
             if (StringUtils.isNotBlank(responseType.getName()) || !responseType.getProperties().isEmpty()) {
-                markdownBuilder.p().title(i18nText("action.response_type", "Response type"), 6);
+                markdownBuilder.p().title(i18nText("action.response_type", "Response type"), subTopTitleLevel);
                 if (StringUtils.isNotBlank(responseType.getName())) {
                     markdownBuilder.p().text(responseType.getName());
                 }
@@ -690,13 +695,13 @@ public class ActionInfo extends AbstractMarkdown {
         }
         if (!responses.isEmpty()) {
             responses.sort((o1, o2) -> Integer.valueOf(o2.getCode()).compareTo(Integer.valueOf(o1.getCode())));
-            markdownBuilder.p().title(i18nText("action.response_codes", "Response codes"), 6).p().append(ResponseInfo.toMarkdown(getOwner(), responses));
+            markdownBuilder.p().title(i18nText("action.response_codes", "Response codes"), subTopTitleLevel).p().append(ResponseInfo.toMarkdown(getOwner(), responses));
         }
         if (!extensions.isEmpty()) {
-            markdownBuilder.p().title(i18nText("action.extensions", "Extensions"), 6).p().append(ExtensionInfo.toMarkdown(extensions));
+            markdownBuilder.p().title(i18nText("action.extensions", "Extensions"), subTopTitleLevel).p().append(ExtensionInfo.toMarkdown(extensions));
         }
         if (!examples.isEmpty()) {
-            markdownBuilder.p().title(i18nText("action.examples", "Examples"), 6).p().append(ExampleInfo.toMarkdown(examples));
+            markdownBuilder.p().title(i18nText("action.examples", "Examples"), subTopTitleLevel).p().append(ExampleInfo.toMarkdown(examples));
         }
         return markdownBuilder.p().toMarkdown();
     }

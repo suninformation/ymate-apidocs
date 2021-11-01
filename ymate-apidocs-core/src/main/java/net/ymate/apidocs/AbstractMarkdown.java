@@ -30,6 +30,8 @@ public abstract class AbstractMarkdown implements IMarkdown {
 
     private final IDocs owner;
 
+    private int markdownTitleLevel;
+
     public AbstractMarkdown(IDocs owner) {
         if (owner == null) {
             throw new NullArgumentException("owner");
@@ -44,5 +46,20 @@ public abstract class AbstractMarkdown implements IMarkdown {
 
     public String i18nText(String i18nKey, String defaultText) {
         return i18nText(owner, i18nKey, defaultText);
+    }
+
+    public int getMarkdownTitleLevel() {
+        return getMarkdownTitleLevel(1);
+    }
+
+    public int getMarkdownTitleLevel(int defaultLevel) {
+        if (markdownTitleLevel <= 0) {
+            return Math.min(defaultLevel, 1);
+        }
+        return markdownTitleLevel;
+    }
+
+    public void setMarkdownTitleLevel(int markdownTitleLevel) {
+        this.markdownTitleLevel = markdownTitleLevel;
     }
 }

@@ -78,6 +78,9 @@ public class PostmanDocRender extends AbstractDocRender {
             }
             //
             for (String method : actionInfo.getMethods()) {
+                if (StringUtils.equalsIgnoreCase(method, Type.HttpMethod.OPTIONS.name())) {
+                    continue;
+                }
                 RequestPart requestPart = new RequestPart();
                 requestPart.setUrl(new UrlPart(url));
                 //
@@ -130,28 +133,30 @@ public class PostmanDocRender extends AbstractDocRender {
     }
 
     private ItemPart processApiInfo(ApiInfo apiInfo) {
+        ItemPart itemPart = new ItemPart();
+        itemPart.setName(apiInfo.getName());
+        itemPart.setDescription(apiInfo.getDescription());
+        List<ItemPart> items = new ArrayList<>();
         if (apiInfo.getGroups().isEmpty()) {
-            List<ItemPart> items = new ArrayList<>();
             apiInfo.getActions().stream().map(this::processActionInfo).forEach(items::addAll);
-            if (!items.isEmpty()) {
-                ItemPart itemPart = new ItemPart();
-                itemPart.setName(apiInfo.getName());
-                itemPart.setDescription(apiInfo.getDescription());
-                itemPart.setItem(items);
-                return itemPart;
-            }
         } else {
             for (GroupInfo apiGroupInfo : apiInfo.getGroups()) {
-                List<ItemPart> items = new ArrayList<>();
-                apiInfo.getActions(apiGroupInfo.getName()).stream().map(this::processActionInfo).forEach(items::addAll);
-                if (!items.isEmpty()) {
-                    ItemPart itemPart = new ItemPart();
-                    itemPart.setName(apiGroupInfo.getName());
-                    itemPart.setDescription(apiGroupInfo.getDescription());
-                    itemPart.setItem(items);
-                    return itemPart;
+                List<ItemPart> groupItems = new ArrayList<>();
+                apiInfo.getActions(apiGroupInfo.getName()).stream().map(this::processActionInfo).forEach(groupItems::addAll);
+                if (!groupItems.isEmpty()) {
+                    ItemPart groupItemPart = new ItemPart();
+                    groupItemPart.setName(apiGroupInfo.getName());
+                    groupItemPart.setDescription(apiGroupInfo.getDescription());
+                    groupItemPart.setItem(groupItems);
+                    //
+                    items.add(groupItemPart);
                 }
             }
+            apiInfo.getActions(null).stream().map(this::processActionInfo).forEach(items::addAll);
+        }
+        if (!items.isEmpty()) {
+            itemPart.setItem(items);
+            return itemPart;
         }
         return null;
     }
@@ -164,9 +169,19 @@ public class PostmanDocRender extends AbstractDocRender {
         if (docInfo.getGroups().isEmpty()) {
             docInfo.getApis().stream().map(this::processApiInfo).filter(Objects::nonNull).forEachOrdered(items::add);
         } else {
-            docInfo.getGroups().stream().map(groupInfo -> docInfo.getApis(groupInfo.getName()))
-                    .filter(apiInfos -> !apiInfos.isEmpty())
-                    .forEachOrdered(apiInfos -> apiInfos.stream().map(this::processApiInfo).filter(Objects::nonNull).forEachOrdered(items::add));
+            for (GroupInfo docGroupInfo : docInfo.getGroups()) {
+                List<ItemPart> groupItems = new ArrayList<>();
+                docInfo.getApis(docGroupInfo.getName()).stream().map(this::processApiInfo).filter(Objects::nonNull).forEachOrdered(groupItems::add);
+                if (!groupItems.isEmpty()) {
+                    ItemPart groupItemPart = new ItemPart();
+                    groupItemPart.setName(docGroupInfo.getName());
+                    groupItemPart.setDescription(docGroupInfo.getDescription());
+                    groupItemPart.setItem(groupItems);
+                    //
+                    items.add(groupItemPart);
+                }
+            }
+            docInfo.getApis(null).stream().map(this::processApiInfo).filter(Objects::nonNull).forEach(items::add);
         }
         JSONObject jsonObject = new JSONObject(true);
         jsonObject.put("info", infoPart);

@@ -22,6 +22,9 @@ import net.ymate.platform.core.beans.annotation.Ignored;
 import net.ymate.platform.core.support.IDestroyable;
 import net.ymate.platform.core.support.IInitialization;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -67,5 +70,57 @@ public interface IDocs extends IInitialization<IApplication>, IDestroyable {
      *
      * @return 返回文档映射
      */
-    Map<String, DocInfo> getDocs();
+    Map<String, DocInfo> getDocInfoMap();
+
+    /**
+     * 获取全部已注册文档集合（并按 Order 值排序）
+     *
+     * @return 返回文档集合
+     */
+    List<DocInfo> getDocs();
+
+    /**
+     * 按 Docusaurus 格式输出文档
+     *
+     * @param outputDir 目标文件夹
+     * @param overwrite 是否覆盖
+     * @throws IOException 可能产生的异常
+     */
+    void writeToDocusaurus(File outputDir, boolean overwrite) throws IOException;
+
+    /**
+     * 按 Docusaurus 格式输出文档
+     *
+     * @param outputDir 目标文件夹
+     * @param overwrite 是否覆盖
+     * @throws IOException 可能产生的异常
+     */
+    void writeToGitbook(File outputDir, boolean overwrite) throws IOException;
+
+    /**
+     * 按 Postman 格式输出文档
+     *
+     * @param outputDir 目标文件夹
+     * @param overwrite 是否覆盖
+     * @throws IOException 可能产生的异常
+     */
+    void writeToPostman(File outputDir, boolean overwrite) throws IOException;
+
+    /**
+     * 按 Markdown 格式输出文档
+     *
+     * @param outputDir 目标文件夹
+     * @param overwrite 是否覆盖
+     * @throws IOException 可能产生的异常
+     */
+    void writeToMarkdown(File outputDir, boolean overwrite) throws IOException;
+
+    /**
+     * 按 JSON 格式输出文档
+     *
+     * @param outputDir 目标文件夹
+     * @param overwrite 是否覆盖
+     * @throws IOException 可能产生的异常
+     */
+    void writeToJson(File outputDir, boolean overwrite) throws IOException;
 }

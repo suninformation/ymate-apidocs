@@ -21,8 +21,16 @@ import net.ymate.apidocs.handle.DocsHandler;
 import net.ymate.apidocs.impl.DefaultDocsConfig;
 import net.ymate.apidocs.intercept.ApiMockEnabled;
 import net.ymate.apidocs.intercept.ApiMockEnabledInterceptor;
+import net.ymate.apidocs.render.*;
+import net.ymate.platform.commons.DateTimeHelper;
 import net.ymate.platform.commons.ReentrantLockHelper;
+import net.ymate.platform.commons.markdown.Link;
+import net.ymate.platform.commons.markdown.MarkdownBuilder;
+import net.ymate.platform.commons.markdown.ParagraphList;
+import net.ymate.platform.commons.markdown.Text;
 import net.ymate.platform.commons.util.ClassUtils;
+import net.ymate.platform.commons.util.DateTimeUtils;
+import net.ymate.platform.commons.util.FileUtils;
 import net.ymate.platform.core.*;
 import net.ymate.platform.core.beans.IBeanLoadFactory;
 import net.ymate.platform.core.beans.IBeanLoader;
@@ -35,18 +43,36 @@ import net.ymate.platform.core.support.ErrorCode;
 import net.ymate.platform.webmvc.base.Type;
 import net.ymate.platform.webmvc.util.WebErrorCode;
 import net.ymate.platform.webmvc.util.WebResult;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author 刘镇 (suninformation@163.com) on 2020/02/01 00:34
  */
 public final class Docs implements IModule, IDocs {
+
+    private static final Log LOG = LogFactory.getLog(Docs.class);
+
+    public static File checkTargetFileAndGet(File outputDir, String filePath, boolean overwrite) {
+        File targetFile = new File(outputDir, filePath);
+        boolean notSkipped = !targetFile.exists() || targetFile.exists() && overwrite;
+        if (notSkipped) {
+            File parentFile = targetFile.getParentFile();
+            if (parentFile.exists() || parentFile.mkdirs()) {
+                return targetFile;
+            }
+        } else if (LOG.isWarnEnabled()) {
+            LOG.warn(String.format("Skip existing file %s.", targetFile));
+        }
+        return null;
+    }
 
     private static volatile IDocs instance;
 
@@ -171,6 +197,7 @@ public final class Docs implements IModule, IDocs {
                 DocInfo docInfo = DocInfo.create(this, docsId, apisAnn.title(), apisAnn.version())
                         .setDescription(apisAnn.description())
                         .setSnakeCase(apisAnn.snakeCase())
+                        .setOrder(apisAnn.order())
                         .setLicense(LicenseInfo.create(apisPackage.getAnnotation(ApiLicense.class)))
                         .setAuthorization(AuthorizationInfo.create(this, apisPackage.getAnnotation(ApiAuthorization.class)))
                         .setSecurity(SecurityInfo.create(this, apisPackage.getAnnotation(ApiSecurity.class), null))
@@ -198,20 +225,20 @@ public final class Docs implements IModule, IDocs {
                     } else {
                         ErrorCode errorCode = WebErrorCode.invalidParamsValidation();
                         docInfo.addResponseExample(ExampleInfo.create(WebResult.builder()
-                                .code(errorCode.code())
-                                .msg(errorCode.message())
-                                .data(Collections.singletonMap("username", "username is required."))
-                                .build()
-                                .toJsonObject()
-                                .toString(true, true, apisAnn.snakeCase()))
+                                        .code(errorCode.code())
+                                        .msg(errorCode.message())
+                                        .data(Collections.singletonMap("username", "username is required."))
+                                        .build()
+                                        .toJsonObject()
+                                        .toString(true, true, apisAnn.snakeCase()))
                                 .setType("json")
                                 .setName(AbstractMarkdown.i18nText(this, "response.example_standard", "Standard")));
                         docInfo.addResponseExample(ExampleInfo.create(WebResult.builder()
-                                .succeed()
-                                .data(new DefaultResultSet<>(Collections.emptyList(), 1, 20, 1))
-                                .build()
-                                .toJsonObject()
-                                .toString(true, true, apisAnn.snakeCase()))
+                                        .succeed()
+                                        .data(new DefaultResultSet<>(Collections.emptyList(), 1, 20, 1))
+                                        .build()
+                                        .toJsonObject()
+                                        .toString(true, true, apisAnn.snakeCase()))
                                 .setType("json")
                                 .setName(AbstractMarkdown.i18nText(this, "response.example_pagination", "Pagination")));
                     }
@@ -273,7 +300,103 @@ public final class Docs implements IModule, IDocs {
     }
 
     @Override
-    public Map<String, DocInfo> getDocs() {
+    public Map<String, DocInfo> getDocInfoMap() {
         return Collections.unmodifiableMap(docInfoMap);
+    }
+
+    @Override
+    public List<DocInfo> getDocs() {
+        List<DocInfo> docs = new ArrayList<>(docInfoMap.values());
+        docs.sort(Comparator.comparingInt(DocInfo::getOrder));
+        return Collections.unmodifiableList(docs);
+    }
+
+    @Override
+    public void writeToDocusaurus(File outputDir, boolean overwrite) throws IOException {
+        List<DocInfo> docInfos = getDocs();
+        if (!docInfos.isEmpty()) {
+            if (!outputDir.exists() && outputDir.mkdirs() && LOG.isInfoEnabled()) {
+                LOG.info(String.format("Create a directory for %s.", outputDir));
+            }
+            FileUtils.unpackJarFile("docusaurus", outputDir);
+            ParagraphList paragraphList = ParagraphList.create();
+            int idx = 1;
+            for (DocInfo docInfo : docInfos) {
+                docInfo.setOrder(idx++);
+                paragraphList.addItem(Link.create(String.format("%s %s", docInfo.getTitle(), docInfo.getVersion()), String.format("%s/overview", docInfo.getId())).toMarkdown());
+                if (StringUtils.isNotBlank(docInfo.getDescription())) {
+                    paragraphList.addBody(MarkdownBuilder.create().tab().quote(docInfo.getDescription()));
+                }
+                new DocusaurusDocRender(docInfo, new File(outputDir, "docs"), overwrite).render();
+            }
+            MarkdownBuilder markdownBuilder = MarkdownBuilder.create()
+                    .append("---\nslug: /\nsidebar_position: 1\n---\n\n")
+                    .title(AbstractMarkdown.i18nText(this, "doc.about", "About")).p()
+                    .append(paragraphList).p().hr()
+                    .append(":::tip\n")
+                    .append(AbstractMarkdown.i18nText(this, "doc.footer", "This document is built with YMATE-APIDocs. Please visit [https://ymate.net/](https://ymate.net/) for more information.")).p()
+                    .append(MarkdownBuilder.create().text(AbstractMarkdown.i18nText(this, "doc.create_time", "Create time: "), Text.Style.BOLD).space().text(DateTimeHelper.now().toString(DateTimeUtils.YYYY_MM_DD_HH_MM), Text.Style.ITALIC)).br()
+                    .append(":::");
+            File targetFile = Docs.checkTargetFileAndGet(outputDir, "docs/intro.md", overwrite);
+            if (targetFile != null) {
+                try (OutputStream outputStream = new FileOutputStream(targetFile)) {
+                    IOUtils.write(markdownBuilder.toMarkdown(), outputStream, "UTF-8");
+                    if (LOG.isInfoEnabled()) {
+                        LOG.info(String.format("Output file: %s", targetFile));
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void writeToGitbook(File outputDir, boolean overwrite) throws IOException {
+        for (DocInfo docInfo : getDocs()) {
+            new GitbookDocRender(docInfo, outputDir, overwrite).render();
+        }
+    }
+
+    @Override
+    public void writeToPostman(File outputDir, boolean overwrite) throws IOException {
+        for (DocInfo docInfo : getDocs()) {
+            File targetFile = checkTargetFileAndGet(outputDir, String.format("postman_collection_%s.json", docInfo.getId()), overwrite);
+            if (targetFile != null) {
+                try (OutputStream outputStream = new FileOutputStream(targetFile)) {
+                    new PostmanDocRender(docInfo).render(outputStream);
+                    if (LOG.isInfoEnabled()) {
+                        LOG.info(String.format("Output file: %s", targetFile));
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void writeToMarkdown(File outputDir, boolean overwrite) throws IOException {
+        for (DocInfo docInfo : getDocs()) {
+            File targetFile = checkTargetFileAndGet(outputDir, String.format("%s.md", docInfo.getId()), overwrite);
+            if (targetFile != null) {
+                try (OutputStream outputStream = new FileOutputStream(targetFile)) {
+                    new MarkdownDocRender(docInfo).render(outputStream);
+                    if (LOG.isInfoEnabled()) {
+                        LOG.info(String.format("Output file: %s", targetFile));
+                    }
+                }
+            }
+        }
+    }
+
+    public void writeToJson(File outputDir, boolean overwrite) throws IOException {
+        for (DocInfo docInfo : getDocs()) {
+            File targetFile = checkTargetFileAndGet(outputDir, String.format("%s.json", docInfo.getId()), overwrite);
+            if (targetFile != null) {
+                try (OutputStream outputStream = new FileOutputStream(targetFile)) {
+                    new JsonDocRender(docInfo).render(outputStream);
+                    if (LOG.isInfoEnabled()) {
+                        LOG.info(String.format("Output file: %s", targetFile));
+                    }
+                }
+            }
+        }
     }
 }
