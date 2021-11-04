@@ -123,7 +123,7 @@ public class DocusaurusDocRender extends AbstractMultiDocRender {
             //
             markdownBuilder.append(apiList.toMarkdown()).p();
         }
-        markdownBuilder.append(doAppendixPartBuilder(MarkdownBuilder.create().append("---\nsidebar_position: ").append(String.valueOf(idx.get())).append("\n---\n\n\n"), true));
+        markdownBuilder.append(doAppendixPartBuilder(MarkdownBuilder.create().append("---\nsidebar_position: ").append(String.valueOf(11)).append("\n---\n\n\n"), true));
         doWriteFileContent("overview", markdownBuilder.toMarkdown());
     }
 
