@@ -16,7 +16,6 @@
     <modules>
         <module>ymate-apidocs-annotation</module>
         <module>ymate-apidocs-core</module>
-        <module>ymate-apidocs-maven-plugin</module>
     </modules>
 
     <developers>
