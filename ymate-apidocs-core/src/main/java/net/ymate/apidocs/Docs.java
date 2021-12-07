@@ -113,7 +113,7 @@ public final class Docs implements IModule, IDocs {
     public void initialize(IApplication owner) throws Exception {
         if (!initialized) {
             //
-            YMP.showVersion("Initializing ymate-apidocs-core-${version}", new Version(2, 0, 0, Docs.class, Version.VersionType.Alpha));
+            YMP.showVersion("Initializing ymate-apidocs-core-${version}", new Version(2, 0, 0, Docs.class, Version.VersionType.Release));
             //
             this.owner = owner;
             IApplicationConfigureFactory configureFactory = owner.getConfigureFactory();

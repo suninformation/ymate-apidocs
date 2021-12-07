@@ -10,7 +10,7 @@
     <packaging>pom</packaging>
 
     <name>ymate-apidocs-parent</name>
-    <url>http://www.ymate.net/</url>
+    <url>https://www.ymate.net/</url>
     <description>YMP ApiDocs Parent Archetype</description>
 
     <modules>
@@ -145,31 +145,6 @@
                 <artifactId>junit</artifactId>
                 <version>4.13.1</version>
                 <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>javax.servlet</groupId>
-                <artifactId>javax.servlet-api</artifactId>
-                <version>3.0.1</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.servlet.jsp</groupId>
-                <artifactId>jsp-api</artifactId>
-                <version>2.2</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.websocket</groupId>
-                <artifactId>javax.websocket-api</artifactId>
-                <version>1.1</version>
-            </dependency>
-            <dependency>
-                <groupId>org.freemarker</groupId>
-                <artifactId>freemarker</artifactId>
-                <version>2.3.29</version>
-            </dependency>
-            <dependency>
-                <groupId>net.ymate.platform</groupId>
-                <artifactId>ymate-platform-core</artifactId>
-                <version>${ymate.platform.version}</version>
             </dependency>
             <dependency>
                 <groupId>net.ymate.platform</groupId>
