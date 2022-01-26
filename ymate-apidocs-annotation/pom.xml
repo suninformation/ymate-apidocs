@@ -15,7 +15,7 @@
 
     <name>ymate-apidocs-annotation</name>
     <url>https://www.ymate.net/</url>
-    <description>YMP ApiDocs Annotation Archetype</description>
+    <description>YMP ApiDocs Annotation</description>
 
     <build>
         <resources>

@@ -15,7 +15,7 @@
 
     <name>ymate-apidocs-core</name>
     <url>https://www.ymate.net/</url>
-    <description>YMP ApiDocs Core Archetype</description>
+    <description>YMP ApiDocs Core</description>
 
     <build>
         <resources>

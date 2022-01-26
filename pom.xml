@@ -11,7 +11,7 @@
 
     <name>ymate-apidocs-parent</name>
     <url>https://www.ymate.net/</url>
-    <description>YMP ApiDocs Parent Archetype</description>
+    <description>YMP ApiDocs Parent</description>
 
     <modules>
         <module>ymate-apidocs-annotation</module>
@@ -143,7 +143,7 @@
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>4.13.1</version>
+                <version>4.13.2</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
