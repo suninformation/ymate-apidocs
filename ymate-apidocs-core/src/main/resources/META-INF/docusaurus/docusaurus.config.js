@@ -66,7 +66,7 @@ const config = {
                     },
                     {to: 'https://ymate.net/blog', label: '博客', position: 'right'},
                     {
-                        to: '/support',
+                        to: 'https://ymate.net/support',
                         label: '支持 & 捐赠',
                         position: 'right'
                     },
@@ -120,7 +120,7 @@ const config = {
                             },
                             {
                                 label: 'QQ群：480374360',
-                                href: '#',
+                                href: 'https://qm.qq.com/cgi-bin/qm/qr?k=3KSXbRoridGeFxTVA8HZzyhwU_btZQJ2',
                             },
                         ],
                     },
@@ -146,7 +146,7 @@ const config = {
                         ],
                     },
                 ],
-                copyright: `Copyright © ${new Date().getFullYear()} yMate.Net. All Rights Reserved. Built with Docusaurus.<br/>Apache License Version 2.0`,
+                copyright: `Copyright © ${new Date().getFullYear()} <a href="https://ymate.net" target="_blank">yMate.Net</a>. All Rights Reserved. Built with Docusaurus.<br/>Apache License Version 2.0`,
             },
             prism: {
                 theme: lightCodeTheme,
