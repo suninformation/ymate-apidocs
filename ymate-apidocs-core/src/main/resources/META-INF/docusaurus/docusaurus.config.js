@@ -35,7 +35,11 @@ const config = {
     themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
         ({
-            hideableSidebar: true,
+            docs: {
+                sidebar: {
+                    hideable: true,
+                },
+            },
             navbar: {
                 title: 'YMATE-APIDocs',
                 logo: {
@@ -151,6 +155,7 @@ const config = {
             prism: {
                 theme: lightCodeTheme,
                 darkTheme: darkCodeTheme,
+                additionalLanguages: ['java', 'properties'],
             },
         }),
 };
