@@ -28,15 +28,18 @@ import net.ymate.apidocs.base.GroupInfo;
 import net.ymate.platform.commons.markdown.Link;
 import net.ymate.platform.commons.markdown.MarkdownBuilder;
 import net.ymate.platform.commons.markdown.ParagraphList;
-import net.ymate.platform.core.persistence.base.EntityMeta;
+import net.ymate.platform.commons.util.ClassUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -58,13 +61,13 @@ public class DocusaurusDocRender extends AbstractMultiDocRender {
         if (categoryJsonFile != null) {
             JSONObject categoryJson;
             if (categoryJsonFile.exists()) {
-                categoryJson = JSON.parseObject(IOUtils.toString(new FileInputStream(categoryJsonFile), StandardCharsets.UTF_8), Feature.OrderedField);
+                categoryJson = JSON.parseObject(IOUtils.toString(Files.newInputStream(categoryJsonFile.toPath()), StandardCharsets.UTF_8), Feature.OrderedField);
             } else {
                 categoryJson = new JSONObject(true);
             }
             categoryJson.put("label", label);
             categoryJson.put("position", order);
-            try (OutputStream outputStream = new FileOutputStream(categoryJsonFile)) {
+            try (OutputStream outputStream = Files.newOutputStream(categoryJsonFile.toPath())) {
                 IOUtils.write(categoryJson.toString(SerializerFeature.DisableCircularReferenceDetect, SerializerFeature.PrettyFormat), outputStream, "UTF-8");
                 if (LOG.isInfoEnabled()) {
                     LOG.info(String.format("Output file: %s", categoryJsonFile));
@@ -130,7 +133,7 @@ public class DocusaurusDocRender extends AbstractMultiDocRender {
     private void doAppendApiActionList(List<ApiInfo> apiInfos, ParagraphList parent, String parentPath, AtomicInteger idx) throws IOException {
         if (!apiInfos.isEmpty()) {
             for (ApiInfo apiInfo : apiInfos) {
-                String apiFilePath = String.format("api-%s", RegExUtils.replaceAll(EntityMeta.fieldNameToPropertyName(StringUtils.substringAfterLast(apiInfo.getId(), "."), 0), "_", "-"));
+                String apiFilePath = String.format("api-%s", RegExUtils.replaceAll(ClassUtils.fieldNameToPropertyName(StringUtils.substringAfterLast(apiInfo.getId(), "."), 0), "_", "-"));
                 MarkdownBuilder markdownBuilder = MarkdownBuilder.create()
                         .append("---\nsidebar_position: ")
                         .append(String.valueOf(idx.getAndAdd(1)))

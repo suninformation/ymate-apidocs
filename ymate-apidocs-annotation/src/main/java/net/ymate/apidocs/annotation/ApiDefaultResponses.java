@@ -39,6 +39,24 @@ public @interface ApiDefaultResponses {
     Class<? extends Serializable> pagingType() default Serializable.class;
 
     /**
+     * @return 自定义响应码参数名称
+     * @since 2.0.1
+     */
+    String codeParamName() default "";
+
+    /**
+     * @return 自定义响应消息描述参数名称
+     * @since 2.0.1
+     */
+    String msgParamName() default "";
+
+    /**
+     * @return 自定义响应业务数据参数名称
+     * @since 2.0.1
+     */
+    String dataParamName() default "";
+
+    /**
      * @return 响应报文示例
      */
     ApiExample[] examples() default {};

@@ -30,15 +30,18 @@ import net.ymate.apidocs.base.GroupInfo;
 import net.ymate.platform.commons.markdown.Link;
 import net.ymate.platform.commons.markdown.MarkdownBuilder;
 import net.ymate.platform.commons.markdown.ParagraphList;
-import net.ymate.platform.core.persistence.base.EntityMeta;
+import net.ymate.platform.commons.util.ClassUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.List;
 
 /**
@@ -59,7 +62,7 @@ public class GitbookDocRender extends AbstractMultiDocRender {
         JSONObject bookJson;
         boolean isNew = false;
         if (bookJsonFile.exists()) {
-            bookJson = JSON.parseObject(IOUtils.toString(new FileInputStream(bookJsonFile), StandardCharsets.UTF_8), Feature.OrderedField);
+            bookJson = JSON.parseObject(IOUtils.toString(Files.newInputStream(bookJsonFile.toPath()), StandardCharsets.UTF_8), Feature.OrderedField);
         } else {
             bookJson = new JSONObject(true);
             isNew = true;
@@ -94,7 +97,7 @@ public class GitbookDocRender extends AbstractMultiDocRender {
         if (bookJsonFile.getParentFile().mkdirs() && LOG.isInfoEnabled()) {
             LOG.info(String.format("Create a directory for %s.", bookJsonFile.getParentFile()));
         }
-        try (OutputStream outputStream = new FileOutputStream(bookJsonFile)) {
+        try (OutputStream outputStream = Files.newOutputStream(bookJsonFile.toPath())) {
             IOUtils.write(bookJson.toString(SerializerFeature.DisableCircularReferenceDetect, SerializerFeature.PrettyFormat), outputStream, "UTF-8");
             if (LOG.isInfoEnabled()) {
                 LOG.info(String.format("Output file: %s", bookJsonFile));
@@ -140,7 +143,7 @@ public class GitbookDocRender extends AbstractMultiDocRender {
             }
             //
             markdownBuilder.append(doAppendixPartBuilder(emptyHeader, false));
-            try (OutputStream outputStream = new FileOutputStream(summaryFile)) {
+            try (OutputStream outputStream = Files.newOutputStream(summaryFile.toPath())) {
                 IOUtils.write(markdownBuilder.toMarkdown(), outputStream, "UTF-8");
                 if (LOG.isInfoEnabled()) {
                     LOG.info(String.format("Output file: %s", summaryFile));
@@ -152,7 +155,7 @@ public class GitbookDocRender extends AbstractMultiDocRender {
     private void doAppendApiActionList(List<ApiInfo> apiInfos, ParagraphList parent) throws IOException {
         if (!apiInfos.isEmpty()) {
             for (ApiInfo apiInfo : apiInfos) {
-                String apiFilePath = String.format("api-%s.md", RegExUtils.replaceAll(EntityMeta.fieldNameToPropertyName(StringUtils.substringAfterLast(apiInfo.getId(), "."), 0), "_", "-"));
+                String apiFilePath = String.format("api-%s.md", RegExUtils.replaceAll(ClassUtils.fieldNameToPropertyName(StringUtils.substringAfterLast(apiInfo.getId(), "."), 0), "_", "-"));
                 parent.addItem(Link.create(apiInfo.getName(), apiFilePath).toMarkdown());
                 doWriteFileContent(apiFilePath, apiInfo.toMarkdown());
 //                ParagraphList apiSubList = ParagraphList.create();

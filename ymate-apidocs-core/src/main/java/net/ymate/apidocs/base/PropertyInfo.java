@@ -23,7 +23,6 @@ import net.ymate.platform.commons.markdown.MarkdownBuilder;
 import net.ymate.platform.commons.markdown.Table;
 import net.ymate.platform.commons.markdown.Text;
 import net.ymate.platform.commons.util.ClassUtils;
-import net.ymate.platform.core.persistence.base.EntityMeta;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -76,21 +75,23 @@ public class PropertyInfo implements IMarkdown {
     public static List<PropertyInfo> create(String prefix, Class<?> targetClass, boolean snakeCase) {
         List<PropertyInfo> properties = new ArrayList<>();
         ClassUtils.BeanWrapper<?> beanWrapper = ClassUtils.wrapper(targetClass);
-        for (Field field : beanWrapper.getFields()) {
-            ApiProperty apiProperty = field.getAnnotation(ApiProperty.class);
-            if (apiProperty != null) {
-                if (apiProperty.model()) {
-                    if (StringUtils.isNotBlank(prefix)) {
-                        prefix += ".";
+        if (beanWrapper != null) {
+            for (Field field : beanWrapper.getFields()) {
+                ApiProperty apiProperty = field.getAnnotation(ApiProperty.class);
+                if (apiProperty != null) {
+                    if (apiProperty.model()) {
+                        if (StringUtils.isNotBlank(prefix)) {
+                            prefix += ".";
+                        }
+                        String propName = StringUtils.defaultIfBlank(apiProperty.name(), field.getName());
+                        propName = snakeCase ? ClassUtils.fieldNameToPropertyName(propName, 0) : propName;
+                        List<PropertyInfo> props = create(StringUtils.trimToEmpty(prefix) + propName, Void.class.equals(apiProperty.modelClass()) ? field.getType() : apiProperty.modelClass(), snakeCase);
+                        if (!props.isEmpty()) {
+                            properties.addAll(props);
+                        }
+                    } else {
+                        properties.add(PropertyInfo.create(apiProperty, prefix, field, snakeCase));
                     }
-                    String propName = StringUtils.defaultIfBlank(apiProperty.name(), field.getName());
-                    propName = snakeCase ? EntityMeta.fieldNameToPropertyName(propName, 0) : propName;
-                    List<PropertyInfo> props = create(StringUtils.trimToEmpty(prefix) + propName, Void.class.equals(apiProperty.modelClass()) ? field.getType() : apiProperty.modelClass(), snakeCase);
-                    if (!props.isEmpty()) {
-                        properties.addAll(props);
-                    }
-                } else {
-                    properties.add(PropertyInfo.create(apiProperty, prefix, field, snakeCase));
                 }
             }
         }
@@ -100,8 +101,8 @@ public class PropertyInfo implements IMarkdown {
     public static PropertyInfo create(ApiProperty property, boolean snakeCase) {
         if (property != null) {
             return new PropertyInfo()
-                    .setName(snakeCase ? EntityMeta.fieldNameToPropertyName(property.name(), 0) : property.name())
-                    .setValue(property.value())
+                    .setName(snakeCase ? ClassUtils.fieldNameToPropertyName(property.name(), 0) : property.name())
+                    .setValue(StringUtils.defaultIfBlank(property.value(), Void.class.equals(property.valueClass()) ? StringUtils.EMPTY : property.valueClass().getSimpleName()))
                     .setDemoValue(property.demoValue())
                     .setDescription(property.description());
         }
@@ -118,7 +119,7 @@ public class PropertyInfo implements IMarkdown {
                 prefix += ".";
             }
             String propName = StringUtils.defaultIfBlank(property.name(), field.getName());
-            propName = snakeCase ? EntityMeta.fieldNameToPropertyName(propName, 0) : propName;
+            propName = snakeCase ? ClassUtils.fieldNameToPropertyName(propName, 0) : propName;
             return new PropertyInfo()
                     .setName(StringUtils.trimToEmpty(prefix) + propName)
                     .setValue(Void.class.equals(property.valueClass()) ? StringUtils.defaultIfBlank(property.value(), field.getType().getSimpleName()) : property.valueClass().getSimpleName())

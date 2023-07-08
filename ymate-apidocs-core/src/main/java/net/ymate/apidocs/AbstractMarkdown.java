@@ -30,7 +30,10 @@ public abstract class AbstractMarkdown implements IMarkdown {
 
     private final IDocs owner;
 
-    private int markdownTitleLevel;
+    /**
+     * 标题级别
+     */
+    private int level;
 
     public AbstractMarkdown(IDocs owner) {
         if (owner == null) {
@@ -48,18 +51,19 @@ public abstract class AbstractMarkdown implements IMarkdown {
         return i18nText(owner, i18nKey, defaultText);
     }
 
-    public int getMarkdownTitleLevel() {
-        return getMarkdownTitleLevel(1);
+    @JSONField(serialize = false)
+    public int getLevel() {
+        return getLevel(1);
     }
 
-    public int getMarkdownTitleLevel(int defaultLevel) {
-        if (markdownTitleLevel <= 0) {
+    public int getLevel(int defaultLevel) {
+        if (level <= 0) {
             return Math.min(defaultLevel, 1);
         }
-        return markdownTitleLevel;
+        return level;
     }
 
-    public void setMarkdownTitleLevel(int markdownTitleLevel) {
-        this.markdownTitleLevel = markdownTitleLevel;
+    public void setLevel(int level) {
+        this.level = level;
     }
 }

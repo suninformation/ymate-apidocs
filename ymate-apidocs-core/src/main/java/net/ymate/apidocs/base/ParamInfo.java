@@ -25,7 +25,6 @@ import net.ymate.platform.commons.markdown.MarkdownBuilder;
 import net.ymate.platform.commons.markdown.Table;
 import net.ymate.platform.commons.markdown.Text;
 import net.ymate.platform.commons.util.ClassUtils;
-import net.ymate.platform.core.persistence.base.EntityMeta;
 import net.ymate.platform.validation.annotation.VField;
 import net.ymate.platform.validation.validate.IDataRangeValuesProvider;
 import net.ymate.platform.validation.validate.VDataRange;
@@ -113,7 +112,7 @@ public class ParamInfo extends AbstractMarkdown {
                 paramName = defaultParamName;
             }
             if (requestParam != null && snakeCase) {
-                paramName = EntityMeta.fieldNameToPropertyName(paramName, 0);
+                paramName = ClassUtils.fieldNameToPropertyName(paramName, 0);
             }
             boolean required = apiParam.required() || annotatedElement.isAnnotationPresent(VRequired.class) || apiParam.pathVariable() || pathVariable != null;
             if (!apiParam.hidden() && StringUtils.isNotBlank(paramName)) {
@@ -145,6 +144,7 @@ public class ParamInfo extends AbstractMarkdown {
                         .setSnakeCase(snakeCase)
                         .setRequired(required)
                         .setDescription(description)
+
                         .addExample(StringUtils.isNotBlank(apiParam.example()) ? ExampleInfo.create(apiParam.example()) : null)
                         .addExamples(ExampleInfo.create(apiParam.examples()));
                 if (ArrayUtils.isEmpty(apiParam.allowValues())) {

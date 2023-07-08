@@ -49,7 +49,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.Serializable;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -113,7 +117,7 @@ public final class Docs implements IModule, IDocs {
     public void initialize(IApplication owner) throws Exception {
         if (!initialized) {
             //
-            YMP.showVersion("Initializing ymate-apidocs-core-${version}", new Version(2, 0, 0, Docs.class, Version.VersionType.Release));
+            YMP.showVersion("Initializing ymate-apidocs-core-${version}", new Version(2, 0, 1, Docs.class, Version.VersionType.Release));
             //
             this.owner = owner;
             IApplicationConfigureFactory configureFactory = owner.getConfigureFactory();
@@ -244,9 +248,9 @@ public final class Docs implements IModule, IDocs {
                     }
                     //
                     if (Serializable.class.equals(defaultResponses.standardType())) {
-                        docInfo.addResponseProperty(PropertyInfo.create().setName(Type.Const.PARAM_RET).setValue(Integer.class.getSimpleName()).setDescription(AbstractMarkdown.i18nText(this, "response.code", "Response code.")));
-                        docInfo.addResponseProperty(PropertyInfo.create().setName(Type.Const.PARAM_MSG).setValue(String.class.getSimpleName()).setDescription(AbstractMarkdown.i18nText(this, "response.message", "Message.")));
-                        docInfo.addResponseProperty(PropertyInfo.create().setName(Type.Const.PARAM_DATA).setValue(Object.class.getSimpleName()).setDescription(AbstractMarkdown.i18nText(this, "response.data", "Business data content.")));
+                        docInfo.addResponseProperty(PropertyInfo.create().setName(StringUtils.defaultIfBlank(defaultResponses.codeParamName(), Type.Const.PARAM_RET)).setValue(Integer.class.getSimpleName()).setDescription(AbstractMarkdown.i18nText(this, "response.code", "Response code.")));
+                        docInfo.addResponseProperty(PropertyInfo.create().setName(StringUtils.defaultIfBlank(defaultResponses.msgParamName(), Type.Const.PARAM_MSG)).setValue(String.class.getSimpleName()).setDescription(AbstractMarkdown.i18nText(this, "response.message", "Message.")));
+                        docInfo.addResponseProperty(PropertyInfo.create().setName(StringUtils.defaultIfBlank(defaultResponses.dataParamName(), Type.Const.PARAM_DATA)).setValue(Object.class.getSimpleName()).setDescription(AbstractMarkdown.i18nText(this, "response.data", "Business data content.")));
                     } else {
                         docInfo.addResponseProperties(PropertyInfo.create(null, defaultResponses.standardType(), apisAnn.snakeCase()));
                     }
@@ -259,7 +263,7 @@ public final class Docs implements IModule, IDocs {
                         docInfo.addResponseProperty(PropertyInfo.create().setName(apisAnn.snakeCase() ? "result_data" : "resultData").setValue(Object[].class.getSimpleName()).setDescription(AbstractMarkdown.i18nText(this, "response.result_data", "Paging param: the result set data object.")));
                         docInfo.addResponseProperty(PropertyInfo.create().setName(apisAnn.snakeCase() ? "results_available" : "resultsAvailable").setValue(Boolean.class.getSimpleName()).setDescription(AbstractMarkdown.i18nText(this, "response.results_available", "Paging param: whether result set is empty.")));
                     } else {
-                        docInfo.addResponseProperties(PropertyInfo.create(Type.Const.PARAM_DATA, defaultResponses.pagingType(), apisAnn.snakeCase()));
+                        docInfo.addResponseProperties(PropertyInfo.create(StringUtils.defaultIfBlank(defaultResponses.dataParamName(), Type.Const.PARAM_DATA), defaultResponses.pagingType(), apisAnn.snakeCase()));
                     }
                     //
                     docInfo.addResponse(ResponseInfo.create("0", AbstractMarkdown.i18nText(this, "error_code_0", "Request success.")));
@@ -339,7 +343,7 @@ public final class Docs implements IModule, IDocs {
                     .append(":::");
             File targetFile = Docs.checkTargetFileAndGet(outputDir, "docs/intro.md", overwrite);
             if (targetFile != null) {
-                try (OutputStream outputStream = new FileOutputStream(targetFile)) {
+                try (OutputStream outputStream = Files.newOutputStream(targetFile.toPath())) {
                     IOUtils.write(markdownBuilder.toMarkdown(), outputStream, "UTF-8");
                     if (LOG.isInfoEnabled()) {
                         LOG.info(String.format("Output file: %s", targetFile));
@@ -361,7 +365,7 @@ public final class Docs implements IModule, IDocs {
         for (DocInfo docInfo : getDocs()) {
             File targetFile = checkTargetFileAndGet(outputDir, String.format("postman_collection_%s.json", docInfo.getId()), overwrite);
             if (targetFile != null) {
-                try (OutputStream outputStream = new FileOutputStream(targetFile)) {
+                try (OutputStream outputStream = Files.newOutputStream(targetFile.toPath())) {
                     new PostmanDocRender(docInfo).render(outputStream);
                     if (LOG.isInfoEnabled()) {
                         LOG.info(String.format("Output file: %s", targetFile));
@@ -376,7 +380,7 @@ public final class Docs implements IModule, IDocs {
         for (DocInfo docInfo : getDocs()) {
             File targetFile = checkTargetFileAndGet(outputDir, String.format("%s.md", docInfo.getId()), overwrite);
             if (targetFile != null) {
-                try (OutputStream outputStream = new FileOutputStream(targetFile)) {
+                try (OutputStream outputStream = Files.newOutputStream(targetFile.toPath())) {
                     new MarkdownDocRender(docInfo).render(outputStream);
                     if (LOG.isInfoEnabled()) {
                         LOG.info(String.format("Output file: %s", targetFile));
@@ -390,7 +394,7 @@ public final class Docs implements IModule, IDocs {
         for (DocInfo docInfo : getDocs()) {
             File targetFile = checkTargetFileAndGet(outputDir, String.format("%s.json", docInfo.getId()), overwrite);
             if (targetFile != null) {
-                try (OutputStream outputStream = new FileOutputStream(targetFile)) {
+                try (OutputStream outputStream = Files.newOutputStream(targetFile.toPath())) {
                     new JsonDocRender(docInfo).render(outputStream);
                     if (LOG.isInfoEnabled()) {
                         LOG.info(String.format("Output file: %s", targetFile));

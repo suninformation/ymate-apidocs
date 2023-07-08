@@ -6,7 +6,7 @@
 
     <groupId>net.ymate.apidocs</groupId>
     <artifactId>ymate-apidocs-parent</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
     <packaging>pom</packaging>
 
     <name>ymate-apidocs-parent</name>
@@ -40,7 +40,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <ymate.platform.version>2.1.0</ymate.platform.version>
+        <ymate.platform.version>2.1.2</ymate.platform.version>
     </properties>
 
     <build>

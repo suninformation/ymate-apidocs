@@ -195,7 +195,7 @@ public class ActionInfo extends AbstractMarkdown {
         MarkdownBuilder markdownBuilder = MarkdownBuilder.create();
         if (!actions.isEmpty()) {
             for (ActionInfo action : actions) {
-                action.setMarkdownTitleLevel(topTitleLevel);
+                action.setLevel(topTitleLevel);
                 markdownBuilder.append(action);
             }
         }
@@ -631,7 +631,7 @@ public class ActionInfo extends AbstractMarkdown {
 
     @Override
     public String toMarkdown() {
-        int currentTopTitleLevel = getMarkdownTitleLevel(5);
+        int currentTopTitleLevel = getLevel(5);
         int subTopTitleLevel = currentTopTitleLevel + 1;
         MarkdownBuilder markdownBuilder = MarkdownBuilder.create()
                 .title(Text.create(displayName, deprecated ? Text.Style.STRIKEOUT : null), currentTopTitleLevel);

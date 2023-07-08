@@ -20,6 +20,7 @@ import net.ymate.apidocs.annotation.ApiExtensions;
 import net.ymate.platform.commons.markdown.IMarkdown;
 import net.ymate.platform.commons.markdown.MarkdownBuilder;
 import net.ymate.platform.commons.markdown.Text;
+import net.ymate.platform.commons.util.ResourceUtils;
 import net.ymate.platform.commons.util.RuntimeUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -28,10 +29,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -44,17 +45,29 @@ public class ExtensionInfo implements IMarkdown {
 
     private static final Log LOG = LogFactory.getLog(ExtensionInfo.class);
 
-    public static String loadContentFromFile(String filePath) {
+    private static InputStream doGetFileInputStream(String filePath) throws IOException {
+        if (StringUtils.isNotBlank(filePath)) {
+            File file = new File(RuntimeUtils.getRootPath(), filePath);
+            if (!file.exists() || !file.canRead()) {
+                return ResourceUtils.getResourceAsStream(filePath, ExtensionInfo.class);
+            } else {
+                return Files.newInputStream(file.toPath());
+            }
+        }
+        return null;
+    }
+
+    public static String loadFromFile(String filePath) {
         String fileContent = filePath;
         if (StringUtils.startsWithIgnoreCase(filePath, "@path:")) {
             filePath = StringUtils.substringAfter(filePath, "@path:");
-            if (StringUtils.isNotBlank(filePath)) {
-                try (InputStream inputStream = new FileInputStream(new File(RuntimeUtils.getRootPath(), filePath))) {
+            try (InputStream inputStream = doGetFileInputStream(filePath)) {
+                if (inputStream != null) {
                     fileContent = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
                     LOG.info(String.format("Loaded content from file: %s", filePath));
-                } catch (IOException e) {
-                    LOG.warn(e.getMessage());
                 }
+            } catch (IOException e) {
+                LOG.warn(e.toString());
             }
         }
         return fileContent;
@@ -127,7 +140,7 @@ public class ExtensionInfo implements IMarkdown {
     }
 
     public ExtensionInfo setDescription(String description) {
-        this.description = loadContentFromFile(description);
+        this.description = loadFromFile(description);
         return this;
     }
 

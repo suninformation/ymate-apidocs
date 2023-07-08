@@ -94,7 +94,7 @@ public class ExampleInfo implements IMarkdown {
         if (StringUtils.isBlank(content)) {
             throw new NullArgumentException("content");
         }
-        this.content = ExtensionInfo.loadContentFromFile(content);
+        this.content = ExtensionInfo.loadFromFile(content);
     }
 
     public String getName() {

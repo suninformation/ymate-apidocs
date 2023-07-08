@@ -93,7 +93,7 @@ public class ApiInfo extends AbstractMarkdown {
         MarkdownBuilder markdownBuilder = MarkdownBuilder.create();
         if (!apis.isEmpty()) {
             for (ApiInfo api : apis) {
-                api.setMarkdownTitleLevel(topTitleLevel);
+                api.setLevel(topTitleLevel);
                 markdownBuilder.append(api);
             }
         }
@@ -506,9 +506,8 @@ public class ApiInfo extends AbstractMarkdown {
 
     @Override
     public String toMarkdown() {
-        int currentTopTitleLevel = getMarkdownTitleLevel();
-        int subTopTitleLevel = currentTopTitleLevel + 1;
-        MarkdownBuilder markdownBuilder = MarkdownBuilder.create().title(Text.create(name, deprecated ? Text.Style.STRIKEOUT : null), currentTopTitleLevel);
+        MarkdownBuilder markdownBuilder = MarkdownBuilder.create().title(Text.create(name, deprecated ? Text.Style.STRIKEOUT : null), getLevel());
+        int subTopTitleLevel = getLevel() + 1;
         if (StringUtils.isNotBlank(description)) {
             markdownBuilder.p().text(description, deprecated ? Text.Style.STRIKEOUT : null);
         }

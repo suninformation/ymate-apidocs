@@ -36,9 +36,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -84,7 +84,7 @@ public abstract class AbstractMultiDocRender extends AbstractDocRender {
         }
         File targetFile = Docs.checkTargetFileAndGet(outputDir, filePath, overwrite);
         if (targetFile != null) {
-            try (OutputStream outputStream = new FileOutputStream(targetFile)) {
+            try (OutputStream outputStream = Files.newOutputStream(targetFile.toPath())) {
                 IOUtils.write(content, outputStream, "UTF-8");
                 if (LOG.isInfoEnabled()) {
                     LOG.info(String.format("Output file: %s", targetFile));
