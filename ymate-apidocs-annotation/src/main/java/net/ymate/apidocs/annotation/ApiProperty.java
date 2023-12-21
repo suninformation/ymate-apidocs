@@ -38,7 +38,7 @@ public @interface ApiProperty {
     String value() default "";
 
     /**
-     * @return 自定义值类型（需自行注册）
+     * @return 自定义值类型(主要用于当成员对象为集合类型时, 可能需通过 ApiResponseType 注解自行注册该类型)
      */
     Class<?> valueClass() default Void.class;
 
@@ -53,7 +53,7 @@ public @interface ApiProperty {
     boolean model() default false;
 
     /**
-     * @return 指定模型对象类型(主要用于当成员对象为集合类型时)
+     * @return 自定义模型对象类型
      */
     Class<?> modelClass() default Void.class;
 

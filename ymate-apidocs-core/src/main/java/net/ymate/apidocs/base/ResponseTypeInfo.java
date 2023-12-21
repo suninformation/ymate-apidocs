@@ -84,8 +84,10 @@ public class ResponseTypeInfo implements Serializable {
                         wrapper.setValue(field, Collections.singleton(create(apiProperty.valueClass())));
                     } else if (field.getType().isArray() && !Void.class.equals(apiProperty.valueClass())) {
                         wrapper.setValue(field, Collections.singletonList(create(apiProperty.valueClass())).toArray());
-                    } else if (!Void.class.equals(apiProperty.valueClass())) {
+                    } else if (!apiProperty.model() && !Void.class.equals(apiProperty.valueClass())) {
                         wrapper.setValue(field, create(apiProperty.valueClass()));
+                    } else if (apiProperty.model()) {
+                        wrapper.setValue(field, create(!Void.class.equals(apiProperty.modelClass()) ? apiProperty.modelClass() : field.getType()));
                     } else if (StringUtils.isNotBlank(apiProperty.demoValue())) {
                         wrapper.setValue(field, BlurObject.bind(apiProperty.demoValue()).toObjectValue(field.getType()));
                     }

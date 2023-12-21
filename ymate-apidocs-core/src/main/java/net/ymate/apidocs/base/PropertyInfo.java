@@ -79,6 +79,7 @@ public class PropertyInfo implements IMarkdown {
             for (Field field : beanWrapper.getFields()) {
                 ApiProperty apiProperty = field.getAnnotation(ApiProperty.class);
                 if (apiProperty != null) {
+                    properties.add(PropertyInfo.create(apiProperty, prefix, field, snakeCase));
                     if (apiProperty.model()) {
                         if (StringUtils.isNotBlank(prefix)) {
                             prefix += ".";
@@ -89,8 +90,6 @@ public class PropertyInfo implements IMarkdown {
                         if (!props.isEmpty()) {
                             properties.addAll(props);
                         }
-                    } else {
-                        properties.add(PropertyInfo.create(apiProperty, prefix, field, snakeCase));
                     }
                 }
             }
