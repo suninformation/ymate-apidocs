@@ -30,6 +30,8 @@ import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static net.ymate.apidocs.AbstractMarkdown.i18nText;
+
 /**
  * @author 刘镇 (suninformation@163.com) on 2020/03/26 14:51
  */
@@ -41,7 +43,14 @@ public class PostmanDocRender extends AbstractDocRender {
 
     private ParamPart processParamInfo(ParamInfo paramInfo) {
         ParamPart paramPart = new ParamPart();
-        paramPart.setDescription(paramInfo.getDescription());
+        StringBuilder descStrBuilder = new StringBuilder(paramInfo.getDescription());
+        if (!paramInfo.getAllowValues().isEmpty()) {
+            if (descStrBuilder.length() > 0) {
+                descStrBuilder.append(StringUtils.SPACE);
+            }
+            descStrBuilder.append(i18nText(getDocInfo().getOwner(), "param.allow_values", "Allow values: ")).append(PropertyInfo.parseText(String.format("{%s}", StringUtils.join(paramInfo.getAllowValues(), '|'))));
+        }
+        paramPart.setDescription(descStrBuilder.toString());
         paramPart.setKey(paramInfo.getName());
         paramPart.setValue(paramInfo.getDemoValue());
         paramPart.setType(paramInfo.isMultipart() ? "file" : "text");
@@ -121,7 +130,20 @@ public class PostmanDocRender extends AbstractDocRender {
                 actionInfo.getRequestHeaders().stream().map(this::processParamInfo).forEach(headerParts::add);
                 requestPart.setHeader(headerParts);
                 requestPart.setMethod(method);
-                requestPart.setDescription(actionInfo.getDescription());
+                StringBuilder descStrBuilder = new StringBuilder(actionInfo.getDescription());
+                List<ParamPart> pathVariables = new ArrayList<>();
+                for (ParamInfo paramInfo : actionInfo.getParams()) {
+                    if (paramInfo.isPathVariable()) {
+                        pathVariables.add(processParamInfo(paramInfo));
+                    }
+                }
+                if (!pathVariables.isEmpty()) {
+                    descStrBuilder.append("\n\nPath Variables:\n\n");
+                    for (ParamPart paramPart : pathVariables) {
+                        descStrBuilder.append("- `").append(paramPart.getKey()).append("` : ").append(paramPart.getDescription()).append("\n");
+                    }
+                }
+                requestPart.setDescription(descStrBuilder.toString());
                 //
                 ItemPart itemPart = new ItemPart();
                 itemPart.setName(String.format("%s %s", StringUtils.defaultIfBlank(actionInfo.getDisplayName(), actionInfo.getName()), actionInfo.getMapping()));
