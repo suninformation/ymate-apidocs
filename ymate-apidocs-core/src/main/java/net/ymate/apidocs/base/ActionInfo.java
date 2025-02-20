@@ -23,6 +23,7 @@ import net.ymate.platform.commons.markdown.MarkdownBuilder;
 import net.ymate.platform.commons.markdown.Text;
 import net.ymate.platform.commons.util.ClassUtils;
 import net.ymate.platform.core.persistence.impl.DefaultResultSet;
+import net.ymate.platform.validation.annotation.VModel;
 import net.ymate.platform.webmvc.RequestMeta;
 import net.ymate.platform.webmvc.annotation.ModelBind;
 import net.ymate.platform.webmvc.annotation.RequestMapping;
@@ -184,7 +185,21 @@ public class ActionInfo extends AbstractMarkdown {
         if (paramInfo != null) {
             if (paramInfo.isModel()) {
                 ModelBind modelBind = annotatedElement.getAnnotation(ModelBind.class);
-                ClassUtils.wrapper(paramType).getFields().forEach(field -> processParamInfo(owner, actionInfo, ParamInfo.create(owner, modelBind != null ? modelBind.prefix() : null, paramInfo.getDescription(), field, snakeCase), field, field.getType(), snakeCase));
+                String prefix = null;
+                if (modelBind != null) {
+                    prefix = modelBind.prefix();
+                }
+                VModel vModel = annotatedElement.getAnnotation(VModel.class);
+                if (vModel != null) {
+                    prefix = StringUtils.defaultIfBlank(vModel.prefix(), prefix);
+                }
+                String finalPrefix = prefix;
+                if (paramType.isArray()) {
+                    paramType = ClassUtils.getArrayClassType(paramType);
+                }
+                ClassUtils.wrapper(paramType)
+                        .getFields()
+                        .forEach(field -> processParamInfo(owner, actionInfo, ParamInfo.create(owner, finalPrefix, paramInfo.getDescription(), field, snakeCase), field, field.getType(), snakeCase));
             } else {
                 actionInfo.addParam(paramInfo);
             }
@@ -411,12 +426,10 @@ public class ActionInfo extends AbstractMarkdown {
     public ActionInfo addScope(String scope) {
         if (StringUtils.isNotBlank(scope) && apiInfo.getDocInfo().getAuthorization() != null) {
             if (!scopes.contains(scope) && !apiInfo.getScopes().contains(scope)) {
-                if (!apiInfo.getScopes().contains(scope)) {
-                    if (apiInfo.getDocInfo().getAuthorization().getScopeNames().contains(scope)) {
-                        scopes.add(scope);
-                    } else {
-                        throw new IllegalArgumentException(String.format("Scope %s does not exist.", scope));
-                    }
+                if (apiInfo.getDocInfo().getAuthorization().getScopeNames().contains(scope)) {
+                    scopes.add(scope);
+                } else {
+                    throw new IllegalArgumentException(String.format("Scope %s does not exist.", scope));
                 }
             }
         }

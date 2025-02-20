@@ -25,7 +25,9 @@ import net.ymate.platform.commons.markdown.MarkdownBuilder;
 import net.ymate.platform.commons.markdown.Table;
 import net.ymate.platform.commons.markdown.Text;
 import net.ymate.platform.commons.util.ClassUtils;
+import net.ymate.platform.validation.ValidationMeta;
 import net.ymate.platform.validation.annotation.VField;
+import net.ymate.platform.validation.annotation.VModel;
 import net.ymate.platform.validation.validate.IDataRangeValuesProvider;
 import net.ymate.platform.validation.validate.VDataRange;
 import net.ymate.platform.validation.validate.VLength;
@@ -122,13 +124,26 @@ public class ParamInfo extends AbstractMarkdown {
                 }
                 ModelBind modelBind = annotatedElement.getAnnotation(ModelBind.class);
                 boolean isModel = apiParam.model() || modelBind != null;
+                String paramPrefix = null;
                 if (isModel) {
-                    if (modelBind != null && StringUtils.isNotBlank(modelBind.prefix())) {
-                        paramName = String.format("%s.%s", modelBind.prefix(), paramName);
+                    if (modelBind != null) {
+                        paramPrefix = modelBind.prefix();
                     }
+                    VModel vModel = annotatedElement.getAnnotation(VModel.class);
+                    if (vModel != null) {
+                        paramPrefix = StringUtils.defaultIfBlank(vModel.prefix(), paramPrefix);
+                    }
+                    paramName = ValidationMeta.parsePrefixValue(paramPrefix, paramName);
+                } else if (requestParam != null) {
+                    paramPrefix = requestParam.prefix();
+                    VField vField = annotatedElement.getAnnotation(VField.class);
+                    if (vField != null) {
+                        paramPrefix = StringUtils.defaultIfBlank(vField.prefix(), paramPrefix);
+                    }
+                    paramName = ValidationMeta.parsePrefixValue(paramPrefix, paramName);
                 }
                 if (StringUtils.isNotBlank(prefix)) {
-                    paramName = String.format("%s.%s", prefix, paramName);
+                    paramName = ValidationMeta.parsePrefixValue(prefix, paramName);
                 }
                 if (StringUtils.isNotBlank(parentDesc)) {
                     description = String.format("%s.%s", parentDesc, description);
