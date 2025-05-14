@@ -26,6 +26,7 @@ import org.apache.commons.lang.NullArgumentException;
 import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Modifier;
+import java.text.Collator;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -443,6 +444,7 @@ public class ApiInfo extends AbstractMarkdown {
 
     public ApiInfo addAction(ActionInfo action) {
         if (action != null) {
+            Comparator<Object> compare = Collator.getInstance(java.util.Locale.CHINA);
             if (StringUtils.isNotBlank(action.getGroup())) {
                 if (!getGroupNames().contains(action.getGroup())) {
                     throw new IllegalArgumentException(String.format("Group %s does not exist.", action.getGroup()));
@@ -450,19 +452,19 @@ public class ApiInfo extends AbstractMarkdown {
                     try {
                         List<ActionInfo> currGroupActions = ReentrantLockHelper.putIfAbsentAsync(groupActions, action.getGroup(), ArrayList::new);
                         currGroupActions.add(action);
-                        currGroupActions.sort(Comparator.comparingInt(ActionInfo::getOrder));
+                        currGroupActions.sort((o1, o2) -> Integer.compare(compare.compare(o1.getDisplayName(), o2.getDisplayName()), Integer.compare(o1.getOrder(), o2.getOrder())));
                     } catch (Exception e) {
                         throw new IllegalStateException(e.getMessage(), e);
                     }
                 }
             } else {
                 this.ungroupedActions.add(action);
-                this.ungroupedActions.sort(Comparator.comparingInt(ActionInfo::getOrder));
+                this.ungroupedActions.sort((o1, o2) -> Integer.compare(compare.compare(o1.getDisplayName(), o2.getDisplayName()), Integer.compare(o1.getOrder(), o2.getOrder())));
             }
             this.getDocInfo().addResponses(action.getResponses());
             this.getDocInfo().addResponseType(action.getResponseType());
             this.actions.add(action);
-            this.actions.sort(Comparator.comparingInt(ActionInfo::getOrder));
+            this.actions.sort((o1, o2) -> Integer.compare(compare.compare(o1.getDisplayName(), o2.getDisplayName()), Integer.compare(o1.getOrder(), o2.getOrder())));
         }
         return this;
     }

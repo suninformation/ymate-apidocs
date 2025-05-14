@@ -27,6 +27,7 @@ import net.ymate.platform.commons.util.DateTimeUtils;
 import org.apache.commons.lang.NullArgumentException;
 import org.apache.commons.lang3.StringUtils;
 
+import java.text.Collator;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -283,6 +284,7 @@ public class DocInfo extends AbstractMarkdown {
 
     public DocInfo addApi(ApiInfo api) {
         if (api != null) {
+            Comparator<Object> compare = Collator.getInstance(java.util.Locale.CHINA);
             if (StringUtils.isNotBlank(api.getGroup())) {
                 if (!getGroupNames().contains(api.getGroup())) {
                     throw new IllegalArgumentException(String.format("Group %s does not exist.", api.getGroup()));
@@ -290,19 +292,19 @@ public class DocInfo extends AbstractMarkdown {
                     try {
                         List<ApiInfo> currGroupApis = ReentrantLockHelper.putIfAbsentAsync(groupApis, api.getGroup(), ArrayList::new);
                         currGroupApis.add(api);
-                        currGroupApis.sort(Comparator.comparingInt(ApiInfo::getOrder));
+                        currGroupApis.sort((o1, o2) -> Integer.compare(compare.compare(o1.getName(), o2.getName()), Integer.compare(o1.getOrder(), o2.getOrder())));
                     } catch (Exception e) {
                         throw new IllegalStateException(e.getMessage(), e);
                     }
                 }
             } else {
                 this.ungroupedApis.add(api);
-                this.ungroupedApis.sort(Comparator.comparingInt(ApiInfo::getOrder));
+                this.ungroupedApis.sort(Comparator.comparing(ApiInfo::getName).thenComparing(ApiInfo::getOrder));
             }
             this.addResponses(api.getResponses());
             this.addResponseType(api.getResponseType());
             this.apis.add(api);
-            this.apis.sort(Comparator.comparingInt(ApiInfo::getOrder));
+            this.apis.sort(Comparator.comparing(ApiInfo::getName).thenComparing(ApiInfo::getOrder));
         }
         return this;
     }

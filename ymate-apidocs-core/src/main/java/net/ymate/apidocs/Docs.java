@@ -54,6 +54,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.nio.file.Files;
+import java.text.Collator;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -311,7 +312,8 @@ public final class Docs implements IModule, IDocs {
     @Override
     public List<DocInfo> getDocs() {
         List<DocInfo> docs = new ArrayList<>(docInfoMap.values());
-        docs.sort(Comparator.comparingInt(DocInfo::getOrder));
+        Comparator<Object> compare = Collator.getInstance(java.util.Locale.CHINA);
+        docs.sort((o1, o2) -> Integer.compare(compare.compare(o1.getTitle(), o2.getTitle()), Integer.compare(o1.getOrder(), o2.getOrder())));
         return Collections.unmodifiableList(docs);
     }
 
