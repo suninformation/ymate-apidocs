@@ -65,7 +65,7 @@ public @interface ApiAuthorization {
     /**
      * @return 授权范围集合
      */
-    ApiScope[] scopes() default {};
+    String[] scopes() default {};
 
     /**
      * @return 描述

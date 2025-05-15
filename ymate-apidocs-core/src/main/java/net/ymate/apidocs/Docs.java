@@ -205,7 +205,7 @@ public final class Docs implements IModule, IDocs {
                         .setOrder(apisAnn.order())
                         .setLicense(LicenseInfo.create(apisPackage.getAnnotation(ApiLicense.class)))
                         .setAuthorization(AuthorizationInfo.create(this, apisPackage.getAnnotation(ApiAuthorization.class)))
-                        .setSecurity(SecurityInfo.create(this, apisPackage.getAnnotation(ApiSecurity.class), null))
+                        .setSecurity(SecurityInfo.create(this, null, apisPackage.getAnnotation(ApiSecurity.class), null))
                         .addAuthors(AuthorInfo.create(apisPackage.getAnnotation(ApiAuthors.class)))
                         .addAuthor(AuthorInfo.create(apisPackage.getAnnotation(ApiAuthor.class)))
                         .addChangeLogs(ChangeLogInfo.create(apisPackage.getAnnotation(ApiChangeLogs.class)))

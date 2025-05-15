@@ -50,7 +50,7 @@ public class ApiInfo extends AbstractMarkdown {
                         .setDescription(api.description())
                         .setOrder(api.order())
                         .setDeprecated(targetClass.isAnnotationPresent(Deprecated.class))
-                        .setSecurity(SecurityInfo.create(owner, targetClass.getAnnotation(ApiSecurity.class), docInfo.getSecurity()))
+                        .setSecurity(SecurityInfo.create(owner, null, targetClass.getAnnotation(ApiSecurity.class), docInfo.getSecurity()))
                         .addScopes(Arrays.asList(api.scopes()))
                         .addParams(ParamInfo.create(owner, targetClass.getAnnotation(ApiParams.class)))
                         .addParam(ParamInfo.create(owner, targetClass.getAnnotation(ApiParam.class)))
@@ -411,7 +411,7 @@ public class ApiInfo extends AbstractMarkdown {
     public ApiInfo addScope(String scope) {
         if (StringUtils.isNotBlank(scope) && docInfo.getAuthorization() != null) {
             if (!scopes.contains(scope)) {
-                if (docInfo.getAuthorization().getScopeNames().contains(scope)) {
+                if (docInfo.getAuthorization().getScopes().contains(scope)) {
                     scopes.add(scope);
                 } else {
                     throw new IllegalArgumentException(String.format("Scope %s does not exist.", scope));

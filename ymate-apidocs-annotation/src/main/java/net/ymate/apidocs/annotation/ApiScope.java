@@ -31,9 +31,4 @@ public @interface ApiScope {
      * @return 名称
      */
     String value();
-
-    /**
-     * @return 描述
-     */
-    String description() default "";
 }

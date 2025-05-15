@@ -55,12 +55,14 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>net.ymate.platform</groupId>
             <artifactId>ymate-platform-webmvc</artifactId>
-            <version>${ymate.platform.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.ymate.module</groupId>
+            <artifactId>ymate-module-security-annotation</artifactId>
         </dependency>
         <dependency>
             <groupId>net.ymate.apidocs</groupId>

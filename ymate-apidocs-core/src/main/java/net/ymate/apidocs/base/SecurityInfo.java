@@ -19,13 +19,17 @@ import com.alibaba.fastjson.annotation.JSONField;
 import net.ymate.apidocs.AbstractMarkdown;
 import net.ymate.apidocs.IDocs;
 import net.ymate.apidocs.annotation.ApiSecurity;
+import net.ymate.module.security.annotation.LogicType;
+import net.ymate.module.security.annotation.Permission;
+import net.ymate.module.security.annotation.RoleType;
 import net.ymate.platform.commons.markdown.MarkdownBuilder;
 import net.ymate.platform.commons.markdown.Text;
+import net.ymate.platform.commons.util.ClassUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.lang.reflect.Method;
+import java.util.*;
 
 /**
  * 描述一个接口访问权限
@@ -38,14 +42,90 @@ public class SecurityInfo extends AbstractMarkdown {
         return new SecurityInfo(owner);
     }
 
-    public static SecurityInfo create(IDocs owner, ApiSecurity security, SecurityInfo parent) {
+    public static SecurityInfo create(IDocs owner, Method method, ApiSecurity security, SecurityInfo parent) {
+        SecurityInfo securityInfo = null;
         if (security != null) {
-            SecurityInfo securityInfo = new SecurityInfo(owner, parent)
+            securityInfo = new SecurityInfo(owner, parent)
                     .setDescription(security.description())
                     .setLogicalType(security.logicalType());
-            Arrays.stream(security.roles()).map(apiRole -> RoleInfo.create(apiRole.value()).setDescription(apiRole.description())).forEachOrdered(securityInfo::addRole);
-            Arrays.stream(security.value()).map(apiPermission -> PermissionInfo.create(apiPermission.value()).setDescription(apiPermission.description())).forEachOrdered(securityInfo::addPermission);
-            return securityInfo;
+            Arrays.stream(security.roles()).forEachOrdered(securityInfo::addRole);
+            Arrays.stream(security.value()).forEachOrdered(securityInfo::addPermission);
+        }
+        if (method != null) {
+            securityInfo = parsePermission(owner, method, securityInfo);
+        }
+        return securityInfo;
+    }
+
+    private static LogicType parseLogicType(Permission permissionAnn, Permission classPermissionAnn, Permission packagePermissionAnn) {
+        LogicType logicType = LogicType.AND;
+        if (!LogicType.INHERIT.equals(permissionAnn.logicType())) {
+            logicType = permissionAnn.logicType();
+        } else if (classPermissionAnn != null && !LogicType.INHERIT.equals(classPermissionAnn.logicType())) {
+            logicType = classPermissionAnn.logicType();
+        } else if (packagePermissionAnn != null && !LogicType.INHERIT.equals(packagePermissionAnn.logicType())) {
+            logicType = packagePermissionAnn.logicType();
+        }
+        return logicType;
+    }
+
+    private static SecurityInfo parsePermission(IDocs owner, Method targetMethod, SecurityInfo securityInfo) {
+        Permission permissionAnn = targetMethod.getAnnotation(Permission.class);
+        if (permissionAnn != null) {
+            Permission packagePermissionAnn = ClassUtils.getPackageAnnotation(targetMethod.getDeclaringClass(), Permission.class);
+            Permission classPermissionAnn = targetMethod.getDeclaringClass().getAnnotation(Permission.class);
+            // LogicType
+            LogicType logicType = parseLogicType(permissionAnn, classPermissionAnn, packagePermissionAnn);
+            // RoleType
+            Set<RoleType> roleTypes = new HashSet<>();
+            if (ArrayUtils.contains(permissionAnn.roleTypes(), RoleType.ALL)) {
+                roleTypes.add(RoleType.INHERIT);
+            } else if (ArrayUtils.contains(permissionAnn.roleTypes(), RoleType.INHERIT)) {
+                if (classPermissionAnn != null) {
+                    if (ArrayUtils.contains(classPermissionAnn.roleTypes(), RoleType.ALL)) {
+                        roleTypes.add(RoleType.INHERIT);
+                    } else if (ArrayUtils.contains(classPermissionAnn.roleTypes(), RoleType.INHERIT)) {
+                        if (packagePermissionAnn != null) {
+                            Arrays.stream(packagePermissionAnn.roleTypes())
+                                    .filter(roleType -> !RoleType.INHERIT.equals(roleType))
+                                    .forEach(roleTypes::add);
+                        }
+                    } else {
+                        roleTypes.addAll(Arrays.asList(classPermissionAnn.roleTypes()));
+                    }
+                } else if (packagePermissionAnn != null) {
+                    if (ArrayUtils.contains(packagePermissionAnn.roleTypes(), RoleType.ALL)) {
+                        roleTypes.add(RoleType.INHERIT);
+                    } else {
+                        Arrays.stream(packagePermissionAnn.roleTypes())
+                                .filter(roleType -> !RoleType.INHERIT.equals(roleType))
+                                .forEach(roleTypes::add);
+                    }
+                }
+            } else {
+                Arrays.stream(permissionAnn.roleTypes())
+                        .filter(roleType -> !RoleType.INHERIT.equals(roleType))
+                        .forEach(roleTypes::add);
+            }
+            // Permission
+            Set<String> permissions = new HashSet<>(Arrays.asList(permissionAnn.value()));
+            if (classPermissionAnn != null) {
+                permissions.addAll(Arrays.asList(classPermissionAnn.value()));
+            }
+            if (packagePermissionAnn != null) {
+                permissions.addAll(Arrays.asList(packagePermissionAnn.value()));
+            }
+            //
+            SecurityInfo newSecurityInfo = securityInfo == null ? new SecurityInfo(owner) : securityInfo;
+            newSecurityInfo.setLogicalType(logicType.equals(LogicType.OR) ? ApiSecurity.LogicalType.OR : ApiSecurity.LogicalType.AND);
+            permissions.forEach(newSecurityInfo::addPermission);
+            //
+            if (roleTypes.contains(RoleType.INHERIT) || roleTypes.contains(RoleType.ALL)) {
+                newSecurityInfo.addRoles(Arrays.asList(RoleType.ADMIN.name(), RoleType.OPERATOR.name(), RoleType.USER.name()));
+            } else {
+                roleTypes.forEach(roleType -> newSecurityInfo.addRole(roleType.name()));
+            }
+            return newSecurityInfo;
         }
         return null;
     }
@@ -55,12 +135,12 @@ public class SecurityInfo extends AbstractMarkdown {
     /**
      * 角色集合
      */
-    private final List<RoleInfo> roles = new ArrayList<>();
+    private final List<String> roles = new ArrayList<>();
 
     /**
      * 权限码集合
      */
-    private final List<PermissionInfo> permissions = new ArrayList<>();
+    private final List<String> permissions = new ArrayList<>();
 
     /**
      * 逻辑类型
@@ -86,11 +166,11 @@ public class SecurityInfo extends AbstractMarkdown {
         return parent;
     }
 
-    public List<RoleInfo> getRoles() {
+    public List<String> getRoles() {
         return roles;
     }
 
-    public boolean hasRole(RoleInfo role) {
+    public boolean hasRole(String role) {
         if (this.roles.contains(role)) {
             return true;
         } else if (parent != null) {
@@ -99,29 +179,25 @@ public class SecurityInfo extends AbstractMarkdown {
         return false;
     }
 
-    public SecurityInfo addRoles(List<RoleInfo> roles) {
+    public SecurityInfo addRoles(List<String> roles) {
         if (roles != null) {
             roles.forEach(this::addRole);
         }
         return this;
     }
 
-    public SecurityInfo addRole(RoleInfo role) {
-        if (role != null && !hasRole(role)) {
+    public SecurityInfo addRole(String role) {
+        if (StringUtils.isNotBlank(role) && !hasRole(role)) {
             this.roles.add(role);
         }
         return this;
     }
 
-    public SecurityInfo addRole(String name, String description) {
-        return addRole(RoleInfo.create(name).setDescription(description));
-    }
-
-    public List<PermissionInfo> getPermissions() {
+    public List<String> getPermissions() {
         return permissions;
     }
 
-    public boolean hasPermission(PermissionInfo permission) {
+    public boolean hasPermission(String permission) {
         if (this.permissions.contains(permission)) {
             return true;
         } else if (parent != null) {
@@ -130,22 +206,18 @@ public class SecurityInfo extends AbstractMarkdown {
         return false;
     }
 
-    public SecurityInfo setPermissions(List<PermissionInfo> permissions) {
+    public SecurityInfo setPermissions(List<String> permissions) {
         if (permissions != null) {
             permissions.forEach(this::addPermission);
         }
         return this;
     }
 
-    public SecurityInfo addPermission(PermissionInfo permission) {
-        if (permission != null && !hasPermission(permission)) {
+    public SecurityInfo addPermission(String permission) {
+        if (StringUtils.isNotBlank(permission) && !hasPermission(permission)) {
             this.permissions.add(permission);
         }
         return this;
-    }
-
-    public SecurityInfo addPermission(String name, String description) {
-        return addPermission(PermissionInfo.create(name).setDescription(description));
     }
 
     public ApiSecurity.LogicalType getLogicalType() {
@@ -173,14 +245,16 @@ public class SecurityInfo extends AbstractMarkdown {
             if (StringUtils.isNotBlank(description)) {
                 markdownBuilder.p().append(description);
             }
-            if (ApiSecurity.LogicalType.AND.equals(logicalType)) {
-                markdownBuilder.p().append(i18nText("security.logical_type", "Logical type: ")).append("AND");
-            }
             if (!roles.isEmpty()) {
-                markdownBuilder.p().text(i18nText("security.roles", "Roles: "), Text.Style.BOLD).p().append(RoleInfo.toMarkdown(getOwner(), roles));
+                markdownBuilder.p().text(i18nText("security.roles", "Roles: "), Text.Style.BOLD).p();
+                roles.forEach((role) -> markdownBuilder.code(role.toUpperCase()).space());
             }
             if (!permissions.isEmpty()) {
-                markdownBuilder.p().text(i18nText("security.permissions", "Permissions: "), Text.Style.BOLD).p().append(PermissionInfo.toMarkdown(getOwner(), permissions));
+                markdownBuilder.p().text(i18nText("security.permissions", "Permissions: "), Text.Style.BOLD).p();
+                permissions.forEach((permission) -> markdownBuilder.code(permission.toLowerCase()).space());
+                if (ApiSecurity.LogicalType.OR.equals(logicalType)) {
+                    markdownBuilder.p().quote(MarkdownBuilder.create().append(i18nText("security.logical_type", "Logical type: ")).append("OR"));
+                }
             }
         }
         return markdownBuilder.toMarkdown();

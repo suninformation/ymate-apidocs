@@ -15,7 +15,6 @@
  */
 package net.ymate.apidocs.base;
 
-import com.alibaba.fastjson.annotation.JSONField;
 import net.ymate.apidocs.AbstractMarkdown;
 import net.ymate.apidocs.IDocs;
 import net.ymate.apidocs.annotation.ApiAuthorization;
@@ -24,7 +23,9 @@ import net.ymate.platform.commons.markdown.Text;
 import org.apache.commons.lang.NullArgumentException;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * 接口授权验证信息
@@ -46,7 +47,7 @@ public class AuthorizationInfo extends AbstractMarkdown {
                     .setRequestType(authorization.requestType())
                     .addRequestParams(ParamInfo.create(owner, authorization.requestParams()))
                     .setDescription(authorization.description());
-            Arrays.stream(authorization.scopes()).map(scope -> ScopeInfo.create(scope.value(), scope.description())).forEachOrdered(authorizationInfo::addScope);
+            Arrays.stream(authorization.scopes()).forEachOrdered(authorizationInfo::addScope);
             return authorizationInfo;
         }
         return null;
@@ -95,7 +96,7 @@ public class AuthorizationInfo extends AbstractMarkdown {
     /**
      * 授权范围
      */
-    private final List<ScopeInfo> scopes = new ArrayList<>();
+    private final List<String> scopes = new ArrayList<>();
 
     public AuthorizationInfo(IDocs owner, String name, String url) {
         super(owner);
@@ -182,37 +183,24 @@ public class AuthorizationInfo extends AbstractMarkdown {
         return this;
     }
 
-    @JSONField(serialize = false)
-    public Set<String> getScopeNames() {
-        Set<String> scopeNames = new LinkedHashSet<>();
-        for (ScopeInfo scope : scopes) {
-            scopeNames.add(scope.getName());
-        }
-        return scopeNames;
-    }
-
-    public List<ScopeInfo> getScopes() {
+    public List<String> getScopes() {
         return scopes;
     }
 
-    public AuthorizationInfo addScopes(List<ScopeInfo> scopes) {
+    public AuthorizationInfo addScopes(List<String> scopes) {
         if (scopes != null) {
             scopes.forEach(this::addScope);
         }
         return this;
     }
 
-    public AuthorizationInfo addScope(ScopeInfo scope) {
+    public AuthorizationInfo addScope(String scope) {
         if (scope != null) {
             if (!this.scopes.contains(scope)) {
                 this.scopes.add(scope);
             }
         }
         return this;
-    }
-
-    public AuthorizationInfo addScope(String name, String description) {
-        return addScope(ScopeInfo.create(name, description));
     }
 
     @Override
@@ -234,7 +222,8 @@ public class AuthorizationInfo extends AbstractMarkdown {
             }
         }
         if (!scopes.isEmpty()) {
-            markdownBuilder.p().text(i18nText("authorization.scopes", "Scopes: "), Text.Style.BOLD).p().append(ScopeInfo.toMarkdown(getOwner(), scopes));
+            markdownBuilder.p().text(i18nText("authorization.scopes", "Scopes: "), Text.Style.BOLD).p();
+            scopes.forEach((scope) -> markdownBuilder.code(scope.toLowerCase()).space());
         }
         return markdownBuilder.toMarkdown();
     }

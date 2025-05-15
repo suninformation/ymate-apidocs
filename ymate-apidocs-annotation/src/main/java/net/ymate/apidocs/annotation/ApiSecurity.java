@@ -30,17 +30,17 @@ public @interface ApiSecurity {
     /**
      * @return 角色集合
      */
-    ApiRole[] roles() default {};
+    String[] roles() default {};
 
     /**
      * @return 权限码集合
      */
-    ApiPermission[] value() default {};
+    String[] value() default {};
 
     /**
      * @return 逻辑类型
      */
-    LogicalType logicalType() default LogicalType.OR;
+    LogicalType logicalType() default LogicalType.AND;
 
     /**
      * @return 描述

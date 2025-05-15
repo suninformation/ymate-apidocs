@@ -124,7 +124,7 @@ public class ActionInfo extends AbstractMarkdown {
                         .setOrder(apiAction.order())
                         .setDeprecated(apiInfo.isDeprecated() || method.isAnnotationPresent(Deprecated.class))
                         .setRequestType(apiAction.requestType())
-                        .setSecurity(SecurityInfo.create(owner, method.getAnnotation(ApiSecurity.class), apiInfo.getSecurity()))
+                        .setSecurity(SecurityInfo.create(owner, method, method.getAnnotation(ApiSecurity.class), apiInfo.getSecurity()))
                         .addNotes(Arrays.asList(apiAction.notes()))
                         .addMethods(httpMethods)
                         .addScopes(Arrays.asList(apiAction.scopes()))
@@ -426,7 +426,7 @@ public class ActionInfo extends AbstractMarkdown {
     public ActionInfo addScope(String scope) {
         if (StringUtils.isNotBlank(scope) && apiInfo.getDocInfo().getAuthorization() != null) {
             if (!scopes.contains(scope) && !apiInfo.getScopes().contains(scope)) {
-                if (apiInfo.getDocInfo().getAuthorization().getScopeNames().contains(scope)) {
+                if (apiInfo.getDocInfo().getAuthorization().getScopes().contains(scope)) {
                     scopes.add(scope);
                 } else {
                     throw new IllegalArgumentException(String.format("Scope %s does not exist.", scope));
