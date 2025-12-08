@@ -38,6 +38,7 @@ import net.ymate.platform.webmvc.annotation.PathVariable;
 import net.ymate.platform.webmvc.annotation.RequestParam;
 import org.apache.commons.lang.NullArgumentException;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.AnnotatedElement;
@@ -97,6 +98,7 @@ public class ParamInfo extends AbstractMarkdown {
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     private static ParamInfo doCreate(IDocs owner, String prefix, String parentDesc, AnnotatedElement annotatedElement, String defaultParamName, Class<?> paramType, boolean snakeCase) {
         ApiParam apiParam = annotatedElement.getAnnotation(ApiParam.class);
         if (apiParam != null) {
@@ -168,7 +170,12 @@ public class ParamInfo extends AbstractMarkdown {
                         if (!IDataRangeValuesProvider.class.equals(dataRange.providerClass())) {
                             paramInfo.addAllowValues(ClassUtils.impl(dataRange.providerClass(), IDataRangeValuesProvider.class).values());
                         } else {
-                            paramInfo.addAllowValues(Arrays.asList(dataRange.value()));
+                            Set<String> values = new LinkedHashSet<>(Arrays.asList(dataRange.value()));
+                            if (dataRange.enumClass() != null && !dataRange.enumClass().equals(Enum.class)) {
+                                EnumUtils.getEnumList(dataRange.enumClass())
+                                        .forEach(enumElement -> values.add(enumElement.toString()));
+                            }
+                            paramInfo.addAllowValues(values);
                         }
                     }
                 }
