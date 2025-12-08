@@ -40,7 +40,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <ymate.platform.version>2.1.3</ymate.platform.version>
+        <ymate.platform.version>2.1.4-dev</ymate.platform.version>
         <ymate.module.security.version>1.0.0</ymate.module.security.version>
     </properties>
 
