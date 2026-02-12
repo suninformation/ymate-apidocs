@@ -25,6 +25,7 @@ import net.ymate.platform.commons.util.RuntimeUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -59,7 +60,7 @@ public class ExtensionInfo implements IMarkdown {
 
     public static String loadFromFile(String filePath) {
         String fileContent = filePath;
-        if (StringUtils.startsWithIgnoreCase(filePath, "@path:")) {
+        if (Strings.CI.startsWith(filePath, "@path:")) {
             filePath = StringUtils.substringAfter(filePath, "@path:");
             try (InputStream inputStream = doGetFileInputStream(filePath)) {
                 if (inputStream != null) {

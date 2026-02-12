@@ -34,6 +34,7 @@ import net.ymate.platform.commons.util.ClassUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -84,7 +85,7 @@ public class GitbookDocRender extends AbstractMultiDocRender {
         bookJson.put("description", docInfo.getDescription());
         if (isNew) {
             String lang = docInfo.getOwner().getOwner().getI18n().current().getLanguage();
-            if (StringUtils.equals(lang, "zh")) {
+            if (Strings.CS.equals(lang, "zh")) {
                 bookJson.put("language", "zh-hans");
             }
             bookJson.put("gitbook", "3.2.3");

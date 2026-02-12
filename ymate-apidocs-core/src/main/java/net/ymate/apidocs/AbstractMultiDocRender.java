@@ -32,6 +32,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.NullArgumentException;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -79,7 +80,7 @@ public abstract class AbstractMultiDocRender extends AbstractDocRender {
 
     protected void doWriteFileContent(String fileName, String content) throws IOException {
         String filePath = String.format("%s/%s", getDocInfo().getId(), fileName);
-        if (!StringUtils.endsWithIgnoreCase(filePath, ".md")) {
+        if (!Strings.CI.endsWith(filePath, ".md")) {
             filePath += ".md";
         }
         File targetFile = Docs.checkTargetFileAndGet(outputDir, filePath, overwrite);

@@ -20,6 +20,7 @@ import net.ymate.apidocs.annotation.ApiAuthors;
 import net.ymate.platform.commons.markdown.IMarkdown;
 import net.ymate.platform.commons.markdown.MarkdownBuilder;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -132,7 +133,7 @@ public class AuthorInfo implements IMarkdown {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        return StringUtils.equals(name, ((AuthorInfo) o).name);
+        return Strings.CS.equals(name, ((AuthorInfo) o).name);
     }
 
     @Override
