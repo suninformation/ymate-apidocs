@@ -20,9 +20,12 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import net.ymate.apidocs.AbstractDocRender;
 import net.ymate.apidocs.base.*;
+import net.ymate.platform.commons.json.IJsonObjectWrapper;
+import net.ymate.platform.commons.json.JsonWrapper;
 import net.ymate.platform.webmvc.base.Type;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
+import org.apache.commons.text.StringEscapeUtils;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -134,11 +137,11 @@ public class PostmanDocRender extends AbstractDocRender {
             switch (actionInfo.getRequestType().toLowerCase()) {
                 case Type.Const.FORMAT_JSON:
                     bodyPart.setOptions(new BodyOptions(new Raw(Type.Const.FORMAT_JSON)));
-                    // TODO 转换JSON参数报文
+                    bodyPart.setRaw(convertParamsToJson(paramParts));
                     break;
                 case Type.Const.FORMAT_XML:
                     bodyPart.setOptions(new BodyOptions(new Raw(Type.Const.FORMAT_XML)));
-                    // TODO 转换XML参数报文
+                    bodyPart.setRaw(convertParamsToXml(paramParts));
                     break;
                 default:
             }
@@ -147,6 +150,25 @@ public class PostmanDocRender extends AbstractDocRender {
             bodyPart.setUrlencoded(paramParts);
         }
         return bodyPart;
+    }
+
+    private String convertParamsToJson(List<ParamPart> paramParts) {
+        IJsonObjectWrapper jsonObject = JsonWrapper.createJsonObject(true);
+        for (ParamPart paramPart : paramParts) {
+            jsonObject.put(paramPart.getKey(), paramPart.getValue());
+        }
+        return jsonObject.toString(true, true);
+    }
+
+    private String convertParamsToXml(List<ParamPart> paramParts) {
+        StringBuilder xmlBuilder = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n");
+        for (ParamPart paramPart : paramParts) {
+            xmlBuilder.append("    <").append(paramPart.getKey()).append(">")
+                    .append(StringEscapeUtils.escapeXml10(paramPart.getValue() != null ? paramPart.getValue() : StringUtils.EMPTY))
+                    .append("</").append(paramPart.getKey()).append(">\n");
+        }
+        xmlBuilder.append("</root>");
+        return xmlBuilder.toString();
     }
 
     private ItemPart buildRequestItem(ActionInfo actionInfo, String method, URL url) {
