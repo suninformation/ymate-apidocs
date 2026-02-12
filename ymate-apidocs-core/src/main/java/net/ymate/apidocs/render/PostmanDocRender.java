@@ -22,6 +22,7 @@ import net.ymate.apidocs.AbstractDocRender;
 import net.ymate.apidocs.base.*;
 import net.ymate.platform.webmvc.base.Type;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -66,89 +67,121 @@ public class PostmanDocRender extends AbstractDocRender {
         return headerPart;
     }
 
+    private URL buildActionUrl(ActionInfo actionInfo, ServerInfo serverInfo) {
+        String mapping = actionInfo.getMapping().replaceAll("\\{([^}]+)\\}", ":$1");
+        if (serverInfo != null) {
+            try {
+                String[] hosts = StringUtils.split(serverInfo.getHost(), ":");
+                return new URL(serverInfo.getSchemes().stream().findFirst().orElse("http"), hosts[0], hosts.length > 1 ? Integer.parseInt(hosts[1]) : 0, mapping);
+            } catch (MalformedURLException e) {
+                throw new IllegalArgumentException(e.getMessage(), e);
+            }
+        } else {
+            try {
+                return new URL("http", "localhost", 8080, mapping);
+            } catch (MalformedURLException e) {
+                throw new IllegalArgumentException(e.getMessage(), e);
+            }
+        }
+    }
+
+    private List<ParamPart> extractPathVariables(ActionInfo actionInfo) {
+        return actionInfo.getParams().stream()
+                .filter(ParamInfo::isPathVariable)
+                .map(this::processParamInfo)
+                .collect(Collectors.toList());
+    }
+
+    private List<ParamPart> extractNonPathVariables(ActionInfo actionInfo) {
+        List<ParamPart> paramParts = new ArrayList<>();
+        paramParts.addAll(actionInfo.getApiInfo().getDocInfo().getParams().stream()
+                .filter(paramInfo -> !paramInfo.isPathVariable())
+                .map(this::processParamInfo)
+                .collect(Collectors.toList()));
+        paramParts.addAll(actionInfo.getApiInfo().getParams().stream()
+                .filter(paramInfo -> !paramInfo.isPathVariable())
+                .map(this::processParamInfo)
+                .collect(Collectors.toList()));
+        paramParts.addAll(actionInfo.getParams().stream()
+                .filter(paramInfo -> !paramInfo.isPathVariable())
+                .map(this::processParamInfo)
+                .collect(Collectors.toList()));
+        return paramParts;
+    }
+
+    private List<HeaderPart> extractRequestHeaders(ActionInfo actionInfo) {
+        List<HeaderPart> headerParts = new ArrayList<>();
+        headerParts.addAll(actionInfo.getApiInfo().getDocInfo().getRequestHeaders().stream()
+                .map(this::processParamInfo)
+                .collect(Collectors.toList()));
+        headerParts.addAll(actionInfo.getApiInfo().getRequestHeaders().stream()
+                .map(this::processParamInfo)
+                .collect(Collectors.toList()));
+        headerParts.addAll(actionInfo.getRequestHeaders().stream()
+                .map(this::processParamInfo)
+                .collect(Collectors.toList()));
+        return headerParts;
+    }
+
+    private BodyPart buildRequestBody(ActionInfo actionInfo, List<ParamPart> paramParts) {
+        boolean multipart = actionInfo.getParams().stream().anyMatch(ParamInfo::isMultipart);
+        BodyPart bodyPart;
+        if (multipart) {
+            bodyPart = new BodyPart(BodyMode.FORMDATA);
+            bodyPart.setFormdata(paramParts);
+        } else if (StringUtils.isNotBlank(actionInfo.getRequestType())) {
+            bodyPart = new BodyPart(BodyMode.RAW);
+            switch (actionInfo.getRequestType().toLowerCase()) {
+                case Type.Const.FORMAT_JSON:
+                    bodyPart.setOptions(new BodyOptions(new Raw(Type.Const.FORMAT_JSON)));
+                    // TODO 转换JSON参数报文
+                    break;
+                case Type.Const.FORMAT_XML:
+                    bodyPart.setOptions(new BodyOptions(new Raw(Type.Const.FORMAT_XML)));
+                    // TODO 转换XML参数报文
+                    break;
+                default:
+            }
+        } else {
+            bodyPart = new BodyPart(BodyMode.URLENCODED);
+            bodyPart.setUrlencoded(paramParts);
+        }
+        return bodyPart;
+    }
+
+    private ItemPart buildRequestItem(ActionInfo actionInfo, String method, URL url) {
+        UrlPart urlPart = new UrlPart(url);
+        List<ParamPart> pathVariables = extractPathVariables(actionInfo);
+        if (!pathVariables.isEmpty()) {
+            urlPart.setVariable(pathVariables);
+        }
+        RequestPart requestPart = new RequestPart();
+        requestPart.setUrl(urlPart);
+        requestPart.setMethod(method);
+        requestPart.setDescription(actionInfo.getDescription());
+        List<ParamPart> paramParts = extractNonPathVariables(actionInfo);
+        if (Strings.CI.equals(method, Type.HttpMethod.GET.name())) {
+            requestPart.getUrl().setQuery(paramParts);
+        } else {
+            requestPart.setBody(buildRequestBody(actionInfo, paramParts));
+        }
+        requestPart.setHeader(extractRequestHeaders(actionInfo));
+        ItemPart itemPart = new ItemPart();
+        itemPart.setName(String.format("%s %s", StringUtils.defaultIfBlank(actionInfo.getDisplayName(), actionInfo.getName()), actionInfo.getMapping()));
+        itemPart.setRequest(requestPart);
+        return itemPart;
+    }
+
     private List<ItemPart> processActionInfo(ActionInfo actionInfo) {
         List<ItemPart> items = new ArrayList<>();
         if (actionInfo != null) {
             ServerInfo serverInfo = actionInfo.getApiInfo().getDocInfo().getServers().stream().findFirst().orElse(null);
-            URL url;
-            if (serverInfo != null) {
-                try {
-                    String[] hosts = StringUtils.split(serverInfo.getHost(), ":");
-                    url = new URL(serverInfo.getSchemes().stream().findFirst().orElse("http"), hosts[0], hosts.length > 1 ? Integer.parseInt(hosts[1]) : 0, actionInfo.getMapping());
-                } catch (MalformedURLException e) {
-                    throw new IllegalArgumentException(e.getMessage(), e);
-                }
-            } else {
-                try {
-                    url = new URL("http", "localhost", 8080, actionInfo.getMapping());
-                } catch (MalformedURLException e) {
-                    throw new IllegalArgumentException(e.getMessage(), e);
-                }
-            }
-            //
+            URL url = buildActionUrl(actionInfo, serverInfo);
             for (String method : actionInfo.getMethods()) {
-                if (StringUtils.equalsIgnoreCase(method, Type.HttpMethod.OPTIONS.name())) {
+                if (Strings.CI.equals(method, Type.HttpMethod.OPTIONS.name())) {
                     continue;
                 }
-                RequestPart requestPart = new RequestPart();
-                requestPart.setUrl(new UrlPart(url));
-                //
-                List<ParamPart> paramParts = actionInfo.getApiInfo().getDocInfo().getParams().stream().filter(paramInfo -> !paramInfo.isPathVariable()).map(this::processParamInfo).collect(Collectors.toList());
-                actionInfo.getApiInfo().getParams().stream().filter(paramInfo -> !paramInfo.isPathVariable()).map(this::processParamInfo).forEachOrdered(paramParts::add);
-                actionInfo.getParams().stream().filter(paramInfo -> !paramInfo.isPathVariable()).map(this::processParamInfo).forEachOrdered(paramParts::add);
-                //
-                if (StringUtils.equalsIgnoreCase(method, Type.HttpMethod.GET.name())) {
-                    requestPart.getUrl().setQuery(paramParts);
-                } else {
-                    boolean multipart = actionInfo.getParams().stream().anyMatch(ParamInfo::isMultipart);
-                    BodyPart bodyPart;
-                    if (multipart) {
-                        bodyPart = new BodyPart(BodyMode.FORMDATA);
-                        bodyPart.setFormdata(paramParts);
-                    } else if (StringUtils.isNotBlank(actionInfo.getRequestType())) {
-                        bodyPart = new BodyPart(BodyMode.RAW);
-                        switch (actionInfo.getRequestType().toLowerCase()) {
-                            case Type.Const.FORMAT_JSON:
-                                bodyPart.setOptions(new BodyOptions(new Raw(Type.Const.FORMAT_JSON)));
-                                // TODO 转换JSON参数报文
-                                break;
-                            case Type.Const.FORMAT_XML:
-                                bodyPart.setOptions(new BodyOptions(new Raw(Type.Const.FORMAT_XML)));
-                                // TODO 转换XML参数报文
-                                break;
-                            default:
-                        }
-                    } else {
-                        bodyPart = new BodyPart(BodyMode.URLENCODED);
-                        bodyPart.setUrlencoded(paramParts);
-                    }
-                    requestPart.setBody(bodyPart);
-                }
-                //
-                List<HeaderPart> headerParts = actionInfo.getApiInfo().getDocInfo().getRequestHeaders().stream().map(this::processParamInfo).collect(Collectors.toList());
-                actionInfo.getApiInfo().getRequestHeaders().stream().map(this::processParamInfo).forEach(headerParts::add);
-                actionInfo.getRequestHeaders().stream().map(this::processParamInfo).forEach(headerParts::add);
-                requestPart.setHeader(headerParts);
-                requestPart.setMethod(method);
-                StringBuilder descStrBuilder = new StringBuilder(actionInfo.getDescription());
-                List<ParamPart> pathVariables = new ArrayList<>();
-                for (ParamInfo paramInfo : actionInfo.getParams()) {
-                    if (paramInfo.isPathVariable()) {
-                        pathVariables.add(processParamInfo(paramInfo));
-                    }
-                }
-                if (!pathVariables.isEmpty()) {
-                    descStrBuilder.append("\n\nPath Variables:\n\n");
-                    for (ParamPart paramPart : pathVariables) {
-                        descStrBuilder.append("- `").append(paramPart.getKey()).append("` : ").append(paramPart.getDescription()).append("\n");
-                    }
-                }
-                requestPart.setDescription(descStrBuilder.toString());
-                //
-                ItemPart itemPart = new ItemPart();
-                itemPart.setName(String.format("%s %s", StringUtils.defaultIfBlank(actionInfo.getDisplayName(), actionInfo.getName()), actionInfo.getMapping()));
-                itemPart.setRequest(requestPart);
-                items.add(itemPart);
+                items.add(buildRequestItem(actionInfo, method, url));
             }
         }
         return items;
@@ -309,6 +342,8 @@ public class PostmanDocRender extends AbstractDocRender {
 
         private List<ParamPart> query;
 
+        private List<ParamPart> variable;
+
         public UrlPart(URL uri) {
             this.raw = uri.toString();
             String[] hosts = StringUtils.split(uri.getHost(), ".");
@@ -348,6 +383,14 @@ public class PostmanDocRender extends AbstractDocRender {
 
         public void setQuery(List<ParamPart> query) {
             this.query = query;
+        }
+
+        public List<ParamPart> getVariable() {
+            return variable;
+        }
+
+        public void setVariable(List<ParamPart> variable) {
+            this.variable = variable;
         }
     }
 
