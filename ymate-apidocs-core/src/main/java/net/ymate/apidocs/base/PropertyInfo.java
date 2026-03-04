@@ -23,13 +23,14 @@ import net.ymate.platform.commons.markdown.MarkdownBuilder;
 import net.ymate.platform.commons.markdown.Table;
 import net.ymate.platform.commons.markdown.Text;
 import net.ymate.platform.commons.util.ClassUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 描述一个自定义属性
@@ -38,13 +39,15 @@ import java.util.List;
  */
 public class PropertyInfo implements IMarkdown {
 
+    private static final Pattern PATTERN = Pattern.compile("(\\S+)-(\\S+)");
+
     public static String parseText(String text) {
         if (StringUtils.contains(text, '{')) {
             MarkdownBuilder markdownBuilder = MarkdownBuilder.create();
             markdownBuilder.append(StringUtils.substringBefore(text, "{"));
             String content = StringUtils.substringBetween(text, "{", "}");
             if (StringUtils.containsWhitespace(content)) {
-                markdownBuilder.br().append(StringUtils.join(parseText(StringUtils.split(content)), StringUtils.LF));
+                markdownBuilder.br().append(StringUtils.join(doParseText(content), StringUtils.LF));
             } else if (StringUtils.contains(content, '|')) {
                 Arrays.stream(StringUtils.split(content, '|')).forEach(part -> markdownBuilder.code(part).space());
             }
@@ -53,19 +56,27 @@ public class PropertyInfo implements IMarkdown {
         return text;
     }
 
-    private static List<String> parseText(String[] textArr) {
-        List<String> returnValue = new ArrayList<>();
-        for (String text : textArr) {
-            if (StringUtils.countMatches(text, '-') == 1) {
-                String[] contentArr = StringUtils.split(text, '-');
-                if (ArrayUtils.isNotEmpty(contentArr) && contentArr.length == 2) {
-                    returnValue.add(String.format("`%s` %s", contentArr[0], contentArr[1]));
-                } else {
-                    returnValue.add(text);
-                }
+    private static List<String> doParseText(String originalText) {
+        List<String> resultList = new ArrayList<>();
+        if (StringUtils.isBlank(originalText)) {
+            return resultList;
+        }
+        String cleanText = originalText.replaceAll("[{}]", "").trim();
+        String[] segments = StringUtils.split(cleanText, " ");
+        for (String segment : segments) {
+            if (StringUtils.isBlank(segment)) {
+                continue;
+            }
+            Matcher matcher = PATTERN.matcher(segment);
+            if (matcher.matches()) {
+                String prefix = matcher.group(1);
+                String content = matcher.group(2);
+                resultList.add(String.format("`%s` %s", prefix, content));
+            } else {
+                resultList.add(String.format("【无效格式】%s", segment));
             }
         }
-        return returnValue;
+        return resultList;
     }
 
     public static PropertyInfo create() {
